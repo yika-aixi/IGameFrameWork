@@ -1,0 +1,13 @@
+{
+    "name": "Icarus.UnityGameFramework.Editor",
+    "references": [
+        "Icarus.GameFramework",
+        "Icarus.UnityGameFramework.Runtime"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

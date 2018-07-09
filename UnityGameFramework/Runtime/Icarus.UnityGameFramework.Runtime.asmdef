@@ -1,0 +1,10 @@
+{
+    "name": "Icarus.UnityGameFramework.Runtime",
+    "references": [
+        "Icarus.GameFramework"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

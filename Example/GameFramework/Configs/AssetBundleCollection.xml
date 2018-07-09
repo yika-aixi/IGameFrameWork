@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<UnityGameFramework>
+  <AssetBundleCollection>
+    <AssetBundles>
+      <AssetBundle Name="GameFrameworkAssetBundleEditor/Example/TestAset/aCube" Variant="a" LoadType="0" Optional="True" GroupTag="" />
+      <AssetBundle Name="GameFrameworkAssetBundleEditor/Example/TestAset/Checkpoint_1/Checkpoint_1" LoadType="0" Optional="True" GroupTag="Checkpoint_1" />
+      <AssetBundle Name="GameFrameworkAssetBundleEditor/Example/TestAset/Comment/Q-bao" LoadType="0" Optional="False" GroupTag="Comment,Checkpoint_1&#xA;" />
+      <AssetBundle Name="GameFrameworkAssetBundleEditor/Example/TestAset/Cube" LoadType="0" Optional="True" GroupTag="" />
+      <AssetBundle Name="GameFrameworkAssetBundleEditor/Example/TestAset/Sphere" LoadType="0" Optional="True" GroupTag="" />
+    </AssetBundles>
+    <Assets>
+      <Asset Guid="315279b82fc69cb4d88779a3cc97ee9f" AssetBundleName="GameFrameworkAssetBundleEditor/Example/TestAset/Sphere" />
+      <Asset Guid="616471e1b3141c344ae5cc5d8ba680b7" AssetBundleName="GameFrameworkAssetBundleEditor/Example/TestAset/Cube" />
+      <Asset Guid="8cd085facec763e4f81e8de9cc724693" AssetBundleName="GameFrameworkAssetBundleEditor/Example/TestAset/Comment/Q-bao" />
+      <Asset Guid="a68e53d47b31cf14cb61bad0208ded13" AssetBundleName="GameFrameworkAssetBundleEditor/Example/TestAset/aCube" AssetBundleVariant="a" />
+      <Asset Guid="f057a9cf691ae4f40936623f2443658f" AssetBundleName="GameFrameworkAssetBundleEditor/Example/TestAset/Checkpoint_1/Checkpoint_1" />
+    </Assets>
+  </AssetBundleCollection>
+</UnityGameFramework>

@@ -1,0 +1,1 @@
+将本目录的 GameFramework 文件夹复制或移动到 Assets目录下就可以运行ab工具来测试例子的ab包更新等
