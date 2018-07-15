@@ -6,6 +6,8 @@
 
 using System.Collections.Generic;
 using System.IO;
+using Bolt;
+using Ludiq;
 using UnityEditor;
 using UnityEngine;
 
@@ -38,6 +40,8 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
                     return;
                 }
                 _startUpdate();
+
+                FlowGraph.WithStartUpdate();
             }
         }
 
@@ -47,6 +51,10 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
             filesPaths.Clear();
             filesPaths.AddRange(Directory.GetFiles(_filePath, "*.asset",SearchOption.AllDirectories));
             _forFilesPaths();
+
+            AssetDatabase.Refresh();
+
+            Debug.Log($"All {(_isDelete ? "Delete" : "Update")} Complete.");
         }
 
         private string _filePath;

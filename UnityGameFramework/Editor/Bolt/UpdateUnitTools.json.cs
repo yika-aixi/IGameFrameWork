@@ -36,7 +36,6 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
             _forElements();
             _root[ElementsKey] = _elements;
             _jObject[RootKey] = _root;
-            Debug.Log($"{(_isDelete ? "Delete": "Update")} Complete.new json:{_jObject}");
         }
 
         private const string TypeKey1 = "type";
@@ -46,7 +45,7 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
         {
             if (_elements.Count == 0)
             {
-                Debug.Log("elements is null.");
+                Debug.Log("error json. elements is null.");
                 return;
             }
 
@@ -62,24 +61,61 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
                 {
                     if (_isDelete)
                     {
-                        _deleteElement(element, element[IDKey].Value<string>());
-                    }
-                    else
-                    {
-                        _updateElements(element);
+                        var idElement = element[IDKey];
+
+                        if (idElement == null)
+                        {
+                            Debug.Log($"error Json. no ID Element! Delete stop. \n" +
+                                      $"{TypeKey1}:{type1}\n" +
+                                      $"{TypeKey2}:{type2}");
+                            return;
+                        }
+
+                        _deleteElement(element, idElement.Value<string>());
                     }
                 }
             }
+
+            if (!_isDelete)
+            {
+                _updateElements();
+            }
         }
 
-        private void _updateElements(JToken element)
+        private void _updateElements()
         {
-            _updateType(element);
-
             foreach (var value in _elements)
             {
                 _updateType(value);
+                _updateTarget(value);
             }
+        }
+
+        private const string MemberKey = "member";
+        private const string TargetTypeKey = "targetType";
+        private const string TargetTypeNameKey = "targetTypeName";
+
+        private void _updateTarget(JToken element)
+        {
+            var member = element[MemberKey];
+
+            if (member == null) return;
+
+            var targetType = member[TargetTypeKey];
+            var targetTypeName = member[TargetTypeNameKey];
+
+            if (_checkTypeValue(targetType))
+            {
+                member[TargetTypeKey] = _newNameSpace;
+                    
+            }
+
+            if (_checkTypeValue(targetTypeName))
+            {
+                member[TargetTypeNameKey] = _newNameSpace;
+            }
+
+            element[MemberKey] = member;
         }
 
         private void _updateType(JToken element)

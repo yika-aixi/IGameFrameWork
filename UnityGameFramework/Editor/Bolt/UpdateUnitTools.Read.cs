@@ -68,9 +68,7 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
             }
 
             File.Delete(filePath);
-            File.WriteAllLines(filePath, assetContents);
-            AssetDatabase.Refresh();
-            Debug.Log("All Update Complete.");
+            File.WriteAllLines(filePath, assetContents); 
         }
     }
 }
