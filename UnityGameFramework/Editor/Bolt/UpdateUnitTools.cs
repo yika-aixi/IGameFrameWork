@@ -15,7 +15,7 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
 {
     public partial class UpdateUnitTools:EditorWindow
     {
-        [MenuItem("Icarus/Util/Bolt/更新Unit")]
+        [MenuItem("Icarus/Util/Bolt/Update Flow Unit")]
         static void _open()
         {
             var window = GetWindow<UpdateUnitTools>("Unit Update");
