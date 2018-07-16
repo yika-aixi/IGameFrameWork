@@ -6,15 +6,11 @@ using UnityEngine;
 
 namespace Icarus.UnityGameFramework.Runtime
 {
-    public class BaseComponent : MonoBehaviour
+    public class BaseComponent : UnityGameFrameWorkBehaviour
     {
         public bool EditorResourceMode;
         public IResourceManager EditorResourceHelper;
 
-        void Awake()
-        {
-            GameEntry.RegisterComponent(this);
-        }
         // Use this for initialization
         void Start()
         {

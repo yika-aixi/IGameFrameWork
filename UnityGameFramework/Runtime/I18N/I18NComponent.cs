@@ -10,7 +10,7 @@ namespace Icarus.UnityGameFramework.Runtime
 {
     [DisallowMultipleComponent]
     [AddComponentMenu("Icarus/Game Framework/I18N")]
-    public partial class I18NComponent : MonoBehaviour
+    public partial class I18NComponent : UnityGameFrameWorkBehaviour
     {
         private I18NManager _manager = new I18NManager();
         public I18NManager I18NManager => _manager;
@@ -72,9 +72,9 @@ namespace Icarus.UnityGameFramework.Runtime
             set;
         } = new Dictionary<string, Dictionary<string, string>>();
 
-        void Awake()
+        protected override void Awake()
         {
-            GameEntry.RegisterComponent(this);
+            base.Awake();
             if (string.IsNullOrWhiteSpace(DefaultLanguage))
             {
                 I18NManager.SetCurrentLanguage(DefaultLanguage);

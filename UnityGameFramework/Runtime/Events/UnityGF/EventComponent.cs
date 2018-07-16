@@ -17,7 +17,7 @@ namespace Icarus.UnityGameFramework.Runtime
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Icarus/Game Framework/Event")]
-    public sealed class EventComponent : MonoBehaviour
+    public sealed class EventComponent : UnityGameFrameWorkBehaviour
     {
         private IEventManager m_EventManager = null;
 
@@ -35,9 +35,9 @@ namespace Icarus.UnityGameFramework.Runtime
         /// <summary>
         /// 游戏框架组件初始化。
         /// </summary>
-        void Awake()
+        protected override void Awake()
         {
-            GameEntry.RegisterComponent(this);
+            base.Awake();
             m_EventManager = GameFrameworkEntry.GetModule<IEventManager>();
             if (m_EventManager == null)
             {

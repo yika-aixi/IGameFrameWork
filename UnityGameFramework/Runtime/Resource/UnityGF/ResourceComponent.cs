@@ -18,7 +18,7 @@ namespace Icarus.UnityGameFramework.Runtime
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Icarus/Game Framework/Resource")]
-    public sealed partial class ResourceComponent:MonoBehaviour
+    public sealed partial class ResourceComponent: UnityGameFrameWorkBehaviour
     {
         private const int DefaultPriority = 0;
 
@@ -350,11 +350,6 @@ namespace Icarus.UnityGameFramework.Runtime
             {
                 m_ResourceManager.ResourcePriority = m_ResourcePriority = value;
             }
-        }
-
-        void Awake()
-        {
-            GameEntry.RegisterComponent(this);
         }
 
         [SerializeField]
