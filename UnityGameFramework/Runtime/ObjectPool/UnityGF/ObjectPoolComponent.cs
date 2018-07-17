@@ -17,16 +17,16 @@ namespace Icarus.UnityGameFramework.Runtime
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Icarus/Game Framework/Object Pool")]
-    public sealed class ObjectPoolComponent : MonoBehaviour
+    public sealed class ObjectPoolComponent : UnityGameFrameWorkBehaviour
     {
         private IObjectPoolManager m_ObjectPoolManager = null;
 
         /// <summary>
         /// 游戏框架组件初始化。
         /// </summary>
-        void Awake()
+        protected override void Awake()
         {
-            GameEntry.RegisterComponent(this);
+            base.Awake();
             m_ObjectPoolManager = GameFrameworkEntry.GetModule<IObjectPoolManager>();
             if (m_ObjectPoolManager == null)
             {

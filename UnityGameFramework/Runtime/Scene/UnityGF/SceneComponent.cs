@@ -19,7 +19,7 @@ namespace Icarus.UnityGameFramework.Runtime
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Icarus/Game Framework/Scene")]
-    public sealed class SceneComponent : MonoBehaviour
+    public sealed class SceneComponent : UnityGameFrameWorkBehaviour
     {
         private const int DefaultPriority = 0;
 
@@ -61,9 +61,9 @@ namespace Icarus.UnityGameFramework.Runtime
         /// <summary>
         /// 游戏框架组件初始化。
         /// </summary>
-        void Awake()
+        protected override void Awake()
         {
-            GameEntry.RegisterComponent(this);
+            base.Awake();
             m_SceneManager = GameFrameworkEntry.GetModule<ISceneManager>();
             if (m_SceneManager == null)
             {
