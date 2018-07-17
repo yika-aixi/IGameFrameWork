@@ -30,7 +30,8 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Json Error:{ex}");
+                Debug.LogError($"Json Error:{ex}\nJson:{json}");
+                return;
             }
 
             _forElements();
