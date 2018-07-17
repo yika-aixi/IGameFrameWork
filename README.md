@@ -1,5 +1,10 @@
 # IGameFramework
 
+# zh：`Icarus/Util/Bolt/Update Flow Unit`工具暂时不要使用，我马上加备份功能，避免意外
+
+# en：`Icarus/Util/Bolt/Update Flow Unit` tool is temporarily Do not use it, I immediately add backup function to avoid accidents.
+
+
 基于GameFrameWork修改的个人框架. 源框架:[UGF](https://github.com/EllanJiang/UnityGameFramework)
 
 `例子运行报空指针问题,是因为脚本执行顺序问题,在 Editor -> project settings -> script execution order 里设置test脚本一个较大的值,如10000,就可以了`
