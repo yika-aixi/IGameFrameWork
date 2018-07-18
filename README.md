@@ -1,9 +1,8 @@
 # IGameFramework
 
-# zh：`Icarus/Util/Bolt/Update Flow Unit`工具暂时不要使用，我马上加备份功能，避免意外
+zh:`Icarus/Util/Bolt/Update Flow Unit` 每次更新时都会对需要更新的资源进行备份,备份文件为:`xxx.asset_Back当前时间的Ticks`
 
-# en：`Icarus/Util/Bolt/Update Flow Unit` tool is temporarily Do not use it, I immediately add backup function to avoid accidents.
-
+en:`Icarus/Util/Bolt/Update Flow Unit` Each update will back up the resources that need to be updated. The backup file is: `xxx.asset_Back Ticks of the current time.
 
 基于GameFrameWork修改的个人框架. 源框架:[UGF](https://github.com/EllanJiang/UnityGameFramework)
 
