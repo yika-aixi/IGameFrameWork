@@ -20,18 +20,21 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
         private JArray _elements;
         private void _parseJson(string json)
         {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                throw new Exception($"Json Error. json is null or WhiteSpace.");
+            }
+
             try
             {
                 _jObject = JObject.Parse(json);
-                //jObject.SelectToken($"{RootKey}/{ElementsKey}");
                 _root = _jObject[RootKey];
                 var arrayJson = _root[ElementsKey].ToString();
                 _elements = JArray.Parse(arrayJson);
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Json Error:{ex}\nJson:{json}");
-                return;
+                throw new Exception($"Json Error:{ex}\n Json:{json}");               
             }
 
             _forElements();
@@ -76,82 +79,6 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
                     }
                 }
             }
-
-            if (!_isDelete)
-            {
-                _updateElements();
-            }
-        }
-
-        private void _updateElements()
-        {
-            foreach (var value in _elements)
-            {
-                _updateType(value);
-                _updateTarget(value);
-            }
-        }
-
-        private const string MemberKey = "member";
-        private const string TargetTypeKey = "targetType";
-        private const string TargetTypeNameKey = "targetTypeName";
-
-        private void _updateTarget(JToken element)
-        {
-            var member = element[MemberKey];
-
-            if (member == null) return;
-
-            var targetType = member[TargetTypeKey];
-            var targetTypeName = member[TargetTypeNameKey];
-
-            if (_checkTypeValue(targetType))
-            {
-                member[TargetTypeKey] = _newNameSpace;
-                    
-            }
-
-            if (_checkTypeValue(targetTypeName))
-            {
-                member[TargetTypeNameKey] = _newNameSpace;
-            }
-
-            element[MemberKey] = member;
-        }
-
-        private void _updateType(JToken element)
-        {
-            //获取 TypeKey1 元素
-            var type1 = element[TypeKey1];
-            //获取 TypeKey2 元素
-            var type2 = element[TypeKey2];
-
-            //检查是否需要更新
-            if (_checkTypeValue(type1))
-            {
-                //更新元素
-                element[TypeKey1] = _newNameSpace;
-            }
-
-            if (_checkTypeValue(type2))
-            {
-                element[TypeKey2] = _newNameSpace;
-            }
-        }
-
-        private bool _checkTypeValue(JToken type)
-        {
-            if (type == null)
-            {
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(type.Value<string>()))
-            {
-                return false;
-            }
-
-            return type.Value<string>() == _oldNameSpace;
         }
         
         private const string SourceUnitKey = "sourceUnit";

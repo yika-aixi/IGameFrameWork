@@ -3,24 +3,33 @@
 //ヾ(•ω•`)o
 //2018年07月15日-03:16
 //Icarus.UnityGameFramework.Editor
-
+using Bolt;
 using System.Collections.Generic;
 using System.IO;
-using Bolt;
-using Ludiq;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
+using Application = UnityEngine.Application;
+
 
 namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
 {
     public partial class UpdateUnitTools:EditorWindow
     {
-        [MenuItem("Icarus/Util/Bolt/Update Flow Unit")]
+        [UnityEditor.MenuItem("Icarus/Util/Bolt/Update Flow Unit")]
         static void _open()
         {
             var window = GetWindow<UpdateUnitTools>("Unit Update");
-            window.minSize = new Vector2(600f, 110f);
+            window.minSize = new Vector2(600f, 180f);
         }
+
+        [UnityEditor.MenuItem("Icarus/Util/Bolt/Update Flow Graph")]
+        static void _updateFlowGraph()
+        {
+            FlowGraph.WithStartUpdate();
+        }
+
+
 
         private string _oldNameSpace;
         private string _newNameSpace;
@@ -32,33 +41,43 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
             EditorGUIUtility.labelWidth = 0;
             _createTextField(ref _newNameSpace,"new NameSpace.name:");
             _isDelete = EditorGUILayout.Toggle("delete", _isDelete);
-
-            if (GUILayout.Button("Start Update",GUILayout.Height(50)))
+            if (GUILayout.Button("Start Directory Update", GUILayout.Height(50)))
             {
                 if (!_selectFolder())
                 {
                     return;
                 }
-                _startUpdate();
+                _startUpdate(Directory.GetFiles(_filePath, "*.asset", SearchOption.AllDirectories));
+            }
 
-                FlowGraph.WithStartUpdate();
+            if (GUILayout.Button("Start Select File Update", GUILayout.Height(50)))
+            {
+                var filePaths = _selectFile();
+
+                if (filePaths == null)
+                {
+                    return;
+                }
+
+                _startUpdate(filePaths);
+
             }
         }
 
-        List<string> filesPaths = new List<string>();
-        private void _startUpdate()
+        readonly List<string> filesPaths = new List<string>();
+        private void _startUpdate(IEnumerable<string> filePath)
         {
             filesPaths.Clear();
-            filesPaths.AddRange(Directory.GetFiles(_filePath, "*.asset",SearchOption.AllDirectories));
+
+            filesPaths.AddRange(filePath);
             _forFilesPaths();
 
             AssetDatabase.Refresh();
-
-            Debug.Log($"All {(_isDelete ? "Delete" : "Update")} Complete.");
+            _updateFlowGraph();
         }
 
         private string _filePath;
-        private string _filePathKey;
+        private const string FilePathKey = "FindFolder";
         private bool _selectFolder()
         {
             _checkPath();
@@ -68,8 +87,19 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
             {
                 return false;
             }
-            _updateEditorPrefsString(_filePathKey, _filePath);
+            _updateEditorPrefsString(FilePathKey, _filePath);
             return true;
+        }
+
+        private string[] _selectFile()
+        {
+            _checkPath();
+            var filePath = EditorUtility.OpenFilePanel("Select Need Update of Flow Asset", _filePath, "asset");
+            if (string.IsNullOrEmpty(filePath))
+            {
+                return null;
+            }
+            return new []{ filePath };
         }
 
         private void _updateEditorPrefsString(string key, string value)
@@ -81,7 +111,7 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
         {
             if (string.IsNullOrEmpty(_filePath))
             {
-                _filePath = EditorPrefs.GetString(_filePathKey);
+                _filePath = EditorPrefs.GetString(FilePathKey);
             }
 
             if (string.IsNullOrEmpty(_filePath))
