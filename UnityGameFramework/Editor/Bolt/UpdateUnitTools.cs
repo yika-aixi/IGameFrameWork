@@ -35,7 +35,7 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
         private string _oldNameSpace;
         private string _newNameSpace;
         private bool _isDelete;
-        private bool _isStrict;
+        private bool _isStrict = true;
         internal enum HelpType
         {
             en = 0,
@@ -50,14 +50,14 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
             _updateHelpIndex((int)_helpType);
 
             EditorGUIUtility.labelWidth = 200;
-            _createTextField(ref _oldNameSpace,"old Or Delete NameSpace.name:");
+            _createTextField(ref _oldNameSpace, _getI18NValue(ConstTable.OldNameSpacesKey));
             EditorGUIUtility.labelWidth = 0;
-            _createTextField(ref _newNameSpace,"new NameSpace.name:");
+            _createTextField(ref _newNameSpace, _getI18NValue(ConstTable.NewNameSpacesKey));
             _isDelete = EditorGUILayout.Toggle("delete", _isDelete);
             
             if (!_isDelete)
             {
-                _isStrict = EditorGUILayout.Toggle("Strict Mode", _isStrict);
+                _isStrict = EditorGUILayout.Toggle(_getI18NValue(ConstTable.StrictKey), _isStrict);
                 if (!_isStrict)
                 {
                     var message = _getMessage(ConstTable.HelpKey);
@@ -65,7 +65,7 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
                 }
             }
             
-            if (GUILayout.Button("Start Directory Update", GUILayout.Height(50)))
+            if (GUILayout.Button(_getI18NValue(ConstTable.SelectDirectoryKey), GUILayout.Height(50)))
             {
                 if (!_selectFolder())
                 {
@@ -74,7 +74,7 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
                 _startUpdate(Directory.GetFiles(_filePath, "*.asset", SearchOption.AllDirectories));
             }
 
-            if (GUILayout.Button("Start Select File Update", GUILayout.Height(50)))
+            if (GUILayout.Button(_getI18NValue(ConstTable.SelectFileKey), GUILayout.Height(50)))
             {
                 var filePaths = _selectFile();
 
@@ -109,6 +109,12 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
                                      "If you know an element,You can add the element key to the " +
                                      "StrictModeTable variable in the " +
                                      "\"IGameFrameWork.UnityGameFramework.Editor.Bolt.ConstTable\" class."},
+                { ConstTable.OldNameSpacesKey,"old or Delete NameSpace.name:"},
+                { ConstTable.NewNameSpacesKey,"new NameSpace.name:"},
+                { ConstTable.DeleteKey,"Delete Mode"},
+                { ConstTable.StrictKey,"Strict Mode"},
+                { ConstTable.SelectDirectoryKey,"Start Directory Update"},
+                { ConstTable.SelectFileKey,"Start Select File Update"},
             });
 
             _i18NManager.AddLanguageTable(HelpType.中文.ToString(), new Dictionary<string, string>()
@@ -119,6 +125,13 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
                                      "\"targetTypeName\",\"_type\"的value,默认为严格模式,如果你知道某个元素," +
                                      "可以到\"IGameFrameWork.UnityGameFramework.Editor.Bolt.ConstTable类中" +
                                      "将元素key添加到StrictModeTable中\""},
+
+                { ConstTable.OldNameSpacesKey,"需要更新或删除的'nameSpaces.name:'"},
+                { ConstTable.NewNameSpacesKey,"新的'nameSpaces.name:'"},
+                { ConstTable.DeleteKey,"删除模式"},
+                { ConstTable.StrictKey,"严格模式"},
+                { ConstTable.SelectDirectoryKey,"选择需要更新得目录"},
+                { ConstTable.SelectFileKey,"选择需要更新得文件"},
             });
         }
 
@@ -128,12 +141,16 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
             switch (_helpType)
             {
                 case HelpType.en:
-                    return _i18NManager.GetValue(HelpType.en.ToString(), key);
                 case HelpType.中文:
-                    return _i18NManager.GetValue(HelpType.中文.ToString(), key);
+                    return _getI18NValue(key);
                 default:
                     return _i18NManager.GetValue(HelpType.en.ToString(), key);
             }
+        }
+
+        string _getI18NValue(string  key)
+        {
+            return _i18NManager.GetValue(_helpType.ToString(), key);
         }
 
         private string _helpIndexKey = "HelpIndex";
