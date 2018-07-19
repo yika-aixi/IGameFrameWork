@@ -172,7 +172,26 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
         /// <param name="json"></param>
         private string _replaceNameSpaces(string json)
         {
-            return json.Replace(_oldNameSpace, _newNameSpace);
+            if (!_isStrict)
+            {
+                return json.Replace(_oldNameSpace, _newNameSpace);
+            }
+
+            string newjson = json;
+
+            foreach (var key in ConstTable.StrictModeTable)
+            {
+                var old = _getReplaceValue(key, _oldNameSpace);
+                var @new = _getReplaceValue(key, _newNameSpace);
+                newjson = newjson.Replace(old, @new);
+            }
+
+            return newjson;
+        }
+
+        private string _getReplaceValue(string key,string value)
+        {
+            return $"\"{key}\":\"{value}\"";
         }
 
     }

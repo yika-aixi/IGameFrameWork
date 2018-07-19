@@ -7,6 +7,7 @@ using Bolt;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Icarus.GameFramework.I18N;
 using UnityEditor;
 using UnityEngine;
 using Application = UnityEngine.Application;
@@ -20,7 +21,7 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
         static void _open()
         {
             var window = GetWindow<UpdateUnitTools>("Unit Update");
-            window.minSize = new Vector2(600f, 180f);
+            window.minSize = new Vector2(600f, 250f);
         }
 
         [UnityEditor.MenuItem("Icarus/Util/Bolt/Update Flow Graph")]
@@ -34,13 +35,36 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
         private string _oldNameSpace;
         private string _newNameSpace;
         private bool _isDelete;
+        private bool _isStrict;
+        internal enum HelpType
+        {
+            en = 0,
+            中文 = 1
+        }
+
+        private HelpType _helpType = (HelpType) (-1);
         void OnGUI()
         {
+            _initHelpType();
+            _helpType = (HelpType)EditorGUILayout.EnumPopup("Luanage:", _helpType);
+            _updateHelpIndex((int)_helpType);
+
             EditorGUIUtility.labelWidth = 200;
             _createTextField(ref _oldNameSpace,"old Or Delete NameSpace.name:");
             EditorGUIUtility.labelWidth = 0;
             _createTextField(ref _newNameSpace,"new NameSpace.name:");
             _isDelete = EditorGUILayout.Toggle("delete", _isDelete);
+            
+            if (!_isDelete)
+            {
+                _isStrict = EditorGUILayout.Toggle("Strict Mode", _isStrict);
+                if (!_isStrict)
+                {
+                    var message = _getMessage(ConstTable.HelpKey);
+                    EditorGUILayout.HelpBox(message, MessageType.Warning);
+                }
+            }
+            
             if (GUILayout.Button("Start Directory Update", GUILayout.Height(50)))
             {
                 if (!_selectFolder())
@@ -62,6 +86,73 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
                 _startUpdate(filePaths);
 
             }
+        }
+
+        private readonly I18NManager _i18NManager = new I18NManager();
+
+        void OnEnable()
+        {
+            _initLanage();
+        }
+
+        void _initLanage()
+        {
+            _i18NManager.AddLanguageTable(HelpType.en.ToString(),new Dictionary<string, string>()
+            {
+                { ConstTable.HelpKey,"In non-strict mode, all \'Old NameSpace.name\' " +
+                                     "in json will be replaced with " +
+                                     "\'new NameSpace.name\'. In strict " +
+                                     "mode,Currently only the following will be updated: " +
+                                     "\"type\", \"$type\", \"targetType\", " +
+                                     "\"targetTypeName\",\"_type\", " +
+                                     "default to strict mode," +
+                                     "If you know an element,You can add the element key to the " +
+                                     "StrictModeTable variable in the " +
+                                     "\"IGameFrameWork.UnityGameFramework.Editor.Bolt.ConstTable\" class."},
+            });
+
+            _i18NManager.AddLanguageTable(HelpType.中文.ToString(), new Dictionary<string, string>()
+            {
+                { ConstTable.HelpKey,"非严格模式下,将会把json中所有\'Old NameSpace.name\'" +
+                                     "替换为\'new NameSpace.name\',严格模式下目前只" +
+                                     "会更新以下:\"type\",\"$type\",\"targetType\"," +
+                                     "\"targetTypeName\",\"_type\"的value,默认为严格模式,如果你知道某个元素," +
+                                     "可以到\"IGameFrameWork.UnityGameFramework.Editor.Bolt.ConstTable类中" +
+                                     "将元素key添加到StrictModeTable中\""},
+            });
+        }
+
+
+        private string _getMessage(string key)
+        {
+            switch (_helpType)
+            {
+                case HelpType.en:
+                    return _i18NManager.GetValue(HelpType.en.ToString(), key);
+                case HelpType.中文:
+                    return _i18NManager.GetValue(HelpType.中文.ToString(), key);
+                default:
+                    return _i18NManager.GetValue(HelpType.en.ToString(), key);
+            }
+        }
+
+        private string _helpIndexKey = "HelpIndex";
+        private void _initHelpType()
+        {
+            if (_helpType < 0)
+            {
+                _helpType = (HelpType) EditorPrefs.GetInt(_helpIndexKey);
+            }
+        }
+
+        private void _updateHelpIndex(int index)
+        {
+            if (index < 0)
+            {
+                index = 0;
+            }
+            
+            EditorPrefs.SetInt(_helpIndexKey,index);
         }
 
         readonly List<string> filesPaths = new List<string>();
@@ -126,5 +217,5 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
         }
     }
 
-    
+
 }
