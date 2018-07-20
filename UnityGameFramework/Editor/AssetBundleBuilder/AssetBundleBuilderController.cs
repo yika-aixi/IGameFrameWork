@@ -683,6 +683,7 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                         ApplicableGameVersion, InternalResourceVersion, UnityVersion, 
                         buildAssetBundleOptions, OutputDirectory, WorkingPath,
                         OutputPackagePath, OutputZipPath, BuildReportPath);
+                    m_BuildEventHandler.BuildComplete(OutputPackagePath, _assetBundleAssetPaths);
                 }
 
                 m_BuildReport.LogInfo("Build AssetBundles for selected build targets complete.");
@@ -865,9 +866,12 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
 
             assetBundleData.AddCode(buildTarget, length, hashCode, zipLength, zipHashCode);
         }
+        readonly Dictionary<string,List<string>> _assetBundleAssetPaths = 
+            new Dictionary<string, List<string>>();
         //todo 修改的函数
         private void ProcessPackageList(string outputPackagePath, BuildTarget buildTarget)
         {
+            _assetBundleAssetPaths.Clear();
             byte[] encryptBytes = new byte[4];
             Icarus.GameFramework.Utility.Random.GetRandomBytes(encryptBytes);
 
@@ -878,6 +882,9 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
             foreach (AssetBundleData assetBundleData in m_AssetBundleDatas.Values)
             {
                 var abName = assetBundleData.Name.Split('/').Last();
+
+                _assetBundleAssetPaths.Add(abName, new List<string>());
+
                 string AbpackageListPath =
                     Icarus.GameFramework.Utility.Path.GetCombinePath(outputPackagePath,
                         string.Format("{0}_{1}~{2}", abName, assetBundleData.Variant, VersionListFileName));
@@ -937,7 +944,7 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                             {
                                 throw new GameFrameworkException(string.Format("Asset name '{0}' is too long.", assetName));
                             }
-
+                            _assetBundleAssetPaths[abName].Add(assetName);
                             binaryWriter.Write((byte)assetNameBytes.Length);
                             binaryWriter.Write(assetNameBytes);
 
