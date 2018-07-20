@@ -108,11 +108,13 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                 {
                     GUILayout.Space(5f);
                     EditorGUILayout.LabelField(string.Format("AssetBundle List ({0})", m_Controller.AssetBundleCount.ToString()), EditorStyles.boldLabel);
+
                     EditorGUILayout.BeginHorizontal("box", GUILayout.Height(position.height - 52f));
                     {
                         DrawAssetBundlesView();
                     }
                     EditorGUILayout.EndHorizontal();
+
                     EditorGUILayout.BeginHorizontal();
                     {
                         GUILayout.Space(5f);
@@ -125,11 +127,13 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                 {
                     GUILayout.Space(5f);
                     EditorGUILayout.LabelField(string.Format("AssetBundle Content ({0})", m_CurrentAssetBundleContentCount.ToString()), EditorStyles.boldLabel);
+
                     EditorGUILayout.BeginHorizontal("box", GUILayout.Height(position.height - 52f));
                     {
                         DrawAssetBundleView();
                     }
                     EditorGUILayout.EndHorizontal();
+
                     EditorGUILayout.BeginHorizontal();
                     {
                         GUILayout.Space(5f);
@@ -142,11 +146,13 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                 {
                     GUILayout.Space(5f);
                     EditorGUILayout.LabelField("Asset List", EditorStyles.boldLabel);
+
                     EditorGUILayout.BeginHorizontal("box", GUILayout.Height(position.height - 52f));
                     {
                         DrawSourceAssetsView();
                     }
                     EditorGUILayout.EndHorizontal();
+
                     EditorGUILayout.BeginHorizontal();
                     {
                         GUILayout.Space(5f);
