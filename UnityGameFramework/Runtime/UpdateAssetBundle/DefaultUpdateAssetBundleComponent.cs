@@ -15,7 +15,7 @@ namespace Icarus.UnityGameFramework.Runtime
     /// 使用UnityWebRequeDownload来更新
     /// </summary>
     [AddComponentMenu("Icarus/Game Framework/Default Download")]
-    public class DefaultUpdateAssetBundleComponent:MonoBehaviour,IUpdateAssetBundle
+    public class DefaultUpdateAssetBundleComponent: UnityGameFrameWorkBehaviour, IUpdateAssetBundle
     {
         public DownloadManager DownloadManager;
         public CoroutineManager Coroutine;
@@ -85,11 +85,6 @@ namespace Icarus.UnityGameFramework.Runtime
         {
             var by = persistentInfos.JiaMiSerialize();
             File.WriteAllBytes(Path.Combine(Application.persistentDataPath, VersionInfoFileName), by);
-        }
-
-        protected virtual void Awake()
-        {
-            GameEntry.RegisterComponent(this);
         }
 
         protected virtual void Start()
