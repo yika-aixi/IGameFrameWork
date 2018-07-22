@@ -77,6 +77,41 @@ public class test : MonoBehaviour
             _load();
         }
     }
+    [SerializeField]
+    private string _groupTag;
+    [ContextMenu("显示资源组")]
+    void _showAssetGroupABList()
+    {
+        var list =_resourceComponent.GetAssetGroupList(_groupTag);
+
+        if (list == null)
+        {
+            return;
+        }
+
+        foreach (var s in list)
+        {
+            Log.Debug($"资源组:{_groupTag},资源包:{s}");
+        }
+    }
+    [SerializeField]
+    private string _abName;
+    [ContextMenu("显示资源包")]
+    void _showAssetsList()
+    {
+        var list = _resourceComponent.GetAssetsList(_abName);
+
+        if (list == null)
+        {
+            return;
+        }
+
+        foreach (var s in list)
+        {
+            Log.Debug($"资源包:{_abName},资源:{s}");
+        }
+    }
+
 
     public Button button;
     private void _checkOutGroup()
