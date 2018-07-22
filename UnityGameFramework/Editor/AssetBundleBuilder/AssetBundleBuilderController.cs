@@ -683,7 +683,6 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                         ApplicableGameVersion, InternalResourceVersion, UnityVersion, 
                         buildAssetBundleOptions, OutputDirectory, WorkingPath,
                         OutputPackagePath, OutputZipPath, BuildReportPath);
-                    m_BuildEventHandler.BuildComplete(OutputPackagePath, _assetBundleAssetPaths);
                 }
 
                 m_BuildReport.LogInfo("Build AssetBundles for selected build targets complete.");

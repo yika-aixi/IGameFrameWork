@@ -537,6 +537,11 @@ namespace Icarus.UnityGameFramework.Runtime
 #endif
         }
 
+        public IEnumerable<string> GetAssetsList(string abName)
+        {
+            throw new NotImplementedException("编辑器模式下无法使用该函数");
+        }
+
         /// <summary>
         /// 异步加载资源。
         /// </summary>

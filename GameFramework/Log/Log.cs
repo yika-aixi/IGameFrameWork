@@ -14,17 +14,6 @@ namespace Icarus.GameFramework
     /// </summary>
     public static partial class Log
     {
-        private static ILogHelper s_LogHelper = null;
-
-        /// <summary>
-        /// 设置日志辅助器。
-        /// </summary>
-        /// <param name="logHelper">要设置的日志辅助器。</param>
-        public static void SetLogHelper(ILogHelper logHelper)
-        {
-            s_LogHelper = logHelper;
-        }
-
         /// <summary>
         /// 记录调试级别日志，仅在带有 DEBUG 预编译选项时产生。
         /// </summary>
@@ -32,12 +21,7 @@ namespace Icarus.GameFramework
         [Conditional("DEBUG")]
         public static void Debug(object message)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Debug, message);
+            Instance.ShowLog(message);
         }
 
         /// <summary>
@@ -47,12 +31,7 @@ namespace Icarus.GameFramework
         [Conditional("DEBUG")]
         public static void Debug(string message)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Debug, message);
+            Instance.ShowLog(message);
         }
 
         /// <summary>
@@ -63,12 +42,7 @@ namespace Icarus.GameFramework
         [Conditional("DEBUG")]
         public static void Debug(string format, object arg0)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Debug, string.Format(format, arg0));
+            Instance.ShowLog(string.Format(format, arg0));
         }
 
         /// <summary>
@@ -80,12 +54,7 @@ namespace Icarus.GameFramework
         [Conditional("DEBUG")]
         public static void Debug(string format, object arg0, object arg1)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Debug, string.Format(format, arg0, arg1));
+            Instance.ShowLog(string.Format(format, arg0, arg1));
         }
 
         /// <summary>
@@ -98,12 +67,7 @@ namespace Icarus.GameFramework
         [Conditional("DEBUG")]
         public static void Debug(string format, object arg0, object arg1, object arg2)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Debug, string.Format(format, arg0, arg1, arg2));
+            Instance.ShowLog(string.Format(format, arg0, arg1, arg2));
         }
 
         /// <summary>
@@ -114,12 +78,7 @@ namespace Icarus.GameFramework
         [Conditional("DEBUG")]
         public static void Debug(string format, params object[] args)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Debug, string.Format(format, args));
+            Instance.ShowLog(string.Format(format, args));
         }
 
         /// <summary>
@@ -128,12 +87,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容</param>
         public static void Info(object message)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Info, message);
+            Instance.ShowLog(message, LogType.Info);
         }
 
         /// <summary>
@@ -142,12 +96,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容</param>
         public static void Info(string message)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Info, message);
+            Instance.ShowLog(message, LogType.Info);
         }
 
         /// <summary>
@@ -157,12 +106,7 @@ namespace Icarus.GameFramework
         /// <param name="arg0">日志参数 0。</param>
         public static void Info(string format, object arg0)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Info, string.Format(format, arg0));
+            Instance.ShowLog(string.Format(format, arg0), LogType.Info);
         }
 
         /// <summary>
@@ -173,12 +117,7 @@ namespace Icarus.GameFramework
         /// <param name="arg1">日志参数 1。</param>
         public static void Info(string format, object arg0, object arg1)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Info, string.Format(format, arg0, arg1));
+            Instance.ShowLog(string.Format(format, arg0, arg1), LogType.Info);
         }
 
         /// <summary>
@@ -190,12 +129,7 @@ namespace Icarus.GameFramework
         /// <param name="arg2">日志参数 2。</param>
         public static void Info(string format, object arg0, object arg1, object arg2)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Info, string.Format(format, arg0, arg1, arg2));
+            Instance.ShowLog(string.Format(format, arg0, arg1, arg2), LogType.Info);
         }
 
         /// <summary>
@@ -205,12 +139,7 @@ namespace Icarus.GameFramework
         /// <param name="args">日志参数。</param>
         public static void Info(string format, params object[] args)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Info, string.Format(format, args));
+            Instance.ShowLog(string.Format(format, args), LogType.Info);
         }
 
         /// <summary>
@@ -219,12 +148,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容。</param>
         public static void Warning(object message)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Warning, message);
+            Instance.ShowLog(message, LogType.Warning);
         }
 
         /// <summary>
@@ -233,12 +157,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容。</param>
         public static void Warning(string message)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Warning, message);
+            Instance.ShowLog(message, LogType.Warning);
         }
 
         /// <summary>
@@ -248,12 +167,7 @@ namespace Icarus.GameFramework
         /// <param name="arg0">日志参数 0。</param>
         public static void Warning(string format, object arg0)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Warning, string.Format(format, arg0));
+            Instance.ShowLog(string.Format(format, arg0), LogType.Warning);
         }
 
         /// <summary>
@@ -264,12 +178,7 @@ namespace Icarus.GameFramework
         /// <param name="arg1">日志参数 1。</param>
         public static void Warning(string format, object arg0, object arg1)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Warning, string.Format(format, arg0, arg1));
+            Instance.ShowLog(string.Format(format, arg0, arg1), LogType.Warning);
         }
 
         /// <summary>
@@ -281,12 +190,7 @@ namespace Icarus.GameFramework
         /// <param name="arg2">日志参数 2。</param>
         public static void Warning(string format, object arg0, object arg1, object arg2)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Warning, string.Format(format, arg0, arg1, arg2));
+            Instance.ShowLog(string.Format(format, arg0, arg1, arg2), LogType.Warning);
         }
 
         /// <summary>
@@ -296,12 +200,7 @@ namespace Icarus.GameFramework
         /// <param name="args">日志参数。</param>
         public static void Warning(string format, params object[] args)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Warning, string.Format(format, args));
+            Instance.ShowLog(string.Format(format, args), LogType.Warning);
         }
 
         /// <summary>
@@ -310,12 +209,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容。</param>
         public static void Error(object message)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Error, message);
+            Instance.ShowLog(message, LogType.Error);
         }
 
         /// <summary>
@@ -324,12 +218,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容。</param>
         public static void Error(string message)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Error, message);
+            Instance.ShowLog(message, LogType.Error);
         }
 
         /// <summary>
@@ -339,12 +228,7 @@ namespace Icarus.GameFramework
         /// <param name="arg0">日志参数 0。</param>
         public static void Error(string format, object arg0)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Error, string.Format(format, arg0));
+            Instance.ShowLog(string.Format(format, arg0), LogType.Error);
         }
 
         /// <summary>
@@ -355,12 +239,7 @@ namespace Icarus.GameFramework
         /// <param name="arg1">日志参数 1。</param>
         public static void Error(string format, object arg0, object arg1)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Error, string.Format(format, arg0, arg1));
+            Instance.ShowLog(string.Format(format, arg0, arg1), LogType.Error);
         }
 
         /// <summary>
@@ -372,12 +251,7 @@ namespace Icarus.GameFramework
         /// <param name="arg2">日志参数 2。</param>
         public static void Error(string format, object arg0, object arg1, object arg2)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Error, string.Format(format, arg0, arg1, arg2));
+            Instance.ShowLog(string.Format(format, arg0, arg1, arg2), LogType.Error);
         }
 
         /// <summary>
@@ -387,12 +261,7 @@ namespace Icarus.GameFramework
         /// <param name="args">日志参数。</param>
         public static void Error(string format, params object[] args)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Error, string.Format(format, args));
+            Instance.ShowLog(string.Format(format, args), LogType.Error);
         }
 
         /// <summary>
@@ -401,12 +270,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容。</param>
         public static void Fatal(object message)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Fatal, message);
+            Instance.ShowLog(message, LogType.Exception);
         }
 
         /// <summary>
@@ -415,12 +279,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容。</param>
         public static void Fatal(string message)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Fatal, message);
+            Instance.ShowLog(message, LogType.Exception);
         }
 
         /// <summary>
@@ -430,12 +289,7 @@ namespace Icarus.GameFramework
         /// <param name="arg0">日志参数 0。</param>
         public static void Fatal(string format, object arg0)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Fatal, string.Format(format, arg0));
+            Instance.ShowLog(string.Format(format, arg0), LogType.Exception);
         }
 
         /// <summary>
@@ -446,12 +300,7 @@ namespace Icarus.GameFramework
         /// <param name="arg1">日志参数 1。</param>
         public static void Fatal(string format, object arg0, object arg1)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Fatal, string.Format(format, arg0, arg1));
+            Instance.ShowLog(string.Format(format, arg0, arg1), LogType.Exception);
         }
 
         /// <summary>
@@ -463,12 +312,7 @@ namespace Icarus.GameFramework
         /// <param name="arg2">日志参数 2。</param>
         public static void Fatal(string format, object arg0, object arg1, object arg2)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Fatal, string.Format(format, arg0, arg1, arg2));
+            Instance.ShowLog(string.Format(format, arg0, arg1, arg2), LogType.Exception);
         }
 
         /// <summary>
@@ -478,12 +322,7 @@ namespace Icarus.GameFramework
         /// <param name="args">日志参数。</param>
         public static void Fatal(string format, params object[] args)
         {
-            if (s_LogHelper == null)
-            {
-                return;
-            }
-
-            s_LogHelper.Log(LogLevel.Fatal, string.Format(format, args));
+            Instance.ShowLog(string.Format(format, args), LogType.Exception);
         }
     }
 }

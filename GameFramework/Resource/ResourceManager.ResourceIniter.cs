@@ -145,6 +145,11 @@ namespace Icarus.GameFramework.Resource
             }
             
             private bool _isCompolete = true;
+            /// <summary>
+            /// 资源表 -- 当读取Version.dat时会将资源记录
+            /// 字典格式为: AB包名 - ab包资源名列表
+            /// </summary>
+            Dictionary<string,List<string>> _assetTable = new Dictionary<string, List<string>>();
             //todo 如果加载出问题，查这里
             /// <summary>
             /// 解析资源包资源列表。
@@ -186,7 +191,10 @@ namespace Icarus.GameFramework.Resource
                             string variant = null;
                             int ABlength;
                             Dictionary<string, string[]> dependencyAssetNamesCollection = new Dictionary<string, string[]>();
-
+                            if (!_assetTable.ContainsKey(ABName))
+                            {
+                                _assetTable.Add(ABName,new List<string>());
+                            }
                             byte variantLength = binaryReader.ReadByte();
                             if (variantLength > 0)
                             {
@@ -202,6 +210,7 @@ namespace Icarus.GameFramework.Resource
                             for (int j = 0; j < assetNamesCount; j++)
                             {
                                 assetNames[j] = Icarus.GameFramework.Utility.Converter.GetString(Icarus.GameFramework.Utility.Encryption.GetXorBytes(binaryReader.ReadBytes(binaryReader.ReadByte()), Icarus.GameFramework.Utility.Converter.GetBytes(hashCode)));
+                                _addAssetName(ABName,assetNames[j]);
                                 int dependencyAssetNamesCount = binaryReader.ReadInt32();
                                 string[] dependencyAssetNames = new string[dependencyAssetNamesCount];
                                 for (int k = 0; k < dependencyAssetNamesCount; k++)
@@ -271,6 +280,27 @@ namespace Icarus.GameFramework.Resource
                         memoryStream = null;
                     }
                 }
+            }
+
+            private void _addAssetName(string abName, string assetName)
+            {
+                if (_assetTable.ContainsKey(abName))
+                {
+                    if (!_assetTable[abName].Contains(assetName))
+                    {
+                        _assetTable[abName].Add(assetName);
+                    }
+                }
+            }
+
+            public IEnumerable<string> GetAssetsList(string abName)
+            {
+                if (!_assetTable.ContainsKey(abName))
+                {
+                    return null;
+                }
+
+                return _assetTable[abName];
             }
 
             private void ProcessAssetInfo(ResourceName resourceName, string[] assetNames)

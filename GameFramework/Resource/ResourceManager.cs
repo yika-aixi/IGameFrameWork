@@ -501,6 +501,11 @@ namespace Icarus.GameFramework.Resource
             return m_ResourceLoader.ExistAsset(assetName);
         }
 
+        public IEnumerable<string> GetAssetsList(string abName)
+        {
+            return m_ResourceIniter.GetAssetsList(abName);
+        }
+
         /// <summary>
         /// 异步加载资源。
         /// </summary>
