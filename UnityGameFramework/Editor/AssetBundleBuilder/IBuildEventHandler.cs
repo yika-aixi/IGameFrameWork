@@ -71,5 +71,11 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
         /// <param name="outputPackagePath">资源包生成保存路径</param>
         /// <param name="outputZipPath">更新包保存路径</param>
         void PostProcessBuild(BuildTarget buildTarget, string workingPath, string outputPackagePath, string outputZipPath);
+
+        /// <summary>
+        /// 打包完成处理事件
+        /// </summary>
+        /// <param name="assetBundleAssetPaths">资源包资源路径</param>
+        void BuildComplete(string outputPackagePath,Dictionary<string,List<string>> assetBundleAssetPaths);
     }
 }

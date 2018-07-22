@@ -903,15 +903,10 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                         {
                             throw new GameFrameworkException("Package list can only contains 65535 resources in version 0.");
                         }
-                        
-                        byte[] nameBytes = GetXorBytes(Icarus.GameFramework.Utility.Converter.GetBytes(assetBundleData.Name), encryptBytes);
-                        
-                        if (nameBytes.Length > byte.MaxValue)
-                        {
-                            throw new GameFrameworkException(string.Format("AssetBundle name '{0}' is too long.", assetBundleData.Name));
-                        }
-                        binaryWriter.Write((byte)nameBytes.Length);
-                        binaryWriter.Write(nameBytes);
+
+                        _writerStr(encryptBytes, assetBundleData.Name, "AssetBundle name", binaryWriter);
+
+                        _writerStr(encryptBytes, assetBundleData.GroupTag, "Group Tag", binaryWriter,false);
 
                         if (assetBundleData.Variant == null)
                         {
@@ -919,14 +914,7 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                         }
                         else
                         {
-                            byte[] variantBytes = GetXorBytes(Icarus.GameFramework.Utility.Converter.GetBytes(assetBundleData.Variant), encryptBytes);
-                            if (variantBytes.Length > byte.MaxValue)
-                            {
-                                throw new GameFrameworkException(string.Format("AssetBundle variant '{0}' is too long.", assetBundleData.Variant));
-                            }
-
-                            binaryWriter.Write((byte)variantBytes.Length);
-                            binaryWriter.Write(variantBytes);
+                            _writerStr(encryptBytes, assetBundleData.Variant, "AssetBundle variant", binaryWriter);
                         }
 
                         binaryWriter.Write((byte)assetBundleData.LoadType);
@@ -938,33 +926,20 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                         binaryWriter.Write(assetNames.Length);
                         foreach (string assetName in assetNames)
                         {
-                            byte[] assetNameBytes = GetXorBytes(Icarus.GameFramework.Utility.Converter.GetBytes(assetName), Icarus.GameFramework.Utility.Converter.GetBytes(assetBundleCode.HashCode));
-                            if (assetNameBytes.Length > byte.MaxValue)
-                            {
-                                throw new GameFrameworkException(string.Format("Asset name '{0}' is too long.", assetName));
-                            }
+                            _writerStr(Icarus.GameFramework.Utility.Converter.GetBytes(assetBundleCode.HashCode), assetName, "Asset name", binaryWriter);
+
                             _assetBundleAssetPaths[abName].Add(assetName);
-                            binaryWriter.Write((byte)assetNameBytes.Length);
-                            binaryWriter.Write(assetNameBytes);
+
 
                             AssetData assetData = assetBundleData.GetAssetData(assetName);
                             string[] dependencyAssetNames = assetData.GetDependencyAssetNames();
                             binaryWriter.Write(dependencyAssetNames.Length);
                             foreach (string dependencyAssetName in dependencyAssetNames)
                             {
-                                byte[] dependencyAssetNameBytes = GetXorBytes(Icarus.GameFramework.Utility.Converter.GetBytes(dependencyAssetName), Icarus.GameFramework.Utility.Converter.GetBytes(assetBundleCode.HashCode));
-                                if (dependencyAssetNameBytes.Length > byte.MaxValue)
-                                {
-                                    throw new GameFrameworkException(string.Format("Dependency asset name '{0}' is too long.", dependencyAssetName));
-                                }
-
-                                binaryWriter.Write((byte)dependencyAssetNameBytes.Length);
-                                binaryWriter.Write(dependencyAssetNameBytes);
+                                _writerStr(Icarus.GameFramework.Utility.Converter.GetBytes(assetBundleCode.HashCode), dependencyAssetName, "Dependency asset name", binaryWriter);
                             }
                         }
-
-
-                        // TODO: Resource group.
+                        
                         binaryWriter.Write(0);
 
                         binaryWriter.Close();
@@ -986,6 +961,31 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                 #endregion
             }
         }
+
+        private void _writerStr(byte[] code,string str,string error, BinaryWriter binaryWriter,bool isByte = true)
+        {
+            byte[] nameBytes = GetXorBytes(Icarus.GameFramework.Utility.Converter.GetBytes(str), code);
+
+            if (isByte)
+            {
+                if (nameBytes.Length > byte.MaxValue)
+                {
+                    throw new GameFrameworkException(string.Format("{0}'{1}' Length > {2}", error, str, byte.MaxValue));
+                }
+                binaryWriter.Write((byte)nameBytes.Length);
+            }
+            else
+            {
+                if (nameBytes.Length > Int32.MaxValue)
+                {
+                    throw new GameFrameworkException(string.Format("{0}'{1}' Length > {2}", error, str, Int32.MaxValue));
+                }
+                binaryWriter.Write((Int32)nameBytes.Length);
+            }
+            
+            binaryWriter.Write(nameBytes);
+        }
+
         private void ProcessRecord(string outputRecordPath)
         {
             string recordPath = Icarus.GameFramework.Utility.Path.GetCombinePath(outputRecordPath, string.Format("{0}_{1}.xml", RecordName, ApplicableGameVersion.Replace('.', '_')));

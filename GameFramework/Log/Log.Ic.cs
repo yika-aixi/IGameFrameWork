@@ -12,17 +12,7 @@ namespace Icarus.GameFramework
     {
         private static ILog _logInstance;
 
-        public static ILog Instance
-        {
-            get
-            {
-                if (_logInstance == null)
-                {
-                    throw new NullReferenceException("no excute SetLog()");
-                }
-                return _logInstance;
-            }
-        }
+        public static ILog Instance => _logInstance;
 
         public static bool HasLog()
         {
@@ -39,9 +29,9 @@ namespace Icarus.GameFramework
         /// Instance来进行设置
         /// </summary>
         /// <param name="message"></param>
-        public static void ShowLog(object message)
+        public static void ShowLog(object message, LogType lotype = LogType.Debug)
         {
-            Instance.ShowLog(message);
+            Instance?.ShowLog(message, lotype);
         }
 
         /// <summary>

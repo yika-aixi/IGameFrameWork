@@ -9,6 +9,7 @@ using Icarus.GameFramework;
 using Icarus.GameFramework.ObjectPool;
 using Icarus.GameFramework.Resource;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Icarus.UnityGameFramework.Runtime
@@ -511,7 +512,22 @@ namespace Icarus.UnityGameFramework.Runtime
         {
             m_ResourceManager.InitResources();
         }
-        
+
+        public IEnumerable<string> GetAssetGroupList(string groupTag)
+        {
+            return m_ResourceManager.GetAssetGroupList(groupTag);
+        }
+
+        public IEnumerable<string> GetAssetsList(string abName)
+        {
+            return m_ResourceManager.GetAssetsList(abName);
+        }
+
+        public IEnumerable<string> GetAllGroupList()
+        {
+            return m_ResourceManager.GetAllGroupList();
+        }
+
 
         /// <summary>
         /// 异步加载资源。

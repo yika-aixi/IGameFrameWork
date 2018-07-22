@@ -21,7 +21,7 @@ namespace Icarus.GameFramework
         [Conditional("DEBUG")]
         public static void Debug(object message)
         {
-            Instance.ShowLog(message);
+            ShowLog(message);
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Icarus.GameFramework
         [Conditional("DEBUG")]
         public static void Debug(string message)
         {
-            Instance.ShowLog(message);
+            ShowLog(message);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Icarus.GameFramework
         [Conditional("DEBUG")]
         public static void Debug(string format, object arg0)
         {
-            Instance.ShowLog(string.Format(format, arg0));
+            ShowLog(string.Format(format, arg0));
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Icarus.GameFramework
         [Conditional("DEBUG")]
         public static void Debug(string format, object arg0, object arg1)
         {
-            Instance.ShowLog(string.Format(format, arg0, arg1));
+            ShowLog(string.Format(format, arg0, arg1));
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Icarus.GameFramework
         [Conditional("DEBUG")]
         public static void Debug(string format, object arg0, object arg1, object arg2)
         {
-            Instance.ShowLog(string.Format(format, arg0, arg1, arg2));
+            ShowLog(string.Format(format, arg0, arg1, arg2));
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Icarus.GameFramework
         [Conditional("DEBUG")]
         public static void Debug(string format, params object[] args)
         {
-            Instance.ShowLog(string.Format(format, args));
+            ShowLog(string.Format(format, args));
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容</param>
         public static void Info(object message)
         {
-            Instance.ShowLog(message, LogType.Info);
+            ShowLog(message, LogType.Info);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容</param>
         public static void Info(string message)
         {
-            Instance.ShowLog(message, LogType.Info);
+            ShowLog(message, LogType.Info);
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace Icarus.GameFramework
         /// <param name="arg0">日志参数 0。</param>
         public static void Info(string format, object arg0)
         {
-            Instance.ShowLog(string.Format(format, arg0), LogType.Info);
+            ShowLog(string.Format(format, arg0), LogType.Info);
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace Icarus.GameFramework
         /// <param name="arg1">日志参数 1。</param>
         public static void Info(string format, object arg0, object arg1)
         {
-            Instance.ShowLog(string.Format(format, arg0, arg1), LogType.Info);
+            ShowLog(string.Format(format, arg0, arg1), LogType.Info);
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace Icarus.GameFramework
         /// <param name="arg2">日志参数 2。</param>
         public static void Info(string format, object arg0, object arg1, object arg2)
         {
-            Instance.ShowLog(string.Format(format, arg0, arg1, arg2), LogType.Info);
+            ShowLog(string.Format(format, arg0, arg1, arg2), LogType.Info);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace Icarus.GameFramework
         /// <param name="args">日志参数。</param>
         public static void Info(string format, params object[] args)
         {
-            Instance.ShowLog(string.Format(format, args), LogType.Info);
+            ShowLog(string.Format(format, args), LogType.Info);
         }
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容。</param>
         public static void Warning(object message)
         {
-            Instance.ShowLog(message, LogType.Warning);
+            ShowLog(message, LogType.Warning);
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容。</param>
         public static void Warning(string message)
         {
-            Instance.ShowLog(message, LogType.Warning);
+            ShowLog(message, LogType.Warning);
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace Icarus.GameFramework
         /// <param name="arg0">日志参数 0。</param>
         public static void Warning(string format, object arg0)
         {
-            Instance.ShowLog(string.Format(format, arg0), LogType.Warning);
+            ShowLog(string.Format(format, arg0), LogType.Warning);
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace Icarus.GameFramework
         /// <param name="arg1">日志参数 1。</param>
         public static void Warning(string format, object arg0, object arg1)
         {
-            Instance.ShowLog(string.Format(format, arg0, arg1), LogType.Warning);
+            ShowLog(string.Format(format, arg0, arg1), LogType.Warning);
         }
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace Icarus.GameFramework
         /// <param name="arg2">日志参数 2。</param>
         public static void Warning(string format, object arg0, object arg1, object arg2)
         {
-            Instance.ShowLog(string.Format(format, arg0, arg1, arg2), LogType.Warning);
+            ShowLog(string.Format(format, arg0, arg1, arg2), LogType.Warning);
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace Icarus.GameFramework
         /// <param name="args">日志参数。</param>
         public static void Warning(string format, params object[] args)
         {
-            Instance.ShowLog(string.Format(format, args), LogType.Warning);
+            ShowLog(string.Format(format, args), LogType.Warning);
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容。</param>
         public static void Error(object message)
         {
-            Instance.ShowLog(message, LogType.Error);
+            ShowLog(message, LogType.Error);
         }
 
         /// <summary>
@@ -218,7 +218,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容。</param>
         public static void Error(string message)
         {
-            Instance.ShowLog(message, LogType.Error);
+            ShowLog(message, LogType.Error);
         }
 
         /// <summary>
@@ -228,7 +228,7 @@ namespace Icarus.GameFramework
         /// <param name="arg0">日志参数 0。</param>
         public static void Error(string format, object arg0)
         {
-            Instance.ShowLog(string.Format(format, arg0), LogType.Error);
+            ShowLog(string.Format(format, arg0), LogType.Error);
         }
 
         /// <summary>
@@ -239,7 +239,7 @@ namespace Icarus.GameFramework
         /// <param name="arg1">日志参数 1。</param>
         public static void Error(string format, object arg0, object arg1)
         {
-            Instance.ShowLog(string.Format(format, arg0, arg1), LogType.Error);
+            ShowLog(string.Format(format, arg0, arg1), LogType.Error);
         }
 
         /// <summary>
@@ -251,7 +251,7 @@ namespace Icarus.GameFramework
         /// <param name="arg2">日志参数 2。</param>
         public static void Error(string format, object arg0, object arg1, object arg2)
         {
-            Instance.ShowLog(string.Format(format, arg0, arg1, arg2), LogType.Error);
+            ShowLog(string.Format(format, arg0, arg1, arg2), LogType.Error);
         }
 
         /// <summary>
@@ -261,7 +261,7 @@ namespace Icarus.GameFramework
         /// <param name="args">日志参数。</param>
         public static void Error(string format, params object[] args)
         {
-            Instance.ShowLog(string.Format(format, args), LogType.Error);
+            ShowLog(string.Format(format, args), LogType.Error);
         }
 
         /// <summary>
@@ -270,7 +270,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容。</param>
         public static void Fatal(object message)
         {
-            Instance.ShowLog(message, LogType.Exception);
+            ShowLog(message, LogType.Exception);
         }
 
         /// <summary>
@@ -279,7 +279,7 @@ namespace Icarus.GameFramework
         /// <param name="message">日志内容。</param>
         public static void Fatal(string message)
         {
-            Instance.ShowLog(message, LogType.Exception);
+            ShowLog(message, LogType.Exception);
         }
 
         /// <summary>
@@ -289,7 +289,7 @@ namespace Icarus.GameFramework
         /// <param name="arg0">日志参数 0。</param>
         public static void Fatal(string format, object arg0)
         {
-            Instance.ShowLog(string.Format(format, arg0), LogType.Exception);
+            ShowLog(string.Format(format, arg0), LogType.Exception);
         }
 
         /// <summary>
@@ -300,7 +300,7 @@ namespace Icarus.GameFramework
         /// <param name="arg1">日志参数 1。</param>
         public static void Fatal(string format, object arg0, object arg1)
         {
-            Instance.ShowLog(string.Format(format, arg0, arg1), LogType.Exception);
+            ShowLog(string.Format(format, arg0, arg1), LogType.Exception);
         }
 
         /// <summary>
@@ -312,7 +312,7 @@ namespace Icarus.GameFramework
         /// <param name="arg2">日志参数 2。</param>
         public static void Fatal(string format, object arg0, object arg1, object arg2)
         {
-            Instance.ShowLog(string.Format(format, arg0, arg1, arg2), LogType.Exception);
+            ShowLog(string.Format(format, arg0, arg1, arg2), LogType.Exception);
         }
 
         /// <summary>
@@ -322,7 +322,7 @@ namespace Icarus.GameFramework
         /// <param name="args">日志参数。</param>
         public static void Fatal(string format, params object[] args)
         {
-            Instance.ShowLog(string.Format(format, args), LogType.Exception);
+            ShowLog(string.Format(format, args), LogType.Exception);
         }
     }
 }

@@ -150,6 +150,12 @@ namespace Icarus.GameFramework.Resource
             /// 字典格式为: AB包名 - ab包资源名列表
             /// </summary>
             Dictionary<string,List<string>> _assetTable = new Dictionary<string, List<string>>();
+
+            /// <summary>
+            /// 资源组
+            /// 资源组tag - 资源包名
+            /// </summary>
+            Dictionary<string, List<string>> _assetGroup = new Dictionary<string, List<string>>();
             //todo 如果加载出问题，查这里
             /// <summary>
             /// 解析资源包资源列表。
@@ -188,6 +194,12 @@ namespace Icarus.GameFramework.Resource
 
                             var ABNameCount = binaryReader.ReadByte();
                             string ABName = Icarus.GameFramework.Utility.Converter.GetString(Icarus.GameFramework.Utility.Encryption.GetXorBytes(binaryReader.ReadBytes(ABNameCount), encryptBytes));
+
+                            var ABGroupTagCount = binaryReader.ReadInt32();
+                            string ABGroupTag = Icarus.GameFramework.Utility.Converter.GetString(Icarus.GameFramework.Utility.Encryption.GetXorBytes(binaryReader.ReadBytes(ABGroupTagCount), encryptBytes));
+
+                            _assetGroupAdd(ABGroupTag, ABName);
+                            
                             string variant = null;
                             int ABlength;
                             Dictionary<string, string[]> dependencyAssetNamesCollection = new Dictionary<string, string[]>();
@@ -282,6 +294,26 @@ namespace Icarus.GameFramework.Resource
                 }
             }
 
+            private void _assetGroupAdd(string groupTag, string abName)
+            {
+                var tags = groupTag.Split(',');
+
+                foreach (var tag in tags)
+                {
+                    if (_assetGroup.ContainsKey(tag))
+                    {
+                        if (!_assetGroup[tag].Contains(abName))
+                        {
+                            _assetGroup[tag].Add(abName);
+                        }
+                    }
+                    else
+                    {
+                        _assetGroup.Add(tag, new List<string>() { abName });
+                    }
+                }
+            }
+
             private void _addAssetName(string abName, string assetName)
             {
                 if (_assetTable.ContainsKey(abName))
@@ -301,6 +333,21 @@ namespace Icarus.GameFramework.Resource
                 }
 
                 return _assetTable[abName];
+            }
+
+            public IEnumerable<string> GetAssetGroupList(string groupTag)
+            {
+                if (!_assetGroup.ContainsKey(groupTag))
+                {
+                    return null;
+                }
+
+                return _assetGroup[groupTag];
+            }
+
+            public IEnumerable<string> GetAllGroupList()
+            {
+                return _assetGroup.Keys;
             }
 
             private void ProcessAssetInfo(ResourceName resourceName, string[] assetNames)
