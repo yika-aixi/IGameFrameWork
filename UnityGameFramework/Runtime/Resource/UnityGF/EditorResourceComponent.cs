@@ -542,6 +542,16 @@ namespace Icarus.UnityGameFramework.Runtime
             throw new NotImplementedException("编辑器模式下无法使用该函数");
         }
 
+        public IEnumerable<string> GetAssetGroupList(string groupTag)
+        {
+            throw new NotImplementedException("编辑器模式下无法使用该函数");
+        }
+
+        public IEnumerable<string> GetAllGroupList()
+        {
+            throw new NotImplementedException("编辑器模式下无法使用该函数");
+        }
+
         /// <summary>
         /// 异步加载资源。
         /// </summary>

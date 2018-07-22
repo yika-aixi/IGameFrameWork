@@ -11,6 +11,12 @@ namespace Icarus.UnityGameFramework.Runtime
         public bool EditorResourceMode;
         public IResourceManager EditorResourceHelper;
 
+        protected override void Awake()
+        {
+            base.Awake();
+            Log.SetLog(new UnityLog());
+        }
+
         // Use this for initialization
         void Start()
         {

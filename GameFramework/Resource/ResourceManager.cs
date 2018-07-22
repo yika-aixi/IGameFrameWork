@@ -503,7 +503,17 @@ namespace Icarus.GameFramework.Resource
 
         public IEnumerable<string> GetAssetsList(string abName)
         {
-            return m_ResourceIniter.GetAssetsList(abName);
+            return m_ResourceIniter?.GetAssetsList(abName);
+        }
+
+        public IEnumerable<string> GetAllGroupList()
+        {
+            return m_ResourceIniter?.GetAllGroupList();
+        }
+
+        public IEnumerable<string> GetAssetGroupList(string groupTag)
+        {
+            return m_ResourceIniter?.GetAssetGroupList(groupTag);
         }
 
         /// <summary>
@@ -868,8 +878,6 @@ namespace Icarus.GameFramework.Resource
         private void OnIniterResourceInitComplete()
         {
             m_ResourceIniter.ResourceInitComplete -= OnIniterResourceInitComplete;
-            m_ResourceIniter.Shutdown();
-            m_ResourceIniter = null;
 
             if (m_ResourceInitCompleteEventHandler != null)
             {

@@ -5,9 +5,11 @@
 // Feedback: mailto:jiangyin@gameframework.cn
 //------------------------------------------------------------
 
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using Icarus.UnityGameFramework.Runtime;
+using UnityEngine;
 
 namespace Icarus.UnityGameFramework.Editor
 {
@@ -54,19 +56,19 @@ namespace Icarus.UnityGameFramework.Editor
 
             EditorGUI.BeginDisabledGroup(EditorApplication.isPlayingOrWillChangePlaymode);
             {
-//                if (EditorApplication.isPlaying && PrefabUtility.GetPrefabType(t.gameObject) != PrefabType.Prefab)
-//                {
-//                    EditorGUILayout.EnumPopup("Resource Mode", t.ResourceMode);
-//                }
-//                else
-//                {
-//                    int selectedIndex = EditorGUILayout.Popup("Resource Mode", m_ResourceModeIndex, m_ResourceModeNames);
-//                    if (selectedIndex != m_ResourceModeIndex)
-//                    {
-//                        m_ResourceModeIndex = selectedIndex;
-//                        m_ResourceMode.enumValueIndex = selectedIndex + 1;
-//                    }
-//                }
+                //                if (EditorApplication.isPlaying && PrefabUtility.GetPrefabType(t.gameObject) != PrefabType.Prefab)
+                //                {
+                //                    EditorGUILayout.EnumPopup("Resource Mode", t.ResourceMode);
+                //                }
+                //                else
+                //                {
+                //                    int selectedIndex = EditorGUILayout.Popup("Resource Mode", m_ResourceModeIndex, m_ResourceModeNames);
+                //                    if (selectedIndex != m_ResourceModeIndex)
+                //                    {
+                //                        m_ResourceModeIndex = selectedIndex;
+                //                        m_ResourceMode.enumValueIndex = selectedIndex + 1;
+                //                    }
+                //                }
 
                 m_ReadWritePathType.enumValueIndex = (int)(ReadWritePathType)EditorGUILayout.EnumPopup("Read Write Path Type", t.ReadWritePathType);
             }
@@ -190,7 +192,7 @@ namespace Icarus.UnityGameFramework.Editor
                     }
                 }
 
-               
+
             }
             EditorGUI.EndDisabledGroup();
 
@@ -213,16 +215,75 @@ namespace Icarus.UnityGameFramework.Editor
                 EditorGUILayout.LabelField("Internal Resource Version", isEditorResourceMode ? "N/A" : t.InternalResourceVersion.ToString());
                 EditorGUILayout.LabelField("Asset Count", isEditorResourceMode ? "N/A" : t.AssetCount.ToString());
                 EditorGUILayout.LabelField("Resource Count", isEditorResourceMode ? "N/A" : t.ResourceCount.ToString());
-                
+
                 EditorGUILayout.LabelField("Load Total Agent Count", isEditorResourceMode ? "N/A" : t.LoadTotalAgentCount.ToString());
                 EditorGUILayout.LabelField("Load Free Agent Count", isEditorResourceMode ? "N/A" : t.LoadFreeAgentCount.ToString());
                 EditorGUILayout.LabelField("Load Working Agent Count", isEditorResourceMode ? "N/A" : t.LoadWorkingAgentCount.ToString());
                 EditorGUILayout.LabelField("Load Waiting Task Count", isEditorResourceMode ? "N/A" : t.LoadWaitingTaskCount.ToString());
+
+                _showResourceGroup(t);
             }
 
             serializedObject.ApplyModifiedProperties();
 
             Repaint();
+        }
+        private Dictionary<string, bool> _showState = new Dictionary<string, bool>();
+        private void _showResourceGroup(ResourceComponent resourceComponent)
+        {
+            var groups = resourceComponent.GetAllGroupList();
+            if (groups == null)
+            {
+                return;
+            }
+            foreach (var @group in groups)
+            {
+                if (!_showState.ContainsKey(@group))
+                {
+                    _showState.Add(@group, false);
+                }
+                _showState[@group] = EditorGUILayout.Foldout(_showState[@group],
+                    $"资源组:{(string.IsNullOrEmpty(@group) ? "<none>" : @group)}", true);
+                if (_showState[@group])
+                {
+                    EditorGUI.indentLevel += 1;
+                    {
+                        var abList = resourceComponent.GetAssetGroupList(@group);
+                        if (abList == null)
+                        {
+                            return;
+                        }
+                        foreach (var ab in abList)
+                        {
+                            var key = $"{@group}{ab}";
+                            if (!_showState.ContainsKey(key))
+                            {
+                                _showState.Add(key, false);
+                            }
+                            _showState[key] = EditorGUILayout.Foldout(_showState[key],$"资源包:{ab}",true);
+                            if (_showState[key])
+                            {
+                                var assets = resourceComponent.GetAssetsList(ab);
+                                if (assets == null)
+                                {
+                                    return;
+                                }
+                                foreach (var asset in assets)
+                                {
+                                    EditorGUI.indentLevel += 1;
+                                    {
+                                        EditorGUILayout.LabelField($"资源:{asset}");
+                                    }
+                                    EditorGUI.indentLevel -= 1;
+                                }
+                                
+                            }
+                        }                
+                    }
+                    EditorGUI.indentLevel -= 1;
+                }
+
+            }
         }
 
         protected override void OnCompileComplete()

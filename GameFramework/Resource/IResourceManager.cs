@@ -244,6 +244,19 @@ namespace Icarus.GameFramework.Resource
         IEnumerable<string> GetAssetsList(string abName);
 
         /// <summary>
+        /// 获取资源组资源包列表
+        /// </summary>
+        /// <param name="groupTag">资源组tag</param>
+        /// <returns>资源包列表</returns>
+        IEnumerable<string> GetAssetGroupList(string groupTag);
+
+        /// <summary>
+        /// 获取所有资源组
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<string> GetAllGroupList();
+
+        /// <summary>
         /// 异步加载资源。
         /// </summary>
         /// <param name="assetName">要加载资源的名称。</param>
