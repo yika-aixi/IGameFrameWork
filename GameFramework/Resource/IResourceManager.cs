@@ -7,6 +7,7 @@
 
 using Icarus.GameFramework.ObjectPool;
 using System;
+using System.Collections.Generic;
 
 namespace Icarus.GameFramework.Resource
 {
@@ -234,6 +235,13 @@ namespace Icarus.GameFramework.Resource
         /// <param name="assetName">要检查的资源。</param>
         /// <returns>资源是否存在。</returns>
         bool ExistAsset(string assetName);
+
+        /// <summary>
+        /// 获取资源包资源列表
+        /// </summary>
+        /// <param name="abName">资源包名</param>
+        /// <returns>资源名列表</returns>
+        IEnumerable<string> GetAssetsList(string abName);
 
         /// <summary>
         /// 异步加载资源。

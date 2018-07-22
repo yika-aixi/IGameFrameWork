@@ -54,7 +54,6 @@ namespace Icarus.GameFramework
 
             s_GameFrameworkModules.Clear();
             ReferencePool.ClearAll();
-            Log.SetLogHelper(null);
         }
 
         /// <summary>
