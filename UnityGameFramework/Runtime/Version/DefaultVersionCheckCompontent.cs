@@ -10,8 +10,8 @@ using UnityEngine;
 namespace Icarus.UnityGameFramework.Runtime
 {
     [DisallowMultipleComponent]
-    [AddComponentMenu("Icarus/Game Framework/Default VersionCheck")]
-    public class DefaultVersionCheckCompontent : MonoBehaviour, IVersionCheck
+    [AddComponentMenu("Icarus/Game Framework/VersionCheck")]
+    public class DefaultVersionCheckCompontent : UnityGameFrameWorkBehaviour, IVersionCheck
     {
         public string Url { get; set; }
         public bool StrictMode { get; set; } = true;
@@ -381,12 +381,6 @@ namespace Icarus.UnityGameFramework.Runtime
                 Debug.LogError("解密失败.\n"+e+"\n"+e.StackTrace);
                 return null;
             }
-        }
-
-        void Awake()
-        {
-            GameEntry.RegisterComponent(this);
-
         }
     }
 }
