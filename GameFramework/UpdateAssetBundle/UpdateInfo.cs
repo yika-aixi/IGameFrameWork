@@ -4,6 +4,5 @@
     public class UpdateInfo
     {
         public string AssetBundleUrl;
-        public string AppUpdateUrl;
     }
 }

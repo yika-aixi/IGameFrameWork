@@ -31,7 +31,6 @@ namespace Icarus.GameFramework.Version
         {
         }
 
-        [JsonConstructor]
         public VersionInfo(string version, List<AssetBundleInfo> assetBundleInfos)
             :this(version, assetBundleInfos,0)
         {
