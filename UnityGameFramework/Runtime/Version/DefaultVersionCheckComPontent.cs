@@ -11,9 +11,10 @@ namespace Icarus.UnityGameFramework.Runtime
 {
     [DisallowMultipleComponent]
     [AddComponentMenu("Icarus/Game Framework/Default VersionCheck")]
-    public class DefaultVersionCheckComPontent : MonoBehaviour, IVersionCheck
+    public class DefaultVersionCheckCompontent : MonoBehaviour, IVersionCheck
     {
         public string Url { get; set; }
+        public bool StrictMode { get; set; } = true;
         public VersionInfo ServerVersionInfo { get; private set; }
 
         private VersionInfo _localVersionInfo;
@@ -38,23 +39,24 @@ namespace Icarus.UnityGameFramework.Runtime
         private GameFrameworkAction<string> _errorHandle;
         private GameFrameworkAction<IEnumerable<AssetBundleInfo>> _completeHandle;
         private GameFrameworkAction<string> _stateUpdateHandle;
-        private bool _strictMode;
+        private GameFrameworkFunc<string> _getAppUpdateUrl;
+
         /// <summary>
         /// 严格模式下将会计算本地资源包md5和远程版本文件对比,
         /// 否则只会对比本地版本文件里记录的md5
         /// </summary>
-        /// <param name="strictMode">严格模式,默认为:严格</param>
         /// <param name="completeHandle">检查完成,参数:更新列表</param>
+        /// <param name="getAppUpdateUrl">获取App更新地址,如果返回了将会打开网页,否则不会有反应</param>
         /// <param name="errorHandle">检查失败,参数:失败信息</param>
         /// <param name="stateUpdateHandle">检查状态,参数:当前状态</param>
-        public void Check(bool strictMode = true, GameFrameworkAction<IEnumerable<AssetBundleInfo>> completeHandle = null,
-            GameFrameworkAction<string> errorHandle = null, GameFrameworkAction<string> stateUpdateHandle = null)
+        public void Check(GameFrameworkAction<IEnumerable<AssetBundleInfo>> completeHandle = null,
+            GameFrameworkFunc<string> getAppUpdateUrl = null,GameFrameworkAction<string> errorHandle = null, GameFrameworkAction<string> stateUpdateHandle = null)
         {
             _isInitCheck = false;
-            _strictMode = strictMode;
             _completeHandle = completeHandle;
             _errorHandle = errorHandle;
             _stateUpdateHandle = stateUpdateHandle;
+            _getAppUpdateUrl = getAppUpdateUrl;
             _stateUpdate("资源版本,检查开始!");
             StartCoroutine(_check());
         }
@@ -173,15 +175,48 @@ namespace Icarus.UnityGameFramework.Runtime
                 }
                 serverInfos = version;
             }
+            
+            ServerVersionInfo = serverInfos;
+
+            if (!_checkAppVersion())
+            {
+                var appUrl = _getAppUpdateUrl.Handle();
+                if (!string.IsNullOrWhiteSpace(appUrl))
+                {
+                    Application.OpenURL(appUrl);
+                }
+                yield break;
+            }
 
             List<AssetBundleInfo> result = _chckVersion(serverInfos, localAllInfo);
-            ServerVersionInfo = serverInfos;
             _isInitCheck = true;
             _stateUpdate($"资源版本检查完成! 最新版本为:{ServerVersionInfo.Version}");
             _completeHandle?.Invoke(result);
         }
 
-        private bool _persistentAssetBundleCheck()
+        private bool _checkAppVersion()
+        {
+            int appVersion = 0;
+
+            try
+            {
+                appVersion = int.Parse(Application.version.Split('.').Last());
+            }
+            catch (Exception e)
+            {
+                _errorHandle.Handle(
+                                    $"请确保 Edit-->" +
+                                    $"Project Settings-->Player --> " +
+                                    $"Other Setting 下的 Version " +
+                                    $"字段‘.’分割的" +
+                                    $"最后一位是int值，如：0.1.1s.2,‘2’就是我默认的规则");
+                return false;
+            }
+
+            return appVersion > ServerVersionInfo.MinAppVersion;
+        }
+
+        private void _persistentAssetBundleCheck()
         {
             _stateUpdate($"本地资源检查中....");
             List<AssetBundleInfo> missingAssetBundleInfos = new List<AssetBundleInfo>();
@@ -203,7 +238,6 @@ namespace Icarus.UnityGameFramework.Runtime
                 PersistentInfos.Remove(missingAssetBundleInfo);
             }
             _stateUpdate($"本地资源检查完成!");
-            return true;
         }
 
         private List<AssetBundleInfo> _chckVersion(VersionInfo serverInfos, VersionInfo localAllInfo)
@@ -312,7 +346,7 @@ namespace Icarus.UnityGameFramework.Runtime
 
             if (localABInfo != null)
             {
-                if (_strictMode)
+                if (StrictMode)
                 {
                     var md5 = GameFramework.Utility.MD5Util.GetFileMd5(
                         Path.Combine(Application.persistentDataPath,localABInfo.PackFullName));

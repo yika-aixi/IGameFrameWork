@@ -233,6 +233,13 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                         GUILayout.Label(string.Format("{0} ({1})", m_Controller.ApplicableGameVersion, m_Controller.InternalResourceVersion.ToString()));
                     }
                     EditorGUILayout.EndHorizontal();
+
+                    EditorGUILayout.BeginHorizontal();
+                    {
+                        EditorGUILayout.LabelField("Min App Version", GUILayout.Width(160f));
+                        m_Controller.MinAppVersion = EditorGUILayout.IntField(m_Controller.MinAppVersion);
+                    }
+                    EditorGUILayout.EndHorizontal();
                     EditorGUILayout.BeginHorizontal();
                     {
                         EditorGUILayout.LabelField("Output Directory", GUILayout.Width(160f));

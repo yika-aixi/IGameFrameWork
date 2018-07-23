@@ -16,20 +16,35 @@ namespace Icarus.GameFramework.Version
         //并集 -> 以持久化为主
         public List<AssetBundleInfo> AssetBundleInfos { get; private set; }
 
+        [JsonProperty("MinAppVersion")]
+        public int MinAppVersion { get; private set; }
+
         public VersionInfo():this("")
         { 
         }
         public VersionInfo(string version):this(version,new List<AssetBundleInfo>())
         {
         }
-        
+
+        public VersionInfo(string version,int minAppVersion) 
+            : this(version, new List<AssetBundleInfo>(), minAppVersion)
+        {
+        }
+
         [JsonConstructor]
         public VersionInfo(string version, List<AssetBundleInfo> assetBundleInfos)
+            :this(version, assetBundleInfos,0)
+        {
+        }
+
+        [JsonConstructor]
+        public VersionInfo(string version, List<AssetBundleInfo> assetBundleInfos,int minAppVersion)
         {
             Version = version;
             AssetBundleInfos = assetBundleInfos;
+            MinAppVersion = minAppVersion;
         }
-        
+
         /// <summary>
         /// 是否存在该资源包
         /// </summary>

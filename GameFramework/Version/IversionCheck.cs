@@ -10,6 +10,12 @@ namespace Icarus.GameFramework.Version
         string Url { get; set; }
 
         /// <summary>
+        /// 严格模式 - 对比文件md5
+        /// 不严格模式 - 只对比文件记录得md5
+        /// </summary>
+        bool StrictMode { get; set; }
+
+        /// <summary>
         /// 服务器version.info
         /// </summary>
         VersionInfo ServerVersionInfo { get; }
@@ -20,11 +26,19 @@ namespace Icarus.GameFramework.Version
         VersionInfo LocalVersionInfo { get; }
 
         /// <summary>
+        /// 获取持久化目录版本信息
+        /// </summary>
+        VersionInfo PersistentInfos { get;}
+
+        /// <summary>
         /// 开始检查
         /// </summary>
-        /// <paramref name="completeHandle">参数1：更新列表，参数2：本地版本信息文件</paramref>
+        /// <paramref name="checkAssetBundleInfoCompleteHandle">参数1：更新列表，参数2：本地版本信息文件</paramref>
         /// <returns>所有需要更新的包</returns>
-        void Check(bool strictMode = true,GameFrameworkAction<IEnumerable<AssetBundleInfo>> completeHandle = null,GameFrameworkAction<string> errorHandle = null,GameFrameworkAction<string> stateUpdateHandle = null);
+        void Check(
+            GameFrameworkAction<IEnumerable<AssetBundleInfo>> checkAssetBundleInfoCompleteHandle = null,
+            GameFrameworkFunc<string> getAppUpdateUrl = null,
+            GameFrameworkAction<string> errorHandle = null,GameFrameworkAction<string> stateUpdateHandle = null);
 
         /// <summary>
         /// 获取指定资源组的更新列表

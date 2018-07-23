@@ -17,9 +17,8 @@ namespace Icarus.UnityGameFramework.Runtime
     [AddComponentMenu("Icarus/Game Framework/Default Download")]
     public class DefaultUpdateAssetBundleComponent: UnityGameFrameWorkBehaviour, IUpdateAssetBundle
     {
-        public DownloadManager DownloadManager;
-        public CoroutineManager Coroutine;
-        private string VersionInfoFileName = "version.info";
+        private DownloadManager _downloadManager;
+        private CoroutineManager _coroutine;
         public void UpdateAssetBundle(UpdateInfo updateInfo, IEnumerable<AssetBundleInfo> assetBundleifInfos, 
             VersionInfo persistentInfos,
             string version,
@@ -28,23 +27,7 @@ namespace Icarus.UnityGameFramework.Runtime
             GameFrameworkAction allCompleteHandle = null,
             GameFrameworkAction<string> errorHandle = null)
         {
-            int appVersion = -1;
-
-            try
-            {
-                appVersion = int.Parse(Application.version.Split('.').Last());
-            }
-            catch (Exception e)
-            {
-                errorHandle?.Invoke($"请确保 Edit-->Project Settings-->Player --> Other Setting 下的 Version 字段‘.’分割的最后一位是int值，如：0.1.1s.2,‘2’就是我默认的规则");
-                return;
-            }
-            if (appVersion < updateInfo.MinAppVersion)
-            {
-                Application.OpenURL(updateInfo.AppUpdateUrl);
-                return;
-            }
-            DownloadManager.AllCompleteHandle = ()=>
+            _downloadManager.AllCompleteHandle = ()=>
             {
                 persistentInfos.SetVersion(version);
 
@@ -73,24 +56,26 @@ namespace Icarus.UnityGameFramework.Runtime
                     SavePath = Path.Combine(Application.persistentDataPath, assetBundleInfo.PackPath),
                     Url = updateInfo.AssetBundleUrl+"/"+ assetBundleInfo.PackFullName.Replace("dat","zip"),
                     IsFindCacheLibrary = false, //ab包更新不找缓存
-                    DownloadUtil = new UnityWebRequestDownload(Coroutine)
+                    DownloadUtil = new UnityWebRequestDownload(_coroutine)
 
                 });
             }
 
-            DownloadManager.AddRangeDownload(downloadUnitInfos);
+            _downloadManager.AddRangeDownload(downloadUnitInfos);
         }
 
         private void _updateVersionInfoFile(VersionInfo persistentInfos)
         {
             var by = persistentInfos.JiaMiSerialize();
-            File.WriteAllBytes(Path.Combine(Application.persistentDataPath, VersionInfoFileName), by);
+            File.WriteAllBytes(Path.Combine(Application.persistentDataPath,ConstTable.VersionFileName), by);
         }
 
         protected virtual void Start()
         {
-            DownloadManager = new DownloadManager();
-            DownloadManager.Init();
+            _downloadManager = new DownloadManager();
+            _downloadManager.Init();
+
+            _coroutine = GameEntry.GetComponent<CoroutineManager>();
         }
 
     }
