@@ -513,6 +513,11 @@ namespace Icarus.UnityGameFramework.Runtime
             m_ResourceManager.InitResources();
         }
 
+        public bool ExistAsset(string assetName)
+        {
+            return m_ResourceManager.ExistAsset(assetName);
+        }
+
         public IEnumerable<string> GetAssetGroupList(string groupTag)
         {
             return m_ResourceManager.GetAssetGroupList(groupTag);

@@ -5,18 +5,34 @@
 // Feedback: mailto:jiangyin@gameframework.cn
 //------------------------------------------------------------
 
+using System;
 using Icarus.GameFramework.Version;
 using System.IO;
 using System.Linq;
+using UnityEngine;
 
 namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
 {
     internal partial class AssetBundleBuilderController
     {
         private VersionInfo _version;
-        void _initVersion(string version)
+        void _initVersion(string version,int minAppVersion)
         {
-            _version = new VersionInfo(version);
+            _version = new VersionInfo(version, minAppVersion);
+            try
+            {
+                var i = int.Parse(Application.version.Split('.').Last());
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(
+                    $"使用'DefaultVersionCheckCompontent'时,请确保 Edit-->" +
+                    $"Project Settings-->Player --> " +
+                    $"Other Setting 下的 Version " +
+                    $"字段‘.’分割的" +
+                    $"最后一位是int值，如：0.1.1s.2,‘2’就是'DefaultVersionCheckCompontent'组件" +
+                    $"用来判断APP版本是否满足最低版本要求的值");
+            }
         }
         /// <summary>
         /// 

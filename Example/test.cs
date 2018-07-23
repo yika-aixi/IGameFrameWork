@@ -15,12 +15,13 @@ public class test : MonoBehaviour
     public string AssetName;
     public UpdateInfo Info;
     public bool 严格模式 = true;
+    public string AppUpdateUrl;
     private EventComponent _eventComponent;
     private BaseComponent _baseComponent;
     private ResourceComponent _resourceComponent;
     private SceneComponent _sceneComponent;
 
-    private DefaultVersionCheckComPontent _versionCheck;
+    private DefaultVersionCheckCompontent _versionCheck;
 
     private DefaultUpdateAssetBundleComponent _update;
     // Use this for initialization
@@ -45,7 +46,7 @@ public class test : MonoBehaviour
         if (!_baseComponent.EditorResourceMode)
         {
             //进行资源版本检测
-            _versionCheck = GameEntry.GetComponent<DefaultVersionCheckComPontent>();
+            _versionCheck = GameEntry.GetComponent<DefaultVersionCheckCompontent>();
             if (!_versionCheck)
             {
                 Debug.LogError("Default VersionCheck ComPontent is invalid.");
@@ -53,7 +54,8 @@ public class test : MonoBehaviour
             }
 
             _versionCheck.Url = Info.AssetBundleUrl+"/"+ConstTable.VersionFileName;
-            _versionCheck.Check(严格模式, x =>
+            _versionCheck.StrictMode = 严格模式;
+            _versionCheck.Check(x =>
             {
                 _isInit = true;
                 foreach (var info in x)
@@ -69,7 +71,7 @@ public class test : MonoBehaviour
                 }
                 _UpdateAssetbundle(x, ()=> { _loadAsset1(); });
                 
-            }, errorHandle: Debug.LogError,stateUpdateHandle: Debug.Log);
+            },()=> AppUpdateUrl, errorHandle: Debug.LogError,stateUpdateHandle: Debug.Log);
             
         }
         else

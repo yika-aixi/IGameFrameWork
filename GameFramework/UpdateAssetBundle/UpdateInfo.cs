@@ -5,6 +5,5 @@
     {
         public string AssetBundleUrl;
         public string AppUpdateUrl;
-        public int MinAppVersion;
     }
 }

@@ -143,6 +143,12 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
             set;
         }
 
+        public int MinAppVersion
+        {
+            get;
+            set;
+        }
+
         public string UnityVersion
         {
             get
@@ -360,6 +366,9 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                         case "InternalResourceVersion":
                             InternalResourceVersion = int.Parse(xmlNode.InnerText) + 1;
                             break;
+                        case "MinAppVersion":
+                            MinAppVersion = int.Parse(xmlNode.InnerText);
+                            break;
                         case "WindowsSelected":
                             WindowsSelected = bool.Parse(xmlNode.InnerText);
                             break;
@@ -457,6 +466,9 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
 
                 xmlElement = xmlDocument.CreateElement("InternalResourceVersion");
                 xmlElement.InnerText = InternalResourceVersion.ToString();
+                xmlSettings.AppendChild(xmlElement);
+                xmlElement = xmlDocument.CreateElement("MinAppVersion");
+                xmlElement.InnerText = MinAppVersion.ToString();
                 xmlSettings.AppendChild(xmlElement);
                 xmlElement = xmlDocument.CreateElement("WindowsSelected");
                 xmlElement.InnerText = WindowsSelected.ToString();
@@ -566,13 +578,14 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
 
         public bool BuildAssetBundles()
         {
-            //初始化版本文件信息
-            _initVersion(string.Format("{0}({1})", ApplicableGameVersion, InternalResourceVersion));
-
             if (!IsValidOutputDirectory)
             {
                 return false;
             }
+
+            //初始化版本文件信息
+            _initVersion(string.Format("{0}({1})",
+                ApplicableGameVersion, InternalResourceVersion), MinAppVersion);
 
             Icarus.GameFramework.Utility.Zip.SetZipHelper(new DefaultZipHelper());
 

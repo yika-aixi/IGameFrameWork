@@ -73,7 +73,7 @@ namespace Icarus.UnityGameFramework.Editor
             }
 
             string versionInfoListPath =
-                Icarus.GameFramework.Utility.Path.GetCombinePath(Application.streamingAssetsPath, "version.info");
+                Icarus.GameFramework.Utility.Path.GetCombinePath(Application.streamingAssetsPath, ConstTable.VersionFileName);
             VersionInfo version = new VersionInfo();
             if (File.Exists(versionInfoListPath))
             {
@@ -161,7 +161,8 @@ namespace Icarus.UnityGameFramework.Editor
                 Debug.Log("更新后的资源包信息:"+bundleInfo);
             }
 
-            Debug.Log("更新version.info文件完成,更新了"+i+"个,删除了:"+j+".如果是新增加的资源包,那么他们都是必须的资源包,且都没资源组Tag");
+            Debug.Log("更新version.info文件完成,更新了"+i+"个,删除了:"+j+"." +
+                      "如果是增加的资源包,那他们都属于默认资源组,");
 
         }
 
