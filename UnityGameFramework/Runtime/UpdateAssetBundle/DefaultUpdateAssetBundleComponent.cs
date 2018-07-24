@@ -18,6 +18,7 @@ namespace Icarus.UnityGameFramework.Runtime
     public class DefaultUpdateAssetBundleComponent: UnityGameFrameWorkBehaviour, IUpdateAssetBundle
     {
         private DownloadManager _downloadManager;
+        [SerializeField]
         private CoroutineManager _coroutine;
         public void UpdateAssetBundle(UpdateInfo updateInfo, IEnumerable<AssetBundleInfo> assetBundleifInfos, 
             VersionInfo persistentInfos,
@@ -74,8 +75,6 @@ namespace Icarus.UnityGameFramework.Runtime
         {
             _downloadManager = new DownloadManager();
             _downloadManager.Init();
-
-            _coroutine = GameEntry.GetComponent<CoroutineManager>();
         }
 
     }
