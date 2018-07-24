@@ -12,22 +12,7 @@ namespace Icarus.UnityGameFramework.Runtime
     [AddComponentMenu("Icarus/Game Framework/Coroutine Manager")]
     public class CoroutineManager : MonoBehaviour
     {
-        void Awake()
-        {
-
-        }
-
-        // Use this for initialization
-        void Start()
-        {
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            
-        }
-
+        
         public Coroutine Start_Coroutine(IEnumerator coroutine)
         {
             return StartCoroutine(coroutine);
