@@ -1,5 +1,9 @@
 # IGameFramework
 
+该分支依赖:`Bolt`否则会报错
+
+[Bolt](https://www.assetstore.unity3d.com/#!/content/87491?aid=1011lGiW)
+
 zh:`Icarus/Util/Bolt/Update Flow Unit` 每次更新时都会对需要更新的资源进行备份,备份文件为:`xxx.asset_Back当前时间的Ticks`
 
 en:`Icarus/Util/Bolt/Update Flow Unit` Each update will back up the resources that need to be updated. The backup file is: `xxx.asset_Back Ticks of the current time.
