@@ -326,7 +326,7 @@ namespace Icarus.GameFramework.Download
                 : download.CacheExpiredDay;
 
             download.DownloadUtil.Download(
-                    download.Url, download.SavePath, download.FileName,download.DownloadStartHandle, download.DownloadProgressHandle,
+                    download.Url,download.Headers, download.SavePath, download.FileName,download.DownloadStartHandle, download.DownloadProgressHandle,
                     x =>
                     {
                         _complete(download);

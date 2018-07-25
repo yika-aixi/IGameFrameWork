@@ -5,6 +5,7 @@
 //Assembly-CSharp
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -63,7 +64,7 @@ namespace Icarus.GameFramework.Download
         protected Action<string> ErrorHandle { get; private set; }
 
         protected DownloadInfo DownloadInfo = default(DownloadInfo);
-        public virtual void Download(string url, string savePath, string fileName = "", Action<DownloadInfo> downloadStartHandle = null, Action<DownloadProgressInfo, string> downloadProgressHandle = null, Action<string> completeHandle = null, Action<string> errorHandle = null)
+        public virtual void Download(string url, Dictionary<string, string> headers, string savePath, string fileName = "", Action<DownloadInfo> downloadStartHandle = null, Action<DownloadProgressInfo, string> downloadProgressHandle = null, Action<string> completeHandle = null, Action<string> errorHandle = null)
         {
             Url = url;
             if (Path.HasExtension(savePath))
@@ -79,7 +80,7 @@ namespace Icarus.GameFramework.Download
             ProgressHandle = downloadProgressHandle;
             CompleteHandle = completeHandle;
             ErrorHandle = errorHandle;
-            _updateServerFileInfo();     
+            _updateServerFileInfo(headers);
         }
 
         /// <summary>
@@ -95,7 +96,7 @@ namespace Icarus.GameFramework.Download
         protected abstract void Download();
 
 
-        private async void _updateServerFileInfo()
+        private async void _updateServerFileInfo(Dictionary<string, string> headers)
         {
             ProgressHandle?.Invoke(new DownloadProgressInfo(0),
                             DownloadMessageCode.GetMessage((int)DownloadMessageCodeTable.开始确认远程));
@@ -104,6 +105,14 @@ namespace Icarus.GameFramework.Download
 #endif
             MyWebClient client = new MyWebClient();
             HttpWebRequest request = WebRequest.CreateHttp(new Uri(Url));
+
+            if (headers != null)
+            {
+                foreach (var pair in headers)
+                {
+                    request.Headers.Add(pair.Key, pair.Value);
+                }
+            }
             request.Timeout = TimeOut;
             WebResponse response;
             try
@@ -137,7 +146,7 @@ namespace Icarus.GameFramework.Download
                 long.TryParse(contentLength, out lenght);
                 ServeLength = (ulong)lenght;
             }
-            
+
             var p = Url.Split('/', '\\');
             ServerFileName = p.Last();
 
@@ -321,7 +330,7 @@ namespace Icarus.GameFramework.Download
 
         protected virtual float GetProgress(ulong lenght)
         {
-            return (DownloadCacheFileLenght + lenght) / (float) ServeLength;
+            return (DownloadCacheFileLenght + lenght) / (float)ServeLength;
         }
 
         public virtual void Dispose()

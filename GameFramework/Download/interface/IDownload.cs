@@ -5,6 +5,7 @@
 //Assembly-CSharp
 
 using System;
+using System.Collections.Generic;
 
 namespace Icarus.GameFramework.Download
 {
@@ -27,13 +28,14 @@ namespace Icarus.GameFramework.Download
         /// 下载
         /// </summary>
         /// <param name="url">下载地址</param>
+        /// <param name="headers">请求头</param>
         /// <param name="savePath">文件保存路径</param>
         /// <param name="fileName">文件名,默认为远程文件名</param>
         /// <param name="downloadStartHandle">下载开始</param>
         /// <param name="downloadProgressHandle">下载中,参数:下载进度(0-1),描述</param>
         /// <param name="completeHandle">下载成功,参数:文件保存路径</param>
         /// <param name="errorHandle">下载出错,参数:错误信息</param>
-        void Download(string url,string savePath,string fileName = "",Action<DownloadInfo> downloadStartHandle = null, Action<DownloadProgressInfo,string> downloadProgressHandle = null, Action<string> completeHandle = null, Action<String> errorHandle = null);
+        void Download(string url, Dictionary<string, string> headers, string savePath,string fileName = "",Action<DownloadInfo> downloadStartHandle = null, Action<DownloadProgressInfo,string> downloadProgressHandle = null, Action<string> completeHandle = null, Action<String> errorHandle = null);
 
     }
 }
