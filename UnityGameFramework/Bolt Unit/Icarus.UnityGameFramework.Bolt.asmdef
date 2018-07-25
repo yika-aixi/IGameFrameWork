@@ -1,0 +1,11 @@
+{
+    "name": "Icarus.UnityGameFramework.Bolt",
+    "references": [
+        "Icarus.GameFramework",
+        "Icarus.UnityGameFramework.Runtime"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
