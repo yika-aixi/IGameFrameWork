@@ -325,6 +325,31 @@ namespace Icarus.GameFramework.Resource
         void LoadAsset(string assetName, Type assetType, int priority, LoadAssetCallbacks loadAssetCallbacks, object userData);
 
         /// <summary>
+        /// 异步加载资源列表。
+        /// </summary>
+        /// <param name="assetNames">要加载资源名称列表。</param>
+        /// <param name="assetType">要加载资源的类型。</param>
+        /// <param name="priority">加载资源的优先级。</param>
+        /// <param name="loadAssetsSuccessCallback">资源列表加载完成回调</param>
+        /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
+        /// <param name="userData">用户自定义数据。</param>
+        void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,
+            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks,
+            object userData);
+
+        /// <summary>
+        /// 异步加载资源列表。
+        /// </summary>
+        /// <param name="assetNames">要加载资源名称列表。</param>
+        /// <param name="assetTypes">要加载资源的类型和资源列表数量对应，少于将会把后续的资源类型使用最后一个元素</param>
+        /// <param name="prioritys">加载资源的优先级和资源列表数量对应，少于将会把后续的资源类型使用最后一个元素</param>
+        /// <param name="loadAssetsSuccessCallback">资源列表加载完成回调</param>
+        /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
+        /// <param name="userData">用户自定义数据。</param>
+        void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys,
+            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks,
+            object userData);
+        /// <summary>
         /// 卸载资源。
         /// </summary>
         /// <param name="asset">要卸载的资源。</param>

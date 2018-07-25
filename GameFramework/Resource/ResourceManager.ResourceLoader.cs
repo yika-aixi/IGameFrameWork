@@ -8,6 +8,7 @@
 using Icarus.GameFramework.ObjectPool;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Icarus.GameFramework.Resource
 {
@@ -211,6 +212,20 @@ namespace Icarus.GameFramework.Resource
             public void Update(float elapseSeconds, float realElapseSeconds)
             {
                 m_TaskPool.Update(elapseSeconds, realElapseSeconds);
+                if (_loadAssetsSuccessCallback != null)
+                {
+                    if (m_TaskPool.WaitingTaskCount == 0 &&
+                        m_TaskPool.WorkingAgentCount == 0)
+                    {
+                        _loadAssetsSuccessCallback(_assetNames, _assets, _duration, _userData);
+                        _loadAssetsSuccessCallback = null;
+                        _assetNames.Clear();
+                        _assets.Clear();
+                        _duration = 0;
+                        _userData = null;
+                    }
+                }
+                
             }
 
             /// <summary>
@@ -313,6 +328,73 @@ namespace Icarus.GameFramework.Resource
                 m_TaskPool.AddTask(mainTask);
             }
 
+           
+            /// <summary>
+            /// 异步加载资源列表。
+            /// </summary>
+            /// <param name="assetNames">要加载资源名称列表。</param>
+            /// <param name="assetType">要加载资源的类型。</param>
+            /// <param name="priority">加载资源的优先级。</param>
+            /// <param name="loadAssetsSuccessCallback">资源列表加载完成回调</param>
+            /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
+            /// <param name="userData">用户自定义数据。</param>
+            public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,
+                LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+            {
+                LoadAssets(assetNames,new[]{assetType},new[]{priority}, loadAssetsSuccessCallback, loadAssetCallbacks,userData);
+            }
+
+            LoadAssetsSuccessCallback _loadAssetsSuccessCallback;
+            readonly List<string> _assetNames = new List<string>();
+            readonly List<object> _assets = new List<object>();
+            private float _duration;
+            private object _userData;
+            /// <summary>
+            /// 异步加载资源列表。
+            /// </summary>
+            /// <param name="assetNames">要加载资源名称列表。</param>
+            /// <param name="assetTypes">要加载资源的类型和资源列表数量对应，少于将会把后续的资源类型使用最后一个元素</param>
+            /// <param name="prioritys">加载资源的优先级和资源列表数量对应，少于将会把后续的资源类型使用最后一个元素</param>
+            /// <param name="loadAssetsSuccessCallback">资源列表加载完成回调</param>
+            /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
+            /// <param name="userData">用户自定义数据。</param>
+            public void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys,
+                LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+            {
+                _loadAssetsSuccessCallback = loadAssetsSuccessCallback;
+                _userData = userData;
+                int i = 0;
+                Type type = null;
+                int priority = 0;
+                
+                foreach (var assetName in assetNames)
+                {
+                    if (assetTypes != null)
+                    {
+                        if (i > assetTypes.Length)
+                        {
+                            type = assetTypes.Last();
+                        }
+                    }
+
+                    if (prioritys == null)
+                    {
+                        if (i > prioritys.Length)
+                        {
+                            priority = prioritys.Last();
+                        }
+                    }
+                    
+                    LoadAsset(assetName,type,priority,
+                        new LoadAssetCallbacks((name, asset, duration, data) =>
+                        {
+                            _assetNames.Add(name);
+                            _assets.Add(asset);
+                            _duration += duration;
+                            loadAssetCallbacks.LoadAssetSuccessCallback(assetName, asset, duration, userData);
+                        },loadAssetCallbacks.LoadAssetFailureCallback, loadAssetCallbacks.LoadAssetUpdateCallback,loadAssetCallbacks.LoadAssetDependencyAssetCallback),userData);
+                }
+            }
             /// <summary>
             /// 卸载资源。
             /// </summary>
