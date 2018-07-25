@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Icarus.UnityGameFramework.Runtime
 {
@@ -52,13 +53,20 @@ namespace Icarus.UnityGameFramework.Runtime
         public void Check(GameFrameworkAction<IEnumerable<AssetBundleInfo>> completeHandle = null,
             GameFrameworkFunc<string> getAppUpdateUrl = null,GameFrameworkAction<string> errorHandle = null, GameFrameworkAction<string> stateUpdateHandle = null)
         {
+            Check(null,completeHandle,getAppUpdateUrl,errorHandle,stateUpdateHandle);
+        }
+
+        public void Check(Dictionary<string, string> headers, GameFrameworkAction<IEnumerable<AssetBundleInfo>> checkAssetBundleInfoCompleteHandle = null,
+            GameFrameworkFunc<string> getAppUpdateUrl = null, GameFrameworkAction<string> errorHandle = null,
+            GameFrameworkAction<string> stateUpdateHandle = null)
+        {
             _isInitCheck = false;
-            _completeHandle = completeHandle;
+            _completeHandle = checkAssetBundleInfoCompleteHandle;
             _errorHandle = errorHandle;
             _stateUpdateHandle = stateUpdateHandle;
             _getAppUpdateUrl = getAppUpdateUrl;
             _stateUpdate("资源版本,检查开始!");
-            StartCoroutine(_check());
+            StartCoroutine(_check(headers));
         }
 
         void _stateUpdate(string str)
@@ -96,15 +104,15 @@ namespace Icarus.UnityGameFramework.Runtime
             return _existUpdateAssetBundle(serverABs, localABs);
         }
 
-        private IEnumerator _check()
+        private IEnumerator _check(Dictionary<string, string> headers)
         {
-            var url = GameFramework.Utility.Path.GetRemotePath(Path.Combine(Application.streamingAssetsPath,
+            var path = GameFramework.Utility.Path.GetRemotePath(Path.Combine(Application.streamingAssetsPath,
                 ConstTable.VersionFileName));
             VersionInfo streamInfos;
             VersionInfo persistentInfos;
             VersionInfo serverInfos;
             VersionInfo version;
-            using (WWW www = new WWW(url))
+            using (WWW www = new WWW(path))
             {
                 yield return www;
                 if (string.IsNullOrEmpty(www.error))
@@ -156,17 +164,26 @@ namespace Icarus.UnityGameFramework.Runtime
             var localAllInfo = new VersionInfo(persistentInfos.Version,
                 persistentInfos.AssetBundleInfos.Union(streamInfos.AssetBundleInfos).ToList());
 
-            using (WWW www = new WWW(Url))
+            using (UnityWebRequest request = UnityWebRequest.Get(Url))
             {
-                yield return www;
-                if (!string.IsNullOrEmpty(www.error))
+                if (headers != null)
+                {
+                    foreach (var pair in headers)
+                    {
+                        request.SetRequestHeader(pair.Key,pair.Value);
+                    }
+                }
+                request.downloadHandler = new DownloadHandlerBuffer();
+                yield return request.SendWebRequest();
+
+                if (!string.IsNullOrEmpty(request.error))
                 {
                     _stateUpdate($"资源版本检查失败!");
-                    _errorHandle?.Invoke(www.error);
+                    _errorHandle?.Invoke(request.error);
                     yield break;
                 }
 
-                version = _jieMi(www.bytes);
+                version = _jieMi(request.downloadHandler.data);
                 if (version == null)
                 {
                     _stateUpdate($"资源版本检查失败!");

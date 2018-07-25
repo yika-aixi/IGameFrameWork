@@ -5,6 +5,7 @@
 //Assembly-CSharp
 
 using System;
+using System.Collections.Generic;
 
 namespace Icarus.GameFramework.Download
 {
@@ -22,6 +23,12 @@ namespace Icarus.GameFramework.Download
         /// 下载地址
         /// </summary>
         public string Url;
+
+        /// <summary>
+        /// 请求头
+        /// </summary>
+        public Dictionary<string,string> Headers;
+
         /// <summary>
         /// 文件保存路径
         /// </summary>

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Networking;
 using Application = UnityEngine.Application;
 
 namespace Icarus.UnityGameFramework.Runtime
@@ -17,7 +18,7 @@ namespace Icarus.UnityGameFramework.Runtime
     [AddComponentMenu("Icarus/Game Framework/UpdateAssetBundle")]
     public class DefaultUpdateAssetBundleComponent: UnityGameFrameWorkBehaviour, IUpdateAssetBundle
     {
-        private DownloadManager _downloadManager;
+        public DownloadManager DownloadManager { get; private set; }
         [SerializeField]
         private CoroutineManager _coroutine;
         public void UpdateAssetBundle(UpdateInfo updateInfo, IEnumerable<AssetBundleInfo> assetBundleifInfos, 
@@ -28,7 +29,17 @@ namespace Icarus.UnityGameFramework.Runtime
             GameFrameworkAction allCompleteHandle = null,
             GameFrameworkAction<string> errorHandle = null)
         {
-            _downloadManager.AllCompleteHandle = ()=>
+            UpdateAssetBundle(updateInfo, null, assetBundleifInfos, persistentInfos, version, progressHandle, anyCompleteHandle,
+                allCompleteHandle, errorHandle);
+        }
+
+        public void UpdateAssetBundle(UpdateInfo updateInfo, Dictionary<string, string> headers, 
+            IEnumerable<AssetBundleInfo> assetBundleifInfos,
+            VersionInfo persistentInfos, string version, GameFrameworkAction<DownloadProgressInfo, string> progressHandle = null,
+            GameFrameworkAction<AssetBundleInfo> anyCompleteHandle = null, GameFrameworkAction allCompleteHandle = null,
+            GameFrameworkAction<string> errorHandle = null)
+        {
+            DownloadManager.AllCompleteHandle = () =>
             {
                 persistentInfos.SetVersion(version);
 
@@ -38,6 +49,16 @@ namespace Icarus.UnityGameFramework.Runtime
             List<DownloadUnitInfo> downloadUnitInfos = new List<DownloadUnitInfo>();
             foreach (var assetBundleInfo in assetBundleifInfos)
             {
+                var downloadTools = new UnityWebRequestDownload(_coroutine);
+                if (headers != null)
+                {
+                    var unityWeb = (UnityWebRequest) downloadTools.DownlodTool;
+
+                    foreach (var pair in headers)
+                    {
+                        unityWeb.SetRequestHeader(pair.Key,pair.Value);
+                    }
+                }
                 downloadUnitInfos.Add(new DownloadUnitInfo()
                 {
                     CompleteHandle = x =>
@@ -55,14 +76,15 @@ namespace Icarus.UnityGameFramework.Runtime
                     DownloadProgressHandle = progressHandle.Invoke,
                     FileName = assetBundleInfo.PackName.Replace("dat", "zip"),
                     SavePath = Path.Combine(Application.persistentDataPath, assetBundleInfo.PackPath),
-                    Url = updateInfo.AssetBundleUrl+"/"+ assetBundleInfo.PackFullName.Replace("dat","zip"),
+                    Url = updateInfo.AssetBundleUrl + "/" + assetBundleInfo.PackFullName.Replace("dat", "zip"),
                     IsFindCacheLibrary = false, //ab包更新不找缓存
-                    DownloadUtil = new UnityWebRequestDownload(_coroutine)
+                    DownloadUtil = downloadTools,
+                    Headers = headers
 
                 });
             }
 
-            _downloadManager.AddRangeDownload(downloadUnitInfos);
+            DownloadManager.AddRangeDownload(downloadUnitInfos);
         }
 
         private void _updateVersionInfoFile(VersionInfo persistentInfos)
@@ -73,8 +95,8 @@ namespace Icarus.UnityGameFramework.Runtime
 
         protected virtual void Start()
         {
-            _downloadManager = new DownloadManager();
-            _downloadManager.Init();
+            DownloadManager = new DownloadManager();
+            DownloadManager.Init();
         }
 
     }
