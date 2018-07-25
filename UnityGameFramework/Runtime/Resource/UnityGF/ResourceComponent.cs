@@ -525,6 +525,7 @@ namespace Icarus.UnityGameFramework.Runtime
 
         public IEnumerable<string> GetAssetsList(string abName)
         {
+            abName = abName.ToLower();
             return m_ResourceManager.GetAssetsList(abName);
         }
 
@@ -624,6 +625,30 @@ namespace Icarus.UnityGameFramework.Runtime
         public void LoadAsset(string assetName, Type assetType, int priority, LoadAssetCallbacks loadAssetCallbacks, object userData)
         {
             m_ResourceManager.LoadAsset(assetName, assetType, priority, loadAssetCallbacks, userData);
+        }
+
+        public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,
+            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks)
+        {
+            LoadAssets(assetNames, assetType, priority, loadAssetsSuccessCallback, loadAssetCallbacks, null);
+        }
+
+        public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,
+            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+        {
+            m_ResourceManager.LoadAssets(assetNames, new[] { assetType }, new[] { priority }, loadAssetsSuccessCallback, loadAssetCallbacks, userData);
+        }
+
+        public void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys,
+            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks)
+        {
+            m_ResourceManager.LoadAssets(assetNames, assetTypes, prioritys, loadAssetsSuccessCallback, loadAssetCallbacks, null);
+        }
+
+        public void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys,
+            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+        {
+            m_ResourceManager.LoadAssets(assetNames, assetTypes, prioritys, loadAssetsSuccessCallback, loadAssetCallbacks, userData);
         }
 
         /// <summary>

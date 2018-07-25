@@ -689,6 +689,51 @@ namespace Icarus.GameFramework.Resource
         }
 
         /// <summary>
+        /// 异步加载资源列表。
+        /// </summary>
+        /// <param name="assetNames">要加载资源名称列表。</param>
+        /// <param name="assetType">要加载资源的类型。</param>
+        /// <param name="priority">加载资源的优先级。</param>
+        /// <param name="loadAssetsSuccessCallback">资源列表加载完成回调</param>
+        /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
+        /// <param name="userData">用户自定义数据。</param>
+        public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,
+            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+        {
+            LoadAssets(assetNames, new[] { assetType }, new[] { priority }, loadAssetsSuccessCallback, loadAssetCallbacks, userData);
+        }
+
+        /// <summary>
+        /// 异步加载资源列表。
+        /// </summary>
+        /// <param name="assetNames">要加载资源名称列表。</param>
+        /// <param name="assetTypes">要加载资源的类型和资源列表数量对应，少于将会把后续的资源类型使用最后一个元素</param>
+        /// <param name="prioritys">加载资源的优先级和资源列表数量对应，少于将会把后续的资源类型使用最后一个元素</param>
+        /// <param name="loadAssetsSuccessCallback">资源列表加载完成回调</param>
+        /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
+        /// <param name="userData">用户自定义数据。</param>
+        public void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys,
+            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+        {
+            if (assetNames == null)
+            {
+                throw new GameFrameworkException("Asset names is invalid.");
+            }
+
+            if (loadAssetsSuccessCallback == null)
+            {
+                throw new GameFrameworkException("Load assets callback is invalid.");
+            }
+
+            if (loadAssetCallbacks == null)
+            {
+                throw new GameFrameworkException("Load asset callbacks is invalid.");
+            }
+
+            m_ResourceLoader.LoadAssets(assetNames, assetTypes, prioritys, loadAssetsSuccessCallback, loadAssetCallbacks, userData);
+        }
+
+        /// <summary>
         /// 卸载资源。
         /// </summary>
         /// <param name="asset">要卸载的资源。</param>

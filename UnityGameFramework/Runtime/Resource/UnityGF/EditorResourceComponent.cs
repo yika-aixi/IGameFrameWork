@@ -10,6 +10,7 @@ using Icarus.GameFramework.ObjectPool;
 using Icarus.GameFramework.Resource;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -59,7 +60,7 @@ namespace Icarus.UnityGameFramework.Runtime
                 return m_ReadWritePath;
             }
         }
-        
+
         /// <summary>
         /// 获取当前变体。
         /// </summary>
@@ -364,6 +365,18 @@ namespace Icarus.UnityGameFramework.Runtime
                     }
                 }
             }
+            else
+            {
+                if (_loadAssetsSuccessCallback != null)
+                {
+                    _loadAssetsSuccessCallback(_assetNames, _assets, _duration, _userData);
+                    _loadAssetsSuccessCallback = null;
+                    _assetNames.Clear();
+                    _assets.Clear();
+                    _duration = 0;
+                    _userData = null;
+                }
+            }
 
             if (m_LoadSceneInfos.Count > 0)
             {
@@ -468,7 +481,7 @@ namespace Icarus.UnityGameFramework.Runtime
 
             m_ReadWritePath = readWritePath;
         }
-        
+
         /// <summary>
         /// 设置当前变体。
         /// </summary>
@@ -486,7 +499,7 @@ namespace Icarus.UnityGameFramework.Runtime
         {
             throw new NotSupportedException("SetObjectPoolManager");
         }
-        
+
         /// <summary>
         /// 设置解密资源回调函数。
         /// </summary>
@@ -522,7 +535,7 @@ namespace Icarus.UnityGameFramework.Runtime
         {
             throw new NotSupportedException("InitResources");
         }
-       
+
         /// <summary>
         /// 检查资源是否存在。
         /// </summary>
@@ -656,6 +669,71 @@ namespace Icarus.UnityGameFramework.Runtime
             m_LoadAssetInfos.AddLast(new LoadAssetInfo(assetName, assetType, priority, DateTime.Now, m_MinLoadAssetRandomDelaySeconds + (float)Icarus.GameFramework.Utility.Random.GetRandomDouble() * (m_MaxLoadAssetRandomDelaySeconds - m_MinLoadAssetRandomDelaySeconds), loadAssetCallbacks, userData));
         }
 
+        public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,
+            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+        {
+            LoadAssets(assetNames, new[] { assetType }, new[] { priority }, loadAssetsSuccessCallback, loadAssetCallbacks, userData);
+        }
+        LoadAssetsSuccessCallback _loadAssetsSuccessCallback;
+        readonly List<string> _assetNames = new List<string>();
+        readonly List<object> _assets = new List<object>();
+        private float _duration;
+        private object _userData;
+        public void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys,
+            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+        {
+            if (assetNames == null)
+            {
+                Log.Error("Asset names is invalid.");
+                return;
+            }
+
+            if (loadAssetsSuccessCallback == null)
+            {
+                Log.Error("Load assets callbacks is invalid.");
+                return;
+            }
+
+            if (loadAssetCallbacks == null)
+            {
+                Log.Error("Load asset callbacks is invalid.");
+                return;
+            }
+
+            _loadAssetsSuccessCallback = loadAssetsSuccessCallback;
+            _userData = userData;
+            int i = 0;
+            Type type = null;
+            int priority = 0;
+            foreach (var assetName in assetNames)
+            {
+                if (assetTypes != null)
+                {
+                    if (i > assetTypes.Length)
+                    {
+                        type = assetTypes.Last();
+                    }
+                }
+
+                if (prioritys == null)
+                {
+                    if (i > prioritys.Length)
+                    {
+                        priority = prioritys.Last();
+                    }
+                }
+
+                LoadAsset(assetName, type, priority,
+                    new LoadAssetCallbacks((name, asset, duration, data) =>
+                    {
+                        _assetNames.Add(name);
+                        _assets.Add(asset);
+                        _duration += duration;
+                        loadAssetCallbacks.LoadAssetSuccessCallback(assetName, asset, duration, userData);
+                    }, loadAssetCallbacks.LoadAssetFailureCallback, loadAssetCallbacks.LoadAssetUpdateCallback, loadAssetCallbacks.LoadAssetDependencyAssetCallback), userData);
+            }
+        }
+
         /// <summary>
         /// 卸载资源。
         /// </summary>
@@ -786,7 +864,7 @@ namespace Icarus.UnityGameFramework.Runtime
             }
 #endif
         }
-      
+
         private sealed class LoadAssetInfo
         {
             private readonly string m_AssetName;
