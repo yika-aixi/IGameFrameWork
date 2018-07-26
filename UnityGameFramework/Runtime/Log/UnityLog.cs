@@ -3,7 +3,6 @@
 //ヾ(•ω•`)o
 //2018年03月06日 21:32:19
 //Client
-#if UNITY_64 || UNITY
 using System;
 using Icarus.GameFramework;
 using UnityEngine;
@@ -105,4 +104,3 @@ namespace Icarus.UnityGameFramework.Runtime
 
     }
 }
-#endif

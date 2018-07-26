@@ -1,7 +1,14 @@
 ﻿using System.IO;
+using Newtonsoft.Json;
 
 namespace Icarus.GameFramework.Version
 {
+    public enum VersionInfoPathType
+    {
+        ReadOnlyPath,
+        ReadWritePath
+    }
+
     public class AssetBundleInfo
     {
         //所属资源组,多组 ',' 分割
@@ -16,6 +23,12 @@ namespace Icarus.GameFramework.Version
         public string MD5;
         //是否可选,false的话就会一定被下载,true的话可以在游戏中让玩家决定是否下载
         public bool Optional;
+
+        /// <summary>
+        /// 版本检测时用到的,赋值由检测时进行赋值
+        /// </summary>
+        [JsonIgnore]
+        public VersionInfoPathType PathType { get; set; } = VersionInfoPathType.ReadOnlyPath;
 
         public override string ToString()
         {
