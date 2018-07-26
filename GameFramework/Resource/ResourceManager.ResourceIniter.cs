@@ -55,12 +55,20 @@ namespace Icarus.GameFramework.Resource
                     throw new GameFrameworkException("Resource helper is invalid.");
                 }
 
-                m_ResourceManager.m_ResourceHelper.
-                    LoadBytes(
-                        Icarus.GameFramework.Utility.Path.GetRemotePath(m_ResourceManager.m_ReadOnlyPath,
-                            Icarus.GameFramework.Utility.Path.GetResourceNameWithSuffix(VersionListFileName)),
-                        ParsePackageListVersion);
+                if (!_isReadOnlyCompolete)
+                {
+                    m_ResourceManager.m_ResourceHelper.
+                        LoadBytes(
+                            Icarus.GameFramework.Utility.Path.GetRemotePath(m_ResourceManager.m_ReadOnlyPath,
+                                Icarus.GameFramework.Utility.Path.GetResourceNameWithSuffix(VersionListFileName)),
+                            ParsePackageListVersion);
+                }
+                else
+                {
+                    _initPersistentDataPath();
+                }
             }
+            private bool _isReadOnlyCompolete;
 
             private int _waitParsePackageList;
             private void ParsePackageListVersion(string fileUri, byte[] bytes, string errorMessage)
@@ -100,6 +108,8 @@ namespace Icarus.GameFramework.Resource
                                     ParsePackageList);
                         }
                     }
+
+                    _isReadOnlyCompolete = true;
                 }
                 catch (Exception exception)
                 {
@@ -144,7 +154,6 @@ namespace Icarus.GameFramework.Resource
                 return files.Length == 0;
             }
             
-            private bool _isCompolete = true;
             /// <summary>
             /// 资源表 -- 当读取Version.dat时会将资源记录
             /// 字典格式为: AB包名 - ab包资源名列表

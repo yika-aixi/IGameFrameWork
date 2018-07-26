@@ -143,6 +143,7 @@ namespace Icarus.UnityGameFramework.Runtime
                 if (version != null)
                 {
                     persistentInfos = version;
+                    persistentInfos.AssetBundleInfos.ForEach(x=>x.PathType = VersionInfoPathType.ReadWritePath);
                     _stateUpdate($"发现本地资源版本,版本为:{persistentInfos.Version}");
                 }
                 else
@@ -363,10 +364,17 @@ namespace Icarus.UnityGameFramework.Runtime
 
             if (localABInfo != null)
             {
-                if (StrictMode)
+                //严格模式,并且本地文件是在读写目录下
+                if (StrictMode && localABInfo.PathType == VersionInfoPathType.ReadWritePath)
                 {
-                    var md5 = GameFramework.Utility.MD5Util.GetFileMd5(
-                        Path.Combine(Application.persistentDataPath,localABInfo.PackFullName));
+                    var abPath = Path.Combine(Application.persistentDataPath, localABInfo.PackFullName);
+
+                    if (!File.Exists(abPath))
+                    {
+                        return false;
+                    }
+
+                    var md5 = GameFramework.Utility.MD5Util.GetFileMd5(abPath);
 
                     if (serverABInfo.MD5 == md5)
                     {
