@@ -18,43 +18,56 @@ namespace Icarus.UnityGameFramework.Bolt.Units
     [UnitTitle("资源更新")]
     public class UpdateAssetBundleUnit:Unit
     {
+        [DoNotSerialize]
         [PortLabelHidden]
         public ControlInput _enter;
 
+        [DoNotSerialize]
+        [PortLabelHidden]
+        public ControlOutput _exit;
+
+        [DoNotSerialize]
         [PortLabel("资源包更新Url")]
-        [Serialize]
         public ValueInput _UrlIn;
 
+        [DoNotSerialize]
         [PortLabel("更新列表")]
         public ValueInput _assetBundleifInfos;
-         
+
+        [DoNotSerialize]
         [PortLabel("更新进度")]
         public ControlOutput _progressExit;
 
+        [DoNotSerialize]
         [PortLabel("更新速度")]
         public ValueOutput _downloadSpeedOut;
 
+        [DoNotSerialize]
         [PortLabel("更新进度(0-1)")]
         public ValueOutput _progressOut;
 
+        [DoNotSerialize]
         [PortLabel("更新进度描述")]
         public ValueOutput _progressStrOut;
-        
+
+        [DoNotSerialize]
         [PortLabel("更新完成一个")]
         public ControlOutput _anyCompleteExit;
 
+        [DoNotSerialize]
         [PortLabel("更新完成一个")]
         public ValueOutput _assetBundleInfoOut;
 
+        [DoNotSerialize]
         [PortLabel("全部更新完成")]
         public ControlOutput _allCompleteExit;
-        
+
+        [DoNotSerialize]
         [PortLabel("更新异常")]
-        [Serialize]
         public ControlOutput _errorExit;
 
+        [DoNotSerialize]
         [PortLabel("更新错误信息")]
-        [Serialize]
         public ValueOutput _errorMessageOut;
 
         [DoNotSerialize]
@@ -70,6 +83,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         protected override void Definition()
         {
             _enter = ControlInput(nameof(_enter), ___enter);
+            _exit = ControlOutput(nameof(_exit));
             _allCompleteExit = ControlOutput(nameof(_allCompleteExit));
             _UrlIn = ValueInput<string>(nameof(_UrlIn));
             _assetBundleifInfos = ValueInput<IEnumerable<AssetBundleInfo>>(nameof(_assetBundleifInfos));
@@ -132,7 +146,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                 }
             });
 
-            return null;
+            return _exit;
         }
 
         private string _getSpeedStr(ulong speed)

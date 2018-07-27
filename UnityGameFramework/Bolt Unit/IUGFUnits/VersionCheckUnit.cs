@@ -48,6 +48,10 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         public ControlOutput _exit;
 
         [DoNotSerialize]
+        [PortLabel("检查更新完成")]
+        public ControlOutput _completeExit;
+
+        [DoNotSerialize]
         [PortLabel("检查更新失败")]
         public ControlOutput _errorExit;
 
@@ -77,9 +81,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         {
             _enter = ControlInput(nameof(_enter),__enter);
             _exit = ControlOutput(nameof(_exit));
-
-           
-
+            
             switch (Type)
             {
                 case VersionCheckCallType.检查更新:
@@ -114,6 +116,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 
             if (Type == VersionCheckCallType.检查更新)
             {
+                _completeExit = ControlOutput(nameof(_completeExit));
                 _headersIn = ValueInput<Dictionary<string, string>>(nameof(_headersIn));
                 _appUpdateUrlIn = ValueInput<string>(nameof(_appUpdateUrlIn));
                 _errorExit = ControlOutput(nameof(_errorExit));
@@ -161,7 +164,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                     version.Check(headers, x =>
                     {
                         _assetBundles = x;
-                        fl.Invoke(_exit);
+                        fl.Invoke(_completeExit);
                         fl.Dispose();
                     }, () => appUpdateUrl,ex =>
                     {
@@ -173,25 +176,27 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                         _stateStr = x;
                         fl.Invoke(_stateUpdateExit);
                     });
-                    return null;
+                    break;
                 case VersionCheckCallType.获取服务器版本信息:
                     _versionInfo = version.ServerVersionInfo;
-                    return _exit;
+                    break;
                 case VersionCheckCallType.获取持久化目录版本信息:
                     _versionInfo = version.PersistentInfos;
-                    return _exit;
+                    break;
                 case VersionCheckCallType.获取本地最新版本信息:
                     _versionInfo = version.LocalVersionInfo;
-                    return _exit;
+                    break;
                 case VersionCheckCallType.判断资源组是否需要更新:
                     _isUpdateGroup = version.IsUpdateGroup(arg);
-                    return _exit;
+                    break;
                 case VersionCheckCallType.获取资源组更新列表:
                     _assetBundles = version.GetGroupVersion(arg);
-                    return _exit;
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            return _exit;
         }
     }
 }

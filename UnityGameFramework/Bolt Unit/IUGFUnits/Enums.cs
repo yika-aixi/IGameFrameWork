@@ -31,4 +31,12 @@ namespace Icarus.UnityGameFramework.Bolt
         判断资源组是否需要更新,
         获取资源组更新列表
     }
+
+    public enum EventCallType
+    {
+        单次事件,
+        注册事件,
+        释放事件,
+        触发事件
+    }
 }

@@ -26,6 +26,10 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         [PortLabelHidden]
         public ControlInput Enter;
 
+        [DoNotSerialize]
+        [PortLabelHidden]
+        public ControlOutput Exit;
+
         [Serialize]
         [Inspectable, UnitHeaderInspectable("操作类型:")]
         [InspectorToggleLeft]
@@ -68,7 +72,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         public ValueOutput Progress;
 
         [DoNotSerialize]
-        [PortLabelHidden]
+        [PortLabel("执行完成")]
         public ControlOutput CompleteExit;
 
         [DoNotSerialize]
@@ -88,7 +92,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         public ControlOutput DependencyExit;
 
         [DoNotSerialize]
-        [PortLabel("加载失败")]
+        [PortLabel("失败")]
         public ControlOutput ErrorExit;
 
         [Serialize]
@@ -107,16 +111,20 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         protected override void Definition()
         {
             Enter = ControlInput(nameof(Enter), _enter);
-
+            Exit = ControlOutput(nameof(Exit));
             if (Type == AssetManagerCallType.加载单个资源)
             {
                 anyLoadCompleteExit = ControlOutput(nameof(anyLoadCompleteExit));
             }
-            else
-            {
-                CompleteExit = ControlOutput(nameof(CompleteExit));
-            }
 
+            switch (Type)
+            {
+                case AssetManagerCallType.加载多个资源:
+                case AssetManagerCallType.加载场景:
+                case AssetManagerCallType.卸载场景:
+                    CompleteExit = ControlOutput(nameof(CompleteExit));
+                    break;
+            }
 
             switch (Type)
             {
@@ -169,7 +177,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                     Succession(Enter, ProgressExit);
                     break;
             }
-
+            
             switch (Type)
             {
                 case AssetManagerCallType.加载单个资源:
@@ -201,7 +209,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                 UnloadAsset = ValueInput<object>(nameof(UnloadAsset));
             }
 
-            Succession(Enter, CompleteExit);
+            Succession(Enter, Exit);
         }
 
         private ControlOutput _enter(Flow flow)
@@ -284,7 +292,6 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                         }, _getLoadAssetCallbacks(fl,false));
                     break;
                 case AssetManagerCallType.加载场景:
-
                     var id = _getEventID<LoadSceneSuccessEventArgs>();
                     @event.Subscribe(id,
                         (sender, args) =>
@@ -323,7 +330,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                     break;
                 case AssetManagerCallType.卸载资源:
                     resource.UnloadAsset(unloadAsset);
-                    return CompleteExit;
+                    break;
                 case AssetManagerCallType.卸载场景:
 
                     id = _getEventID<UnloadSceneSuccessEventArgs>();
@@ -346,22 +353,22 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                     break;
                 case AssetManagerCallType.判断资源是否存在:
                     _exist = resource.ExistAsset(assetName);
-                    return CompleteExit;
+                    break;
                 case AssetManagerCallType.获取资源包资源列表:
                     _resultList = resource.GetAssetsList(assetName);
-                    return CompleteExit;
+                    break;
                 case AssetManagerCallType.获取资源组资源包列表:
                     _resultList = resource.GetAssetGroupList(assetName);
-                    return CompleteExit;
+                    break;
                 case AssetManagerCallType.获取所有资源组:
                     _resultList = resource.GetAllGroupList();
-                    return CompleteExit;
+                    break;
                 case AssetManagerCallType.强制释放未被使用资源:
                     resource.ForceUnloadUnusedAssets(performGCCollect);
-                    return CompleteExit;
+                    break;
                 case AssetManagerCallType.预订执行释放未被使用资源:
                     resource.UnloadUnusedAssets(performGCCollect);
-                    return CompleteExit;
+                    break;
                 case AssetManagerCallType.初始化:
 
                     var baseC = GameEntry.GetComponent<BaseComponent>();
@@ -389,7 +396,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                     throw new ArgumentOutOfRangeException();
             }
 
-            return null;
+            return Exit;
         }
 
         private LoadAssetCallbacks _getLoadAssetCallbacks(Flow fl,bool successIsFlowDisplay)
