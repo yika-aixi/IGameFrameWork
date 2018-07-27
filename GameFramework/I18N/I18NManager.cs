@@ -22,12 +22,23 @@ namespace Icarus.GameFramework.I18N
 
         public void SetCurrentLanguage(string language)
         {
-            
             if (string.IsNullOrWhiteSpace(language))
             {
                 throw new GameFrameworkException($"语言设置失败,尝试将语言设置为 Null Or White Space");
             }
+
+            if (CurrentLanguage == language)
+            {
+                return;
+            }
+
             CurrentLanguage = language;
+
+            if (_languageChange == null)
+            {
+                return;
+            }
+
             var args = new LanguageChangeEventArgs {Lanaguage = language};
             _languageChange(this, args);
         }
@@ -45,6 +56,12 @@ namespace Icarus.GameFramework.I18N
             }
 
         }
+
+        public bool HasLanguage(string language)
+        {
+            return LanguageTables.ContainsKey(language);
+        }
+
         ///<inheritdoc cref="II18N"/>
         /// <summary>
         /// 如果对应的key返回  string.Empty
