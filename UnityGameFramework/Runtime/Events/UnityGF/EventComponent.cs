@@ -52,6 +52,16 @@ namespace Icarus.UnityGameFramework.Runtime
         }
 
         /// <summary>
+        /// 检查该id事件是否有处理函数。
+        /// </summary>
+        /// <param name="id">事件类型编号。</param>
+        /// <returns>是否存在事件处理回调函数。</returns>
+        public bool Check(int id)
+        {
+            return m_EventManager.Check(id);
+        }
+
+        /// <summary>
         /// 检查订阅事件处理回调函数。
         /// </summary>
         /// <param name="id">事件类型编号。</param>
