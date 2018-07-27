@@ -92,16 +92,13 @@ namespace Icarus.UnityGameFramework.Editor
         /// </summary>
         private void _updateDefaultLanguage()
         {
-            if (Event.current.isKey)
+            if (_isClickEnter())
             {
-                if (_isClickEnter())
+                if (!string.IsNullOrEmpty(_i18N.DefaultLanguage))
                 {
-                    if (!string.IsNullOrEmpty(_i18N.DefaultLanguage))
+                    if (!_i18N.I18NManager.HasLanguage(_i18N.DefaultLanguage))
                     {
-                        if (!_i18N.I18NManager.HasLanguage(_i18N.DefaultLanguage))
-                        {
-                            _createLanguage(_i18N.DefaultLanguage);
-                        }
+                        _createLanguage(_i18N.DefaultLanguage);
                     }
                 }
             }
@@ -109,15 +106,19 @@ namespace Icarus.UnityGameFramework.Editor
 
         bool _isClickEnter()
         {
-            switch (Event.current.keyCode)
+            if (Event.current.isKey)
             {
-                case KeyCode.Return:
-                case KeyCode.KeypadEnter:
-                    Event.current.Use();    // Ignore event, otherwise there will be control name conflicts!
-                    return true;
+                switch (Event.current.keyCode)
+                {
+                    case KeyCode.Return:
+                    case KeyCode.KeypadEnter:
+                        GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition);
+                        Event.current.Use();    // Ignore event, otherwise there will be control name conflicts!
+                        return true;
+                }
             }
-
             return false;
+
         }
 
         private void _findLocal()

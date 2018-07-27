@@ -23,6 +23,13 @@ namespace Icarus.GameFramework.Event
         }
 
         /// <summary>
+        /// 检查该id事件是否有处理函数。
+        /// </summary>
+        /// <param name="id">事件类型编号。</param>
+        /// <returns>是否存在事件处理函数。</returns>
+        bool Check(int id);
+
+        /// <summary>
         /// 检查订阅事件处理函数。
         /// </summary>
         /// <param name="id">事件类型编号。</param>

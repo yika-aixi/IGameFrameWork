@@ -69,6 +69,16 @@ namespace Icarus.GameFramework.Event
         /// 检查订阅事件处理函数。
         /// </summary>
         /// <param name="id">事件类型编号。</param>
+        /// <returns>是否存在事件处理函数。</returns>
+        public bool Check(int id)
+        {
+            return m_EventPool.Check(id);
+        }
+
+        /// <summary>
+        /// 检查订阅事件处理函数。
+        /// </summary>
+        /// <param name="id">事件类型编号。</param>
         /// <param name="handler">要检查的事件处理函数。</param>
         /// <returns>是否存在事件处理函数。</returns>
         public bool Check(int id, EventHandler<GameEventArgs> handler)
