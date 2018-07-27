@@ -24,6 +24,8 @@ public class test : MonoBehaviour
     private DefaultVersionCheckCompontent _versionCheck;
 
     private DefaultUpdateAssetBundleComponent _update;
+
+    public bool 检查资源版本 = true;
     // Use this for initialization
     void Start()
     {
@@ -45,40 +47,52 @@ public class test : MonoBehaviour
 
         if (!_baseComponent.EditorResourceMode)
         {
-            //进行资源版本检测
-            _versionCheck = GameEntry.GetComponent<DefaultVersionCheckCompontent>();
-            if (!_versionCheck)
+            if (!检查资源版本)
             {
-                Debug.LogError("Default VersionCheck ComPontent is invalid.");
+                _resourceComponent.InitResources();
                 return;
             }
 
-            _versionCheck.Url = Info.AssetBundleUrl+"/"+ConstTable.VersionFileName;
-            _versionCheck.StrictMode = 严格模式;
-            _versionCheck.Check(x =>
-            {
-                _isInit = true;
-                foreach (var info in x)
-                {
-                    Debug.Log("需要更新的资源:" + info);
-                }
-
-                _update = GameEntry.GetComponent<DefaultUpdateAssetBundleComponent>();
-                if (!_update)
-                {
-                    Debug.LogError("Default UpdateAsset Bundle ComPontent is invalid.");
-                    return;
-                }
-                _UpdateAssetbundle(x, ()=> { _loadAsset1(); });
-                
-            },()=> AppUpdateUrl, errorHandle: Debug.LogError,stateUpdateHandle: Debug.Log);
-            
+            _checkVersionAndUpdateAssetbundle();
         }
         else
         {
             _load();
         }
     }
+    [ContextMenu("检查并更新资源")]
+    public void _checkVersionAndUpdateAssetbundle()
+    {
+        //进行资源版本检测
+        _versionCheck = GameEntry.GetComponent<DefaultVersionCheckCompontent>();
+        if (!_versionCheck)
+        {
+            Debug.LogError("Default VersionCheck ComPontent is invalid.");
+            return;
+        }
+
+        _versionCheck.Url = Info.AssetBundleUrl + "/" + ConstTable.VersionFileName;
+        _versionCheck.StrictMode = 严格模式;
+        _versionCheck.Check(x =>
+        {
+            _isInit = true;
+            foreach (var info in x)
+            {
+                Debug.Log("需要更新的资源:" + info);
+            }
+
+            _update = GameEntry.GetComponent<DefaultUpdateAssetBundleComponent>();
+            if (!_update)
+            {
+                Debug.LogError("Default UpdateAsset Bundle ComPontent is invalid.");
+                return;
+            }
+            _UpdateAssetbundle(x, () => { _loadAsset1(); });
+
+        }, () => AppUpdateUrl, errorHandle: Debug.LogError, stateUpdateHandle: Debug.Log);
+
+    }
+
     [SerializeField]
     private string _groupTag;
     [ContextMenu("显示资源组")]
@@ -224,7 +238,7 @@ public class test : MonoBehaviour
     void _load()
     {
         Debug.Log("资源加载完成");
-        //_resourceComponent.LoadAsset(AssetName, new LoadAssetCallbacks(_loadAssetSuccessCallback,  _loadAssetFailureCallback, _loadAssetUpdateCallback));
+        _resourceComponent.LoadAsset(AssetName, new LoadAssetCallbacks(_loadAssetSuccessCallback,  _loadAssetFailureCallback, _loadAssetUpdateCallback));
     }
 
     private void _loadAssetUpdateCallback(string assetname, float progress, object userdata)

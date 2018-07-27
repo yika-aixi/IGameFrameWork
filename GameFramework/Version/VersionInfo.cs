@@ -19,25 +19,25 @@ namespace Icarus.GameFramework.Version
         [JsonProperty("MinAppVersion")]
         public int MinAppVersion { get; private set; }
 
-        public VersionInfo():this("")
-        { 
+        public VersionInfo() : this("")
+        {
         }
-        public VersionInfo(string version):this(version,new List<AssetBundleInfo>())
+        public VersionInfo(string version) : this(version, new List<AssetBundleInfo>())
         {
         }
 
-        public VersionInfo(string version,int minAppVersion) 
+        public VersionInfo(string version, int minAppVersion)
             : this(version, new List<AssetBundleInfo>(), minAppVersion)
         {
         }
 
         public VersionInfo(string version, List<AssetBundleInfo> assetBundleInfos)
-            :this(version, assetBundleInfos,0)
+            : this(version, assetBundleInfos, 0)
         {
         }
 
         [JsonConstructor]
-        public VersionInfo(string version, List<AssetBundleInfo> assetBundleInfos,int minAppVersion)
+        public VersionInfo(string version, List<AssetBundleInfo> assetBundleInfos, int minAppVersion)
         {
             Version = version;
             AssetBundleInfos = assetBundleInfos;
@@ -54,7 +54,7 @@ namespace Icarus.GameFramework.Version
             abFilePath = GameFramework.Utility.Path.GetRegularPath(abFilePath);
             return AssetBundleInfos.Any(x => x.PackFullName == abFilePath);
         }
-        
+
         /// <summary>
         /// 获取某资源包信息
         /// </summary>
@@ -251,8 +251,8 @@ namespace Icarus.GameFramework.Version
         {
             return JsonConvert.SerializeObject(info);
         }
-        
-        public static VersionInfo JsonDeserialize(this VersionInfo info,string json)
+
+        public static VersionInfo JsonDeserialize(this VersionInfo info, string json)
         {
             return JsonConvert.DeserializeObject<VersionInfo>(json);
         }
