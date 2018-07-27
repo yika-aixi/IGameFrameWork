@@ -407,7 +407,10 @@ namespace Icarus.UnityGameFramework.Bolt.Units
             {
                 _errorMessage = $"加载资源失败,状态为:{status},错误信息:{message}";
                 fl.Invoke(ErrorExit);
-                fl.Dispose();
+                if (successIsFlowDisplay)
+                {
+                    fl.Dispose();
+                }
             }, (name, progress, data) =>
             {
                 _progress = progress;

@@ -31,8 +31,11 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         [PortLabel("更新进度")]
         public ControlOutput _progressExit;
 
-        [PortLabel("更新进度信息")]
-        public ValueOutput _progressInfoOut;
+        [PortLabel("更新速度")]
+        public ValueOutput _downloadSpeedOut;
+
+        [PortLabel("更新进度(0-1)")]
+        public ValueOutput _progressOut;
 
         [PortLabel("更新进度描述")]
         public ValueOutput _progressStrOut;
@@ -58,7 +61,8 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         [PortLabel("Headers")]
         public ValueInput _headersIn;
 
-        private DownloadProgressInfo _downloadProgress;
+        private string _downloadSpeed;
+        private float _progress;
         private string _downloadProgressStr;
         private AssetBundleInfo _assetBundleInfo;
         private string _errorMessage;
@@ -73,9 +77,12 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 
             {
                 _progressExit = ControlOutput(nameof(_progressExit));
-                _progressInfoOut = ValueOutput(nameof(_progressInfoOut),x=>_downloadProgress);
+                _progressOut = ValueOutput(nameof(_progressOut),x=>_progress);
+                _downloadSpeedOut = ValueOutput(nameof(_downloadSpeedOut), x => _downloadSpeed);
                 _progressStrOut = ValueOutput(nameof(_progressStrOut),x=>_downloadProgressStr);
             }
+
+
 
             {
                 _anyCompleteExit = ControlOutput(nameof(_anyCompleteExit));
@@ -102,7 +109,8 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                 AssetBundleUrl = url,
             }, headers, abList, check.PersistentInfos, check.ServerVersionInfo.Version, (x, y) =>
             {
-                _downloadProgress = x;
+                _downloadSpeed = _getSpeedStr(x.Speed);
+                _progress = x.Progress;
                 _downloadProgressStr = y;
                 fl.Invoke(_progressExit);
             }, x =>
@@ -125,6 +133,25 @@ namespace Icarus.UnityGameFramework.Bolt.Units
             });
 
             return null;
+        }
+
+        private string _getSpeedStr(ulong speed)
+        {
+            if (speed < 1024)
+            {
+                return $"{speed}/Byte";
+            }
+            else if(speed/1024 < 1024)
+            {
+                return $"{speed / 1024}/KB";
+            }else if (speed / 1024 / 1024 < 1024)
+            {
+                return $"{speed / 1024 / 1024}/MB";
+            }
+            else
+            {
+                return $"{speed / 1024 / 1024 / 1024}/GB";
+            }
         }
     }
 }
