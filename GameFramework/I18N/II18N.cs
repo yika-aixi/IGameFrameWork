@@ -24,6 +24,13 @@ namespace Icarus.GameFramework.I18N
         void AddLanguageTable(string language, Dictionary<string, string> table);
 
         /// <summary>
+        /// 语言是否存在
+        /// </summary>
+        /// <param name="language"></param>
+        /// <returns></returns>
+        bool HasLanguage(string language);
+
+        /// <summary>
         /// 获取key的value
         /// </summary>
         /// <param name="key"></param>

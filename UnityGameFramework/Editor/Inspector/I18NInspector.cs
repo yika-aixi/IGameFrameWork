@@ -17,37 +17,107 @@ namespace Icarus.UnityGameFramework.Editor
     {
         private I18NComponent _i18N;
         private SerializedProperty _defaultLanguageSer;
-        private SerializedProperty _currenLanguageSer;
         private SerializedProperty _languageNamesSer;
         private Dictionary<string, bool> _showState = new Dictionary<string, bool>();
         public override void OnInspectorGUI()
         {
-            base.OnInspectorGUI();
-
             serializedObject.Update();
+
+            base.OnInspectorGUI();
 
             EditorGUILayout.PropertyField(_defaultLanguageSer, new GUIContent("默认语言:"));
 
             if (EditorApplication.isPlaying)
             {
-                EditorGUILayout.PropertyField(_currenLanguageSer, new GUIContent("当前语言:"));
+                EditorGUILayout.LabelField($"当前语言:{_i18N.CurrentLanguage}");
             }
 
+            //检查默认语言是否存在表
+            _updateDefaultLanguage();
+
+            if (EditorApplication.isPlaying)
+            {
+                //选择语言
+                _selectLanguage();
+            }
+
+            //设置查找目录名
             _findLocal();
 
+            //设置后缀名
             _suffx();
-            
-            _createLanguage();
 
+            //创建语言GUI
+            _createLanguageGUI();
+
+            //添加条目
             _addItem();
 
+            //文件操作,读取或导出
             _fileLoadAndExport();
 
+            //绘制语言表
             _drowLanguageList();
 
             serializedObject.ApplyModifiedProperties();
 
             Repaint();
+        }
+
+        private readonly List<string> _languages = new List<string>();
+        private int _languageIndex = -1;
+        private void _selectLanguage()
+        {
+            _languages.Clear();
+            _languages.AddRange(_i18N.GetLanguges());
+            _checkLanguageIndex();
+            _languageIndex = EditorGUILayout.Popup(_languageIndex, _languages.ToArray());
+            _i18N.SetCurrentLanguage(_languages[_languageIndex]);
+        }
+
+        private void _checkLanguageIndex()
+        {
+            if (_languageIndex == -1)
+            {
+                _languageIndex = _languages.IndexOf(_i18N.DefaultLanguage);
+            }
+            else
+            {
+                _languageIndex = _languages.IndexOf(_i18N.CurrentLanguage);
+            }
+        }
+
+        /// <summary>
+        /// 检查是否有默认的语言,没有就创建
+        /// </summary>
+        private void _updateDefaultLanguage()
+        {
+            if (Event.current.isKey)
+            {
+                if (_isClickEnter())
+                {
+                    if (!string.IsNullOrEmpty(_i18N.DefaultLanguage))
+                    {
+                        if (!_i18N.I18NManager.HasLanguage(_i18N.DefaultLanguage))
+                        {
+                            _createLanguage(_i18N.DefaultLanguage);
+                        }
+                    }
+                }
+            }
+        }
+
+        bool _isClickEnter()
+        {
+            switch (Event.current.keyCode)
+            {
+                case KeyCode.Return:
+                case KeyCode.KeypadEnter:
+                    Event.current.Use();    // Ignore event, otherwise there will be control name conflicts!
+                    return true;
+            }
+
+            return false;
         }
 
         private void _findLocal()
@@ -81,8 +151,13 @@ namespace Icarus.UnityGameFramework.Editor
                 EditorGUILayout.BeginHorizontal();
                 {
                     _key = EditorGUILayout.TextField("添加条目：", _key);
-                    if (GUILayout.Button("+"))
+                    if (GUILayout.Button("+") || _isClickEnter())
                     {
+                        if (string.IsNullOrEmpty(_key))
+                        {
+                            return;
+                        }
+
                         for (int i = 0; i < _keysSer.arraySize; i++)
                         {
                             var item = _keysSer.GetArrayElementAtIndex(i);
@@ -356,28 +431,33 @@ namespace Icarus.UnityGameFramework.Editor
         private SerializedProperty _suffixNameSer;
         private SerializedProperty _isFindLocalSer;
 
-        private void _createLanguage()
+        private void _createLanguageGUI()
         {
             EditorGUILayout.BeginHorizontal();
             {
                 _languageName = EditorGUILayout.TextField("语言名称:", _languageName);
-                if (GUILayout.Button("创建") || Input.GetKeyDown(KeyCode.KeypadEnter))
+                if (GUILayout.Button("创建") || _isClickEnter())
                 {
-                    if (string.IsNullOrWhiteSpace(_languageName) || _languageNamesExists(_languageName))
-                    {
-                        return;
-                    }
-
-                    if (!_add(_languageNamesSer, _languageName, $"创建{_languageName}失败！"))
-                    {
-                        return;
-                    }
-                    _showState.Add(_languageName, true);
+                    _createLanguage(_languageName);
 
                     _languageName = string.Empty;
                 }
             }
             EditorGUILayout.EndHorizontal();
+        }
+
+        private void _createLanguage(string languageName)
+        {
+            if (string.IsNullOrWhiteSpace(languageName) || _languageNamesExists(languageName))
+            {
+                return;
+            }
+
+            if (!_add(_languageNamesSer, languageName, $"创建{languageName}失败！"))
+            {
+                return;
+            }
+            _showState.Add(languageName, true);
         }
 
         private bool _languageNamesExists(string languageName)

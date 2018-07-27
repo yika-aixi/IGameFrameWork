@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Icarus.GameFramework;
 using Icarus.UnityGameFramework.Runtime.I18N;
 using UnityEngine;
 
@@ -75,7 +76,8 @@ namespace Icarus.UnityGameFramework.Runtime
         protected override void Awake()
         {
             base.Awake();
-            if (string.IsNullOrWhiteSpace(DefaultLanguage))
+
+            if (!string.IsNullOrWhiteSpace(DefaultLanguage))
             {
                 I18NManager.SetCurrentLanguage(DefaultLanguage);
             }
@@ -86,6 +88,11 @@ namespace Icarus.UnityGameFramework.Runtime
             if (IsFindLocal)
             {
                 var path = GameFramework.Utility.Path.GetCombinePath(Application.persistentDataPath, DirectoryName);
+                if (!Directory.Exists(path))
+                {
+                    Log.Warning($"本地查找失败,没有目录:{path}");
+                    return;
+                }
                 var files = Directory.GetFiles(path, $"*.{SuffixName}", SearchOption.AllDirectories);
                 if (files.Length == 0)
                 {
@@ -137,6 +144,11 @@ namespace Icarus.UnityGameFramework.Runtime
             _manager.SetCurrentLanguage(language);
         }
 
+        public bool HasLanguage(string language)
+        {
+            return _manager.HasLanguage(language);
+        }
+
         /// <summary>
         /// 如果没有在文件中找到就会去快捷表找,如果找不到就返回string.Empty
         /// </summary>
@@ -144,13 +156,21 @@ namespace Icarus.UnityGameFramework.Runtime
         /// <returns></returns>
         public string GetValue(string key)
         {
-            var value = _manager.GetValue(key);
+            return GetValue(CurrentLanguage,key);
+        }
+
+        public string GetValue(string language, string key)
+        {
+            var value = _manager.GetValue(language,key);
 
             if (string.IsNullOrEmpty(value))
             {
-                if (ConvenienceLanguageTable[CurrentLanguage].ContainsKey(key))
+                if (ConvenienceLanguageTable.ContainsKey(language))
                 {
-                    return ConvenienceLanguageTable[CurrentLanguage][key];
+                    if (ConvenienceLanguageTable[language].ContainsKey(key))
+                    {
+                        return ConvenienceLanguageTable[language][key];
+                    }
                 }
             }
 
