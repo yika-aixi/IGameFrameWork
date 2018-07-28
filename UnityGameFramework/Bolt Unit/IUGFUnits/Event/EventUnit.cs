@@ -18,7 +18,7 @@ namespace Icarus.UnityGameFramework.Bolt
 {
     [UnitCategory("Icarus/IUGF")]
     [UnitTitle("Event")]
-    [UnitSubtitle("参数个数设置为负数或改变数值,将会使用输入的'EventID'去查找或修改记录的参数个数")]
+    [UnitSubtitle("参数个数设置负数或修改后点击'Find Or Set'后,将会使用输入的'EventID'去查找或修改记录的参数个数")]
     public class EventUnit : Unit
     {
         [Serialize]
@@ -30,6 +30,10 @@ namespace Icarus.UnityGameFramework.Bolt
         [Inspectable, UnitHeaderInspectable("参数个数")]
         [InspectorToggleLeft]
         public int _argCount = -1;
+
+        [Serialize]
+        [Inspectable, UnitHeaderInspectable("Find Or Set")]
+        public bool _updateArgCount = true;
 
         [Serialize]
         [Inspectable, UnitHeaderInspectable("EventID")]
@@ -72,9 +76,7 @@ namespace Icarus.UnityGameFramework.Bolt
 
         private object[] _args;
 
-
         private static readonly Dictionary<int, int> _eventArgsCount = new Dictionary<int, int>();
-        private bool _isAuto = false;
         protected override void Definition()
         {
             _enter = ControlInput(nameof(_enter), __enter);
@@ -83,23 +85,21 @@ namespace Icarus.UnityGameFramework.Bolt
 
             _eventIDIn = ValueInput(nameof(_eventIDIn), _eventID);
 
-            if (_argCount < 0)
+            if (_updateArgCount)
             {
-                _argCount = _getEventArgsCount();
-                _isAuto = true;
-            }
-            else
-            {
-                if (!_isAuto)
+                if (_argCount < 0)
                 {
-                    _addOrUpdateEventArgsCountItem(_eventID);
+                    _argCount = _getEventArgsCount();
                 }
                 else
                 {
-                    _isAuto = false;
+                    _addOrUpdateEventArgsCountItem(_eventID);
                 }
-                
+
+                _updateArgCount = false;
             }
+
+            _checkArgCount();
 
             switch (_eventCallType)
             {
@@ -147,9 +147,19 @@ namespace Icarus.UnityGameFramework.Bolt
             Succession(_enter, _exit);
         }
 
+        private void _checkArgCount()
+        {
+            if (_argCount < 0)
+            {
+                throw new GameFrameworkException("事件的参数个数不能为负数");
+            }
+        }
+
         private Flow _flow;
         private ControlOutput __enter(Flow flow)
         {
+            _checkArgCount();
+
             _eventID = flow.GetValue<int>(_eventIDIn);
 
             var eventC = GameEntry.GetComponent<EventComponent>();
@@ -177,7 +187,8 @@ namespace Icarus.UnityGameFramework.Bolt
                     _handler = _handle;
                     break;
                 case EventCallType.释放事件:
-                    _unSubscribe(_eventID, _handle);
+                    var handle = flow.GetValue<EventHandler<GameEventArgs>>(_handleIn);
+                    _unSubscribe(_eventID, handle);
                     break;
                 case EventCallType.触发事件:
 
@@ -214,7 +225,7 @@ namespace Icarus.UnityGameFramework.Bolt
         private void _unSubscribe(int id,EventHandler<GameEventArgs> handle)
         {
             var eventC = GameEntry.GetComponent<EventComponent>();
-            eventC.Unsubscribe(id, _handleD);
+            eventC.Unsubscribe(id, handle);
         }
 
         //单次事件

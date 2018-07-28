@@ -119,6 +119,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 
             switch (Type)
             {
+                case AssetManagerCallType.初始化:
                 case AssetManagerCallType.加载多个资源:
                 case AssetManagerCallType.加载场景:
                 case AssetManagerCallType.卸载场景:
@@ -212,12 +213,14 @@ namespace Icarus.UnityGameFramework.Bolt.Units
             Succession(Enter, Exit);
         }
 
+        private Flow _flow;
+        EventComponent _event;
+
         private ControlOutput _enter(Flow flow)
         {
             var resource = GameEntry.GetComponent<ResourceComponent>();
             var scene = GameEntry.GetComponent<SceneComponent>();
-            var @event = GameEntry.GetComponent<EventComponent>();
-
+            _event = GameEntry.GetComponent<EventComponent>();
             if (!resource)
             {
                 throw new Exception("ResourceComponent 没有注册到 GameEntry");
@@ -228,7 +231,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                 throw new Exception("SceneComponent 没有注册到 GameEntry");
             }
 
-            if (!@event)
+            if (!_event)
             {
                 throw new Exception("EventComponent 没有注册到 GameEntry");
             }
@@ -275,11 +278,23 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                 unloadAsset = flow.GetValue<object>(UnloadAsset);
             }
 
-            Flow fl = Flow.New(flow.stack.ToReference());
+            switch (Type)
+            {
+                case AssetManagerCallType.卸载资源:
+                case AssetManagerCallType.判断资源是否存在:
+                case AssetManagerCallType.获取资源包资源列表:
+                case AssetManagerCallType.获取资源组资源包列表:
+                case AssetManagerCallType.获取所有资源组:
+                case AssetManagerCallType.强制释放未被使用资源:
+                case AssetManagerCallType.预订执行释放未被使用资源:
+                    _flow = Flow.New(flow.stack.ToReference());
+                    break;
+            }
+
             switch (Type)
             {
                 case AssetManagerCallType.加载单个资源:
-                    resource.LoadAsset(assetName, AssetType, priority,_getLoadAssetCallbacks(fl,true));
+                    resource.LoadAsset(assetName, AssetType, priority,_getLoadAssetCallbacks(true));
                     break;
                 case AssetManagerCallType.加载多个资源:
                     var names = flow.GetValue<IEnumerable<string>>(AssetName);
@@ -287,45 +302,23 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                         (assetNames, assets, duration, data) =>
                         {
                             _resultList = assets;
-                            fl.Invoke(CompleteExit);
-                            fl.Dispose();
-                        }, _getLoadAssetCallbacks(fl,false));
+                            _flow.Invoke(CompleteExit);
+                            _flow.Dispose();
+                        }, _getLoadAssetCallbacks(false));
                     break;
                 case AssetManagerCallType.加载场景:
                     var id = _getEventID<LoadSceneSuccessEventArgs>();
-                    @event.Subscribe(id,
-                        (sender, args) =>
-                        {
-                            _loadSceneComplete(fl, sender, args);
-                            @event.Unsubscribe(id, (o, eventArgs) => _loadSceneComplete(flow, o, eventArgs));
-                        });
+                    _event.Subscribe(id,_loadSceneComplete);
 
                     id = _getEventID<LoadSceneFailureEventArgs>();
-                    @event.Subscribe(id,
-                        (sender, args) =>
-                        {
-                            _loadSceneFailure(fl, sender, args);
-                            @event.Unsubscribe(id, (o, eventArgs) => _loadSceneFailure(flow, o, eventArgs));
-                        });
+                    _event.Subscribe(id,_loadSceneFailure);
 
                     id = _getEventID<LoadSceneUpdateEventArgs>();
-                    @event.Subscribe(id,
-                        (sender, args) =>
-                        {
-                            _loadSceneUpdate(fl, sender, args);
-                            @event.Unsubscribe(id, (o, eventArgs) => _loadSceneUpdate(flow, o, eventArgs));
-                        });
+                    _event.Subscribe(id,_loadSceneUpdate);
 
                     id = _getEventID<LoadSceneDependencyAssetEventArgs>();
-                    @event.Subscribe(id,
-                        (sender, args) =>
-                        {
-                            _loadSceneDependencyAsset(fl, sender, args);
-
-                            @event.Unsubscribe(id, (o, eventArgs) => _loadSceneDependencyAsset(flow, o, eventArgs));
-                        });
-
-
+                    _event.Subscribe(id,_loadSceneDependencyAsset);
+                    
                     scene.LoadScene(assetName, priority);
                     break;
                 case AssetManagerCallType.卸载资源:
@@ -335,19 +328,11 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 
                     id = _getEventID<UnloadSceneSuccessEventArgs>();
 
-                    @event.Subscribe(id, (sender, args) =>
-                    {
-                        _unloadSceneSuccess(fl, sender, args);
-                        @event.Unsubscribe(id, (o, eventArgs) => { _unloadSceneSuccess(flow, o, eventArgs); });
-                    });
+                    _event.Subscribe(id, _unloadSceneSuccess);
 
 
                     id = _getEventID<UnloadSceneFailureEventArgs>();
-                    @event.Subscribe(id, (sender, args) =>
-                    {
-                        _unloadSceneFailure(fl, sender, args);
-                        @event.Unsubscribe(id, (o, eventArgs) => { _unloadSceneFailure(flow, o, eventArgs); });
-                    });
+                    _event.Subscribe(id, _unloadSceneFailure);
 
                     scene.UnloadScene(assetName);
                     break;
@@ -380,14 +365,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 
                     id = _getEventID<ResourceInitCompleteEventArgs>();
 
-                    @event.Subscribe(id, (sender, args) =>
-                    {
-                        _initComplete(fl, sender, args);
-                        @event.Unsubscribe(id, (o, eventArgs) =>
-                        {
-                            _initComplete(fl, sender, args);
-                        });
-                    });
+                    _event.Subscribe(id, _initComplete);
 
                     resource.InitResources();
 
@@ -399,54 +377,58 @@ namespace Icarus.UnityGameFramework.Bolt.Units
             return Exit;
         }
 
-        private LoadAssetCallbacks _getLoadAssetCallbacks(Flow fl,bool successIsFlowDisplay)
+        private LoadAssetCallbacks _getLoadAssetCallbacks(bool successIsFlowDisplay)
         {
             return new LoadAssetCallbacks
             ((name, asset, duration, data) =>
             {
                 _asset = asset;
-                fl.Invoke(anyLoadCompleteExit);
+                _flow.Invoke(anyLoadCompleteExit);
                 if(successIsFlowDisplay)
                 {
-                    fl.Dispose();
+                    _flow.Dispose();
                 }
             }, (name, status, message, data) =>
             {
                 _errorMessage = $"加载资源失败,状态为:{status},错误信息:{message}";
-                fl.Invoke(ErrorExit);
+                _flow.Invoke(ErrorExit);
                 if (successIsFlowDisplay)
                 {
-                    fl.Dispose();
+                    _flow.Dispose();
                 }
             }, (name, progress, data) =>
             {
                 _progress = progress;
-                fl.Invoke(ProgressExit);
+                _flow.Invoke(ProgressExit);
             }, (name, dependencyAssetName, count, totalCount, data) =>
             {
                 _dependencyName = dependencyAssetName;
-                fl.Invoke(DependencyExit);
+                _flow.Invoke(DependencyExit);
             });
         }
 
-        private void _initComplete(Flow fl, object sender, GameEventArgs args)
+        private void _initComplete(object sender, GameEventArgs args)
         {
-            fl.Invoke(CompleteExit);
-            fl.Dispose();
+            _flow.Invoke(CompleteExit);
+            _flow.Dispose();
+            _event.Unsubscribe(args.Id, _initComplete);
         }
 
-        private void _unloadSceneFailure(Flow flow, object sender, GameEventArgs args)
+        private void _unloadSceneFailure(object sender, GameEventArgs args)
         {
             var failureArgs = (UnloadSceneFailureEventArgs)sender;
             _errorMessage = $"卸载{failureArgs.SceneAssetName}场景失败.";
-            flow.Invoke(ErrorExit);
-            flow.Dispose();
+            _flow.Invoke(ErrorExit);
+            _flow.Dispose();
+            _event.Unsubscribe(args.Id, _unloadSceneFailure);
+
         }
 
-        private void _unloadSceneSuccess(Flow flow, object sender, GameEventArgs args)
+        private void _unloadSceneSuccess(object sender, GameEventArgs args)
         {
-            flow.Invoke(CompleteExit);
-            flow.Dispose();
+            _flow.Invoke(CompleteExit);
+            _flow.Dispose();
+            _event.Unsubscribe(args.Id, _unloadSceneSuccess);
         }
 
         private int _getEventID<T>() where T : GameEventArgs, new()
@@ -457,32 +439,45 @@ namespace Icarus.UnityGameFramework.Bolt.Units
             return id;
         }
 
-        private void _loadSceneDependencyAsset(Flow flow, object sender, GameEventArgs args)
+        private void _loadSceneDependencyAsset(object sender, GameEventArgs args)
         {
             var dependency = (LoadSceneDependencyAssetEventArgs)sender;
             _dependencyName = dependency.DependencyAssetName;
-            flow.Invoke(DependencyExit);
+            _flow.Invoke(DependencyExit);
+
         }
 
-        private void _loadSceneUpdate(Flow flow, object sender, GameEventArgs args)
+        private void _loadSceneUpdate(object sender, GameEventArgs args)
         {
             var sceneUpdate = (LoadSceneUpdateEventArgs)sender;
             _progress = sceneUpdate.Progress;
-            flow.Invoke(ProgressExit);
+            _flow.Invoke(ProgressExit);
         }
 
-        private void _loadSceneFailure(Flow flow, object sender, GameEventArgs args)
+        private void _loadSceneFailure(object sender, GameEventArgs args)
         {
             var failure = (LoadSceneFailureEventArgs)sender;
             _errorMessage = $"加载{failure.SceneAssetName}场景失败,失败信息:{failure.ErrorMessage}";
-            flow.Invoke(ErrorExit);
-            flow.Dispose();
+            _flow.Invoke(ErrorExit);
+            _flow.Dispose();
+            var id = args.Id;
+            _event.Unsubscribe(id, _loadSceneFailure);
+            id = _getEventID<LoadSceneUpdateEventArgs>();
+            _event.Unsubscribe(id, _loadSceneUpdate);
+            id = _getEventID<LoadSceneDependencyAssetEventArgs>();
+            _event.Unsubscribe(id, _loadSceneDependencyAsset);
         }
 
-        private void _loadSceneComplete(Flow flow, object sender, GameEventArgs e)
+        private void _loadSceneComplete(object sender, GameEventArgs e)
         {
-            flow.Invoke(CompleteExit);
-            flow.Dispose();
+            _flow.Invoke(CompleteExit);
+            _flow.Dispose();
+            var id = e.Id;
+            _event.Unsubscribe(id, _loadSceneComplete);
+            id = _getEventID<LoadSceneUpdateEventArgs>();
+            _event.Unsubscribe(id, _loadSceneUpdate);
+            id = _getEventID<LoadSceneDependencyAssetEventArgs>();
+            _event.Unsubscribe(id, _loadSceneDependencyAsset);
         }
     }
 }

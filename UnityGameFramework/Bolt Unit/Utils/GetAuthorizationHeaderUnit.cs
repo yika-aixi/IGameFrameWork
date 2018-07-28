@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using Bolt;
 using Ludiq;
 
-namespace Assets.IGameFrameWork.UnityGameFramework.Bolt_Unit.Utils
+namespace Icarus.UnityGameFramework.Bolt.Units
 {
     [UnitCategory("Icarus/Util")]
     [UnitTitle("获取授权头")]
