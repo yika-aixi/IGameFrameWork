@@ -30,6 +30,18 @@ namespace Assets.IGameFrameWork.UnityGameFramework.Runtime.I18N
 
         private I18NComponent _i18NComponent;
 
+        public string Key
+        {
+            get
+            {
+                return _key;
+            }
+
+            set
+            {
+                _key = value;
+            }
+        }
 
         void Start()
         {
@@ -41,23 +53,23 @@ namespace Assets.IGameFrameWork.UnityGameFramework.Runtime.I18N
             }
 
             _i18NComponent.I18NManager.LanguageChange += _languageChange;
-            _handle();
+            GetI18NValue();
         }
 
         void OnEnable()
         {
             if (_enableGet && _i18NComponent)
             {
-                _handle();
+                GetI18NValue();
             }
         }
 
         private void _languageChange(object sender, Icarus.GameFramework.I18N.LanguageChangeEventArgs e)
         {
-            _handle();
+            GetI18NValue();
         }
 
-        void _handle()
+        public void GetI18NValue()
         {
             var str = _i18NComponent.GetValue(_key);
             if (string.IsNullOrEmpty(str))
