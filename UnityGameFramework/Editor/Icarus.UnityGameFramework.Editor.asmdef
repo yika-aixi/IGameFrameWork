@@ -2,7 +2,8 @@
     "name": "Icarus.UnityGameFramework.Editor",
     "references": [
         "Icarus.GameFramework",
-        "Icarus.UnityGameFramework.Runtime"
+        "Icarus.UnityGameFramework.Runtime",
+        "Icarus.UnityGameFramework.Bolt"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Icarus.GameFramework.I18N;
+using Ludiq;
 using UnityEditor;
 using UnityEngine;
 using Application = UnityEngine.Application;
@@ -29,9 +30,7 @@ namespace IGameFrameWork.UnityGameFramework.Editor.Bolt
         {
             FlowGraph.WithStartUpdate();
         }
-
-
-
+        
         private string _oldNameSpace;
         private string _newNameSpace;
         private bool _isDelete;

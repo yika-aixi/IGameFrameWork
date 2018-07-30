@@ -18,43 +18,37 @@ namespace Icarus.UnityGameFramework.Bolt
 {
     [UnitCategory("Icarus/IUGF")]
     [UnitTitle("Event")]
-    [UnitSubtitle("参数个数设置负数或修改后点击'Find Or Set'后,将会使用输入的'EventID'去查找或修改记录的参数个数")]
-    public class EventUnit : Unit
+    [UnitSubtitle("选择了EventTableAsset后将可以进行快速设置")]
+    public class EventUnit : GameFrameWorkBaseUnit, IEventBaseUnit
     {
+        private static EventTableScriptableObject _oldEventTableAsset;
+
+        [Inspectable, UnitHeaderInspectable]
+        public EventTableScriptableObject EventTableAsset { get; private set; }
+
+        [Inspectable, UnitHeaderInspectable("Events")]
+        public EventTable EventTable { get; private set; }
+
+        [DoNotSerialize]
+        [PortLabel("Event ID")]
+        public ValueInput EventId { get; private set; }
+
+        [DoNotSerialize]
+        public ValueInput EventName { get; private set; }
+
+        [Serialize]
+        [Inspectable, UnitHeaderInspectable("ArgCount")]
+        public int EventArgCount { get; private set; }
+
         [Serialize]
         [Inspectable, UnitHeaderInspectable("Event Call Type:")]
         [InspectorToggleLeft]
         public EventCallType _eventCallType;
 
-        [Serialize]
-        [Inspectable, UnitHeaderInspectable("参数个数")]
-        [InspectorToggleLeft]
-        public int _argCount = -1;
-
-        [Serialize]
-        [Inspectable, UnitHeaderInspectable("Find Or Set")]
-        public bool _updateArgCount = true;
-
-        [Serialize]
-        [Inspectable, UnitHeaderInspectable("EventID")]
-        [InspectorToggleLeft]
-        public int _eventID;
-
-        [DoNotSerialize]
-        [PortLabelHidden]
-        public ControlInput _enter;
-
-        [DoNotSerialize]
-        [PortLabelHidden]
-        public ControlOutput _exit;
 
         [DoNotSerialize]
         [PortLabel("Event Trigger")]
         public ControlOutput _triggerExit;
-
-        [DoNotSerialize]
-        [PortLabel("Event ID")]
-        public ValueInput _eventIDIn;
 
         [DoNotSerialize]
         [PortLabel("立刻触发")]
@@ -67,7 +61,7 @@ namespace Icarus.UnityGameFramework.Bolt
         [DoNotSerialize]
         [PortLabel("Event Handle")]
         public ValueOutput _handleOut;
-        
+
         private EventHandler<GameEventArgs> _handler;
 
         private ValueOutput[] _argsOut;
@@ -76,37 +70,25 @@ namespace Icarus.UnityGameFramework.Bolt
 
         private object[] _args;
 
-        private static readonly Dictionary<int, int> _eventArgsCount = new Dictionary<int, int>();
+        public EventUnit()
+        {
+            //备份现在所选事件表或设置事件表
+            _setBackOrAsset();
+        }
+        
         protected override void Definition()
         {
-            _enter = ControlInput(nameof(_enter), __enter);
+            base.Definition();
 
-            _exit = ControlOutput(nameof(_exit));
-
-            _eventIDIn = ValueInput(nameof(_eventIDIn), _eventID);
-
-            if (_updateArgCount)
-            {
-                if (_argCount < 0)
-                {
-                    _argCount = _getEventArgsCount();
-                }
-                else
-                {
-                    _addOrUpdateEventArgsCountItem(_eventID);
-                }
-
-                _updateArgCount = false;
-            }
-
-            _checkArgCount();
+            EventId = ValueInput(nameof(EventId), 0);
 
             switch (_eventCallType)
             {
                 case EventCallType.单次事件:
                 case EventCallType.注册事件:
                 case EventCallType.触发事件:
-                    _args = new object[_argCount];
+                    _setEventArgCount();
+                    _args = new object[EventArgCount];
                     break;
             }
 
@@ -121,8 +103,8 @@ namespace Icarus.UnityGameFramework.Bolt
                         _handleOut = ValueOutput(nameof(_handleOut), x => _handler);
                     }
 
-                    _argsOut = new ValueOutput[_argCount];
-                    for (var i = 0; i < _argsOut.Length; i++)
+                    _argsOut = new ValueOutput[EventArgCount];
+                    for (var i = 0; i < EventArgCount; i++)
                     {
                         var index = i;
                         _argsOut[i] = ValueOutput($"{nameof(_argsOut)}_{i}", x => _args[index]);
@@ -135,8 +117,8 @@ namespace Icarus.UnityGameFramework.Bolt
                     break;
                 case EventCallType.触发事件:
                     _atOnceTrigger = ValueInput(nameof(_atOnceTrigger), false);
-                    _argsIn = new ValueInput[_argCount];
-                    for (var i = 0; i < _argsIn.Length; i++)
+                    _argsIn = new ValueInput[EventArgCount];
+                    for (var i = 0; i < EventArgCount; i++)
                     {
                         _argsIn[i] = ValueInput<object>($"{nameof(_argsIn)}_{i}");
                         Requirement(_argsIn[i], _enter);
@@ -145,22 +127,48 @@ namespace Icarus.UnityGameFramework.Bolt
             }
 
             Succession(_enter, _exit);
+
+        }
+
+        private void _setBackOrAsset()
+        {
+            if (EventTableAsset != null)
+            {
+                _oldEventTableAsset = EventTableAsset;
+            }
+            else
+            {
+                if (_oldEventTableAsset != null)
+                {
+                    EventTableAsset = _oldEventTableAsset;
+                }
+            }
+        }
+
+        private void _setEventArgCount()
+        {
+            if (EventTableAsset == null || EventTable == null)
+            {
+                return;
+            }
+
+            EventArgCount = EventTable.GetArgCount();
         }
 
         private void _checkArgCount()
         {
-            if (_argCount < 0)
+            if (EventArgCount < 0)
             {
                 throw new GameFrameworkException("事件的参数个数不能为负数");
             }
         }
 
         private Flow _flow;
-        private ControlOutput __enter(Flow flow)
+        protected override ControlOutput Enter(Flow flow)
         {
             _checkArgCount();
 
-            _eventID = flow.GetValue<int>(_eventIDIn);
+            var eventID = flow.GetValue<int>(EventId);
 
             var eventC = GameEntry.GetComponent<EventComponent>();
 
@@ -180,26 +188,26 @@ namespace Icarus.UnityGameFramework.Bolt
             switch (_eventCallType)
             {
                 case EventCallType.单次事件:
-                    eventC.Subscribe(_eventID, _handleD);
+                    eventC.Subscribe(eventID, _handleD);
                     break;
                 case EventCallType.注册事件:
-                    eventC.Subscribe(_eventID, _handle);
+                    eventC.Subscribe(eventID, _handle);
                     _handler = _handle;
                     break;
                 case EventCallType.释放事件:
                     var handle = flow.GetValue<EventHandler<GameEventArgs>>(_handleIn);
-                    _unSubscribe(_eventID, handle);
+                    _unSubscribe(eventID, handle);
                     break;
                 case EventCallType.触发事件:
 
-                    if (!eventC.Check(_eventID))
+                    if (!eventC.Check(eventID))
                     {
                         break;
                     }
 
                     var atOnce = flow.GetValue<bool>(_atOnceTrigger);
-                    var eventArgs = new BoltEventArgs(_eventID);
-                    
+                    var eventArgs = new BoltEventArgs(eventID);
+
                     for (var i = 0; i < _argsIn.Length; i++)
                     {
                         _args[i] = flow.GetValue<object>(_argsIn[i]);
@@ -222,7 +230,7 @@ namespace Icarus.UnityGameFramework.Bolt
             return _exit;
         }
 
-        private void _unSubscribe(int id,EventHandler<GameEventArgs> handle)
+        private void _unSubscribe(int id, EventHandler<GameEventArgs> handle)
         {
             var eventC = GameEntry.GetComponent<EventComponent>();
             eventC.Unsubscribe(id, handle);
@@ -242,36 +250,12 @@ namespace Icarus.UnityGameFramework.Bolt
             _flow = null;
         }
 
-        int _getEventArgsCount()
-        {
-            if (!_eventArgsCount.ContainsKey(_eventID))
-            {
-                return 0;
-            }
-
-            return _eventArgsCount[_eventID];
-        }
-
-        void _addOrUpdateEventArgsCountItem(int id)
-        {
-            if (!_eventArgsCount.ContainsKey(id))
-            {
-                _eventArgsCount.Add(id,_argCount);
-            }
-            else
-            {
-                if(!Equals(_eventArgsCount[id], _argCount))
-                {
-                    _eventArgsCount[id] = _argCount;
-                }
-            }
-        }
-        
         private void _handle(object sender, GameEventArgs e)
         {
             _args = ((BoltEventArgs)e).Args;
 
             _flow.Invoke(_triggerExit);
         }
+
     }
 }
