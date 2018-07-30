@@ -16,6 +16,8 @@ en:`Icarus/Util/Bolt/Update Flow Unit` Each update will back up the resources th
 
 多语言组件的介绍:[Goto](http://www.xn--qoqr9hxvue5g.com:9555/Blog/read/15)
 
+EventUnit使用介绍:[Goto](http://www.xn--qoqr9hxvue5g.com:9555/Blog/read/19)
+
 新的version名为:
 
 	ab包名_变体名_~version.dat
