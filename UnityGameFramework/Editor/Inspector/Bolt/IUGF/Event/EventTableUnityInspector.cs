@@ -41,7 +41,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
         }
 
         private bool _addMode;
-
+        private bool _autoSave;
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -50,7 +50,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
             _ids = _tableAsset.GetEventIDs().ToArray();
 
             EditorGUILayout.LabelField($"Event Count:{_eventNames.arraySize}");
-
+            _autoSave = EditorGUILayout.Toggle("Auto Save", _autoSave);
             _addMode = EditorGUILayout.Toggle("Auto Add EventID", _addMode);
 
             EditorGUILayout.BeginHorizontal();
@@ -67,7 +67,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
             _showEventTable();
 
-            if (GUI.changed)
+            if (GUI.changed && _autoSave)
             {
                 AssetDatabase.SaveAssets();
             }
