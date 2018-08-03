@@ -5,6 +5,7 @@
 //Icarus.UnityGameFramework.Editor
 
 using System;
+using System.Collections.Generic;
 using Bolt;
 using Ludiq;
 using UnityEngine;
@@ -14,13 +15,16 @@ namespace Icarus.UnityGameFramework.Bolt.Event
     [Editor(typeof(IEventBaseUnit))]
     public class IEventBaseUnitEditor : UnitEditor
     {
+        protected Metadata TableScriptableObject => metadata["EventTableAsset"];
+        protected Metadata Table => metadata["EventTable"];
 
-        protected Metadata _tableScriptableObject => metadata["EventTableAsset"];
-        protected Metadata _table => metadata["EventTable"];
+        protected Metadata EventId => metadata["EventId"];
 
-        protected Metadata _eventID => metadata["EventId"];
+        protected Metadata EventName => metadata["EventName"];
 
-        protected Metadata _eventName => metadata["EventName"];
+        protected Metadata ArgList => metadata["ArgList"];
+
+        protected Metadata EventArgCount => metadata["EventArgCount"];
 
         public IEventBaseUnitEditor(Metadata metadata) : base(metadata)
         {
@@ -28,41 +32,42 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
         protected override void OnGUI(Rect position, GUIContent label)
         {
-            base.OnGUI(position, label);
-
             BeginBlock(metadata, position);
             {
                 try
                 {
-                    if (_tableScriptableObject.value == null)
+                    if (TableScriptableObject.value == null)
                     {
-                        _table.value = new EventTable();
+                        Table.value = new EventTable();
                         return;
                     }
-                    
-                    _table.value = ((EventTableScriptableObject)_tableScriptableObject.value).Table;
-                    
-                    if (_eventID.value != null)
+
+                    Table.value = ((EventTableScriptableObject)TableScriptableObject.value).Table;
+
+                    if (EventId.value != null)
                     {
-                        var idInput = (ValueInput)_eventID.value;
-                        idInput.SetDefaultValue(((EventTable)_table.value).SelectEventID);
+                        var idInput = (ValueInput)EventId.value;
+                        idInput.SetDefaultValue(((EventTable)Table.value).SelectEventID);
                     }
-                    
-                    if (_eventName.value != null)
+
+                    if (EventName.value != null)
                     {
-                        var nameInput = (ValueInput)_eventName.value;
-                        nameInput.SetDefaultValue(((EventTable)_table.value).SelectEventName);
+                        var nameInput = (ValueInput)EventName.value;
+                        nameInput.SetDefaultValue(((EventTable)Table.value).SelectEventName);
                     }
+
                 }
-                catch (Exception e1)
+                catch (Exception)
                 {
                 }
-
             }
             if (EndBlock(metadata))
             {
                 metadata.RecordUndo();
             }
+
+            base.OnGUI(position, label);
+
         }
     }
 }

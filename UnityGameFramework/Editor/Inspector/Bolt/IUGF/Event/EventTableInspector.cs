@@ -32,10 +32,10 @@ namespace Icarus.UnityGameFramework.Bolt.Event
         private Metadata _selectEventName => metadata["SelectEventName"];
 
         private Metadata _selectEventID => metadata["SelectEventID"];
-        
+
         private string[] _names = { "No Table" };
         private int[] _ids;
-        private int _index;
+        private int _index = -1;
         private bool _eror;
         protected override void OnGUI(Rect position, GUIContent label)
         {
@@ -54,34 +54,35 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
                 _eror = false;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 _eror = true;
             }
 
             BeginBlock(metadata, position);
-            var popRect = new Rect(position.x + 50, position.y, position.width, position.height);
-            _index = EditorGUI.IntPopup(popRect, _index, _names, _ids);
-
-            if (_eror)
             {
-                return;
-            }
+                var popRect = new Rect(position.x + 50, position.y, position.width, position.height);
+                _index = EditorGUI.IntPopup(popRect, _index, _names, _ids);
 
-            try
-            {
-                _selectEventName.value = _names[_index];
-
-                _selectEventID.value = _ids[_index];
-                
-                if (EndBlock(metadata))
+                if (_eror)
                 {
-                    metadata.RecordUndo();
+                    return;
+                }
+
+                try
+                {
+                    var index = _index - 1;
+                    _selectEventName.value = _names[index];
+                    _selectEventID.value = _ids[index];
+                }
+                catch (Exception)
+                {
+                    _index = -1;
                 }
             }
-            catch (Exception e)
+            if (EndBlock(metadata))
             {
-                _index = 0;
+                metadata.RecordUndo();
             }
 
         }

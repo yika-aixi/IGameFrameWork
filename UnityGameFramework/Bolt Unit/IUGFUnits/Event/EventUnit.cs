@@ -21,11 +21,12 @@ namespace Icarus.UnityGameFramework.Bolt
     [UnitSubtitle("选择了EventTableAsset后将可以进行快速设置")]
     public class EventUnit : GameFrameWorkBaseUnit, IEventBaseUnit
     {
+        [DoNotSerialize]
         private static EventTableScriptableObject _oldEventTableAsset;
-
-        [Inspectable, UnitHeaderInspectable]
+        [DoNotSerialize]
+        [Inspectable, UnitHeaderInspectable("TableAsset")]
         public EventTableScriptableObject EventTableAsset { get; private set; }
-
+        [DoNotSerialize]
         [Inspectable, UnitHeaderInspectable("Events")]
         public EventTable EventTable { get; private set; }
 
@@ -35,6 +36,8 @@ namespace Icarus.UnityGameFramework.Bolt
 
         [DoNotSerialize]
         public ValueInput EventName { get; private set; }
+        [Serialize]
+        public List<KeyValuePair<string, Type>> ArgList { get; private set; }
 
         [Serialize]
         [Inspectable, UnitHeaderInspectable("ArgCount")]
@@ -62,12 +65,13 @@ namespace Icarus.UnityGameFramework.Bolt
         [PortLabel("Event Handle")]
         public ValueOutput _handleOut;
 
+        [DoNotSerialize]
         private EventHandler<GameEventArgs> _handler;
-
+        [DoNotSerialize]
         private ValueOutput[] _argsOut;
-
+        [DoNotSerialize]
         private ValueInput[] _argsIn;
-
+        [DoNotSerialize]
         private object[] _args;
 
         public EventUnit()
@@ -87,7 +91,7 @@ namespace Icarus.UnityGameFramework.Bolt
                 case EventCallType.单次事件:
                 case EventCallType.注册事件:
                 case EventCallType.触发事件:
-                    _setEventArgCount();
+                    _setEventArgCountAndArgList();
                     _args = new object[EventArgCount];
                     break;
             }
@@ -102,13 +106,8 @@ namespace Icarus.UnityGameFramework.Bolt
                     {
                         _handleOut = ValueOutput(nameof(_handleOut), x => _handler);
                     }
-
                     _argsOut = new ValueOutput[EventArgCount];
-                    for (var i = 0; i < EventArgCount; i++)
-                    {
-                        var index = i;
-                        _argsOut[i] = ValueOutput($"{nameof(_argsOut)}_{i}", x => _args[index]);
-                    }
+                    _setArgList(true);
 
                     Succession(_enter, _triggerExit);
                     break;
@@ -118,16 +117,64 @@ namespace Icarus.UnityGameFramework.Bolt
                 case EventCallType.触发事件:
                     _atOnceTrigger = ValueInput(nameof(_atOnceTrigger), false);
                     _argsIn = new ValueInput[EventArgCount];
-                    for (var i = 0; i < EventArgCount; i++)
-                    {
-                        _argsIn[i] = ValueInput<object>($"{nameof(_argsIn)}_{i}");
-                        Requirement(_argsIn[i], _enter);
-                    }
+                    _setArgList(false);
                     break;
             }
 
             Succession(_enter, _exit);
 
+        }
+
+        void _setArgList(bool isOut)
+        {
+            if (ArgList != null && ArgList.Count == EventArgCount)
+            {
+                for (var i = 0; i < ArgList.Count; i++)
+                {
+                    var arg = ArgList[i];
+                    var argName = arg.Key;
+                    var index = i;
+
+                    if (string.IsNullOrWhiteSpace(argName))
+                    {
+                        argName = $"Arg {i}";
+                    }
+
+                    if (isOut)
+                    {
+                        _setArgOut(argName, arg.Value,index);
+                    }
+                    else
+                    {
+                        _setArgIn(argName, arg.Value, index);
+                    }
+                }
+            }
+            else
+            {
+                for (var i = 0; i < EventArgCount; i++)
+                {
+                    var index = i;
+                    if (isOut)
+                    {
+                        _setArgOut($"{nameof(_argsOut)}_{i}", typeof(object), index);
+                    }
+                    else
+                    {
+                        _setArgIn($"{nameof(_argsIn)}_{i}", typeof(object), index);
+                    }
+                }
+            }
+        }
+
+        private void _setArgIn(string argName, Type argValue, int index)
+        {
+            _argsIn[index] = ValueInput(argValue,argName);
+        }
+
+        private void _setArgOut(string argName, Type argValue, int index)
+        {
+            _argsOut[index] = ValueOutput(argValue, argName, x => _args[index]);
         }
 
         private void _setBackOrAsset()
@@ -145,7 +192,7 @@ namespace Icarus.UnityGameFramework.Bolt
             }
         }
 
-        private void _setEventArgCount()
+        private void _setEventArgCountAndArgList()
         {
             if (EventTableAsset == null || EventTable == null)
             {
@@ -153,6 +200,7 @@ namespace Icarus.UnityGameFramework.Bolt
             }
 
             EventArgCount = EventTable.GetArgCount();
+            ArgList = EventTable.GetArgList();
         }
 
         private void _checkArgCount()
