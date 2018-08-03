@@ -280,13 +280,11 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 
             switch (Type)
             {
-                case AssetManagerCallType.卸载资源:
-                case AssetManagerCallType.判断资源是否存在:
-                case AssetManagerCallType.获取资源包资源列表:
-                case AssetManagerCallType.获取资源组资源包列表:
-                case AssetManagerCallType.获取所有资源组:
-                case AssetManagerCallType.强制释放未被使用资源:
-                case AssetManagerCallType.预订执行释放未被使用资源:
+                case AssetManagerCallType.加载单个资源:
+                case AssetManagerCallType.加载多个资源:
+                case AssetManagerCallType.加载场景:
+                case AssetManagerCallType.卸载场景:
+                case AssetManagerCallType.初始化:
                     _flow = Flow.New(flow.stack.ToReference());
                     break;
             }
@@ -416,7 +414,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 
         private void _unloadSceneFailure(object sender, GameEventArgs args)
         {
-            var failureArgs = (UnloadSceneFailureEventArgs)sender;
+            var failureArgs = (UnloadSceneFailureEventArgs)args;
             _errorMessage = $"卸载{failureArgs.SceneAssetName}场景失败.";
             _flow.Invoke(ErrorExit);
             _flow.Dispose();
@@ -441,7 +439,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 
         private void _loadSceneDependencyAsset(object sender, GameEventArgs args)
         {
-            var dependency = (LoadSceneDependencyAssetEventArgs)sender;
+            var dependency = (LoadSceneDependencyAssetEventArgs)args;
             _dependencyName = dependency.DependencyAssetName;
             _flow.Invoke(DependencyExit);
 
@@ -449,14 +447,14 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 
         private void _loadSceneUpdate(object sender, GameEventArgs args)
         {
-            var sceneUpdate = (LoadSceneUpdateEventArgs)sender;
+            var sceneUpdate = (LoadSceneUpdateEventArgs)args;
             _progress = sceneUpdate.Progress;
             _flow.Invoke(ProgressExit);
         }
 
         private void _loadSceneFailure(object sender, GameEventArgs args)
         {
-            var failure = (LoadSceneFailureEventArgs)sender;
+            var failure = (LoadSceneFailureEventArgs)args;
             _errorMessage = $"加载{failure.SceneAssetName}场景失败,失败信息:{failure.ErrorMessage}";
             _flow.Invoke(ErrorExit);
             _flow.Dispose();
