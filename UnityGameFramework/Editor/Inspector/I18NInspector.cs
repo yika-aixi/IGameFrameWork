@@ -106,19 +106,7 @@ namespace Icarus.UnityGameFramework.Editor
 
         bool _isClickEnter()
         {
-            if (Event.current.isKey)
-            {
-                switch (Event.current.keyCode)
-                {
-                    case KeyCode.Return:
-                    case KeyCode.KeypadEnter:
-                        GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition);
-                        Event.current.Use();    // Ignore event, otherwise there will be control name conflicts!
-                        return true;
-                }
-            }
-            return false;
-
+            return IsEnterClick();
         }
 
         private void _findLocal()

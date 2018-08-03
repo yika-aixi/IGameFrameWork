@@ -7,7 +7,9 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Reflection;
+using UnityEngine;
+using SysAssembly = System.Reflection.Assembly;
 namespace Icarus.GameFramework
 {
     public static partial class Utility
@@ -17,7 +19,7 @@ namespace Icarus.GameFramework
         /// </summary>
         public static class Assembly
         {
-            private static readonly System.Reflection.Assembly[] s_Assemblies = null;
+            private static readonly SysAssembly[] s_Assemblies = null;
             private static readonly Dictionary<string, Type> s_CachedTypes = new Dictionary<string, Type>();
 
             static Assembly()
@@ -29,7 +31,7 @@ namespace Icarus.GameFramework
             /// 获取已加载的程序集。
             /// </summary>
             /// <returns>已加载的程序集。</returns>
-            public static System.Reflection.Assembly[] GetAssemblies()
+            public static SysAssembly[] GetAssemblies()
             {
                 return s_Assemblies;
             }
@@ -86,6 +88,99 @@ namespace Icarus.GameFramework
 
                 return null;
             }
+
+            /// <summary>
+            /// 获取所有运行时Type
+            /// </summary>
+            /// <returns></returns>
+            public static Type[] GetRuntimeType()
+            {
+                List<Type> runtimeTypes = new List<Type>();
+                foreach (var assembly in s_Assemblies)
+                {
+                    if (IsRuntimeAssembly(assembly))
+                    {
+                        runtimeTypes.AddRange(assembly.GetTypes());
+                    }
+                }
+
+                return runtimeTypes.ToArray();
+            }
+
+            private static bool IsRuntimeAssembly(SysAssembly assembly)
+            {
+                // User assemblies refer to the editor when they include
+                // a using UnityEditor / #if UNITY_EDITOR, but they should still
+                // be considered runtime.
+                return IsUserAssembly(assembly) || !IsEditorDependentAssembly(assembly);
+            }
+
+            /// <summary>
+            /// 判断程序集是否是用户自己的
+            /// </summary>
+            /// <param name="assembly"></param>
+            /// <returns></returns>
+            public static bool IsUserAssembly(SysAssembly assembly)
+            {
+                return IsUserAssembly(assembly.GetName().Name);
+            }
+
+            /// <summary>
+            /// 判断程序集是否是用户自己的
+            /// </summary>
+            /// <param name="assemblyName"></param>
+            /// <returns></returns>
+            public static bool IsUserAssembly(string assemblyName)
+            {
+                return
+                    assemblyName == "Assembly-CSharp" ||
+                    assemblyName == "Assembly-CSharp-firstpass";
+            }
+
+            /// <summary>
+            /// 判断程序集是否是Editor的
+            /// </summary>
+            /// <param name="assembly"></param>
+            /// <returns></returns>
+            public static bool IsEditorDependentAssembly(SysAssembly assembly)
+            {
+                if (IsEditorAssembly(assembly))
+                {
+                    return true;
+                }
+
+                foreach (var dependency in assembly.GetReferencedAssemblies())
+                {
+                    if (IsEditorAssembly(dependency))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            private static bool IsEditorAssembly(SysAssembly assembly)
+            {
+                if (Attribute.IsDefined(assembly, typeof(AssemblyIsEditorAssembly)))
+                {
+                    return true;
+                }
+
+                return IsEditorAssembly(assembly.GetName());
+            }
+
+            private static bool IsEditorAssembly(AssemblyName assemblyName)
+            {
+                var name = assemblyName.Name;
+
+                return
+                    name == "Assembly-CSharp-Editor" ||
+                    name == "Assembly-CSharp-Editor-firstpass" ||
+                    name == "UnityEditor";
+            }
+
+
         }
     }
 }
