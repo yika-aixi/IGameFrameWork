@@ -16,7 +16,6 @@ namespace Icarus.UnityGameFramework.Editor
     [CustomEditor(typeof(ResourceComponent))]
     internal sealed class ResourceComponentInspector : GameFrameworkInspector
     {
-        private SerializedProperty m_ResourceMode = null;
         private SerializedProperty m_ReadWritePathType = null;
         private SerializedProperty m_UnloadUnusedAssetsInterval = null;
         private SerializedProperty m_AssetAutoReleaseInterval = null;
@@ -299,7 +298,6 @@ namespace Icarus.UnityGameFramework.Editor
             _baseComponent = serializedObject.FindProperty("_baseComponent");
             _eventComponent = serializedObject.FindProperty("_eventComponent");
 
-            m_ResourceMode = serializedObject.FindProperty("m_ResourceMode");
             m_ReadWritePathType = serializedObject.FindProperty("m_ReadWritePathType");
             m_UnloadUnusedAssetsInterval = serializedObject.FindProperty("m_UnloadUnusedAssetsInterval");
             m_AssetAutoReleaseInterval = serializedObject.FindProperty("m_AssetAutoReleaseInterval");

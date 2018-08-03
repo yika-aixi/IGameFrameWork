@@ -23,7 +23,7 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
             {
                 var i = int.Parse(Application.version.Split('.').Last());
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Debug.LogError(
                     $"使用'DefaultVersionCheckCompontent'时,请确保 Edit-->" +

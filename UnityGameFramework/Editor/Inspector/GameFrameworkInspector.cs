@@ -6,6 +6,7 @@
 //------------------------------------------------------------
 
 using UnityEditor;
+using UnityEngine;
 
 namespace Icarus.UnityGameFramework.Editor
 {
@@ -47,6 +48,58 @@ namespace Icarus.UnityGameFramework.Editor
         protected virtual void OnCompileComplete()
         {
 
+        }
+
+        protected bool IsEnterClick(bool isUsed = true)
+        {
+            if (!IsKeyClick(KeyCode.Return, isUsed) && !IsKeyClick(KeyCode.KeypadEnter, isUsed)) return false;
+
+            GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition);
+            if (isUsed)
+            {
+                Event.current.Use();    // Ignore event, otherwise there will be control name conflicts!
+            }
+            return true;
+        }
+
+        protected void OnUpdate()
+        {
+
+        }
+
+        protected bool IsEscClick(bool isUsed = true)
+        {
+            if (!IsKeyClick(KeyCode.Escape, isUsed)) return false;
+
+            GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition);
+            if (isUsed)
+            {
+                Event.current.Use();    // Ignore event, otherwise there will be control name conflicts!
+            }
+            return true;
+        }
+
+        protected bool IsKeyClick(KeyCode code,bool isUsed = true)
+        {
+            if (!Event.current.isKey)
+                return false;
+
+            if (Event.current.type != EventType.KeyUp)
+            {
+                if (isUsed)
+                {
+                    if (Event.current.type != EventType.Used)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return Event.current.keyCode == code;
         }
     }
 }
