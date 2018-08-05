@@ -1,5 +1,7 @@
 # IGameFramework
 
+## 该框架还不稳定,不建议使用,推荐使用[UGF](https://github.com/EllanJiang/UnityGameFramework),我还在边做项目边完善和修复
+
 基于GameFrameWork修改的个人框架. 源框架:[UGF](https://github.com/EllanJiang/UnityGameFramework)
 
 `例子运行报空指针问题,是因为脚本执行顺序问题,在 Editor -> project settings -> script execution order 里设置test脚本一个较大的值,如10000,就可以了`
