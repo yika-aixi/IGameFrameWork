@@ -272,7 +272,7 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
             }
 
             AssetBundle assetBundle = null;
-            if (m_AssetBundles.TryGetValue(GetAssetBundleFullName(assetBundleName, assetBundleVariant), out assetBundle))
+            if (m_AssetBundles.TryGetValue(GetAssetBundleFullName(assetBundleName, assetBundleVariant).ToLower(), out assetBundle))
             {
                 return assetBundle;
             }
@@ -287,7 +287,7 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                 return false;
             }
 
-            return m_AssetBundles.ContainsKey(GetAssetBundleFullName(assetBundleName, assetBundleVariant));
+            return m_AssetBundles.ContainsKey(GetAssetBundleFullName(assetBundleName, assetBundleVariant).ToLower());
         }
 
         public bool AddAssetBundle(string assetBundleName, string assetBundleVariant, AssetBundleLoadType assetBundleLoadType, bool assetBundleOptional,string groupTag)
@@ -303,7 +303,7 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
             }
 
             AssetBundle assetBundle = AssetBundle.Create(assetBundleName, assetBundleVariant, assetBundleLoadType, assetBundleOptional,groupTag);
-            m_AssetBundles.Add(assetBundle.FullName, assetBundle);
+            m_AssetBundles.Add(assetBundle.FullName.ToLower(), assetBundle);
 
             return true;
         }
@@ -326,9 +326,9 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                 return false;
             }
 
-            m_AssetBundles.Remove(assetBundle.FullName);
+            m_AssetBundles.Remove(assetBundle.FullName.ToLower());
             assetBundle.Rename(newAssetBundleName, newAssetBundleVariant);
-            m_AssetBundles.Add(assetBundle.FullName, assetBundle);
+            m_AssetBundles.Add(assetBundle.FullName.ToLower(), assetBundle);
 
             return true;
         }
@@ -348,7 +348,7 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
 
             Asset[] assets = assetBundle.GetAssets();
             assetBundle.Clear();
-            m_AssetBundles.Remove(assetBundle.FullName);
+            m_AssetBundles.Remove(assetBundle.FullName.ToLower());
             foreach (Asset asset in assets)
             {
                 m_Assets.Remove(asset.Guid);
@@ -472,7 +472,7 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                     continue;
                 }
 
-                if (Path.GetFileName(assetInAssetBundle.Name) == Path.GetFileName(assetName))
+                if (Path.GetFileName(assetInAssetBundle.Name).ToLower() == Path.GetFileName(assetName).ToLower())
                 {
                     return false;
                 }

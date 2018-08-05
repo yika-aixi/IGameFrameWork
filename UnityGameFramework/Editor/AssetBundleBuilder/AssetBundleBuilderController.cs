@@ -31,7 +31,6 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
         private readonly AssetBundleCollection m_AssetBundleCollection;
         private readonly AssetBundleAnalyzerController m_AssetBundleAnalyzerController;
         private readonly SortedDictionary<string, AssetBundleData> m_AssetBundleDatas;
-        private readonly Dictionary<BuildTarget, VersionListData> m_VersionListDatas;
         private readonly BuildReport m_BuildReport;
         private readonly List<string> m_BuildEventHandlerTypeNames;
         private IBuildEventHandler m_BuildEventHandler;
@@ -85,7 +84,6 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
             };
 
             m_AssetBundleDatas = new SortedDictionary<string, AssetBundleData>();
-            m_VersionListDatas = new Dictionary<BuildTarget, VersionListData>();
             m_BuildReport = new BuildReport();
 
             m_BuildEventHandlerTypeNames = new List<string>();
@@ -616,8 +614,6 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
             
             try
             {
-                m_VersionListDatas.Clear();
-
                 m_BuildReport.LogInfo("Build Start Time: {0}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
 
                 if (m_BuildEventHandler != null)
@@ -839,7 +835,7 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
             string assetBundleFullName = GetAssetBundleFullName(assetBundleName, assetBundleVariant);
             AssetBundleData assetBundleData = m_AssetBundleDatas[assetBundleFullName];
             string workingName = Icarus.GameFramework.Utility.Path.GetCombinePath(workingPath, assetBundleFullName);
-
+            Debug.Log($"workingName:{workingName}");
             byte[] bytes = File.ReadAllBytes(workingName);
             int length = bytes.Length;
             byte[] hashBytes = Icarus.GameFramework.Utility.Verifier.GetCrc32(bytes);
@@ -1010,31 +1006,13 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
             XmlElement xmlRoot = xmlDocument.CreateElement("ResourceVersionInfo");
             xmlAttribute = xmlDocument.CreateAttribute("ApplicableGameVersion");
             xmlAttribute.Value = ApplicableGameVersion.ToString();
+            xmlAttribute = xmlDocument.CreateAttribute("MinAppVersion");
+            xmlAttribute.Value = MinAppVersion.ToString();
             xmlRoot.Attributes.SetNamedItem(xmlAttribute);
             xmlAttribute = xmlDocument.CreateAttribute("LatestInternalResourceVersion");
             xmlAttribute.Value = InternalResourceVersion.ToString();
             xmlRoot.Attributes.SetNamedItem(xmlAttribute);
             xmlDocument.AppendChild(xmlRoot);
-
-            XmlElement xmlElement = null;
-            foreach (KeyValuePair<BuildTarget, VersionListData> i in m_VersionListDatas)
-            {
-                xmlElement = xmlDocument.CreateElement(i.Key.ToString());
-                xmlAttribute = xmlDocument.CreateAttribute("Length");
-                xmlAttribute.Value = i.Value.Length.ToString();
-                xmlElement.Attributes.SetNamedItem(xmlAttribute);
-                xmlAttribute = xmlDocument.CreateAttribute("HashCode");
-                xmlAttribute.Value = i.Value.HashCode.ToString();
-                xmlElement.Attributes.SetNamedItem(xmlAttribute);
-                xmlAttribute = xmlDocument.CreateAttribute("ZipLength");
-                xmlAttribute.Value = i.Value.ZipLength.ToString();
-                xmlElement.Attributes.SetNamedItem(xmlAttribute);
-                xmlAttribute = xmlDocument.CreateAttribute("ZipHashCode");
-                xmlAttribute.Value = i.Value.ZipHashCode.ToString();
-                xmlElement.Attributes.SetNamedItem(xmlAttribute);
-
-                xmlRoot.AppendChild(xmlElement);
-            }
 
             xmlDocument.Save(recordPath);
         }
