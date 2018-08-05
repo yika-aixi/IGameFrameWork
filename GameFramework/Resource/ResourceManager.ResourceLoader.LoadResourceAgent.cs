@@ -196,7 +196,7 @@ namespace Icarus.GameFramework.Resource
                         {
                             return;
                         }
-
+                        
                         ResourceObject resourceObject = m_ResourcePool.Spawn(m_Task.ResourceInfo.ResourceName.Name);
                         if (resourceObject == null)
                         {
@@ -329,7 +329,7 @@ namespace Icarus.GameFramework.Resource
                         m_WaitingType = WaitingType.WaitForResource;
                         return;
                     }
-
+                   
                     ResourceObject resourceObject = m_ResourcePool.Spawn(m_Task.ResourceInfo.ResourceName.Name);
                     if (resourceObject != null)
                     {

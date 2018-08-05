@@ -63,13 +63,7 @@ namespace Icarus.UnityGameFramework.Runtime
 
         [SerializeField]
         private int m_ResourcePriority = 0;
-
-        [SerializeField]
-        private string m_UpdatePrefixUri = null;
-
-        [SerializeField]
-        private int m_UpdateRetryCount = 3;
-
+        
         [SerializeField]
         private Transform m_InstanceRoot = null;
         [SerializeField]
