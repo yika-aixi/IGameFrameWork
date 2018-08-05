@@ -12,7 +12,6 @@ using Icarus.UnityGameFramework.Runtime;
 using Ludiq;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Icarus.UnityGameFramework.Bolt
 {
@@ -37,7 +36,7 @@ namespace Icarus.UnityGameFramework.Bolt
         [DoNotSerialize]
         public ValueInput EventName { get; private set; }
         [Serialize]
-        public List<KeyValuePair<string, Type>> ArgList { get; private set; }
+        public List<ArgEntity> ArgList { get; private set; }
 
         [Serialize]
         [Inspectable, UnitHeaderInspectable("ArgCount")]
@@ -132,7 +131,7 @@ namespace Icarus.UnityGameFramework.Bolt
                 for (var i = 0; i < ArgList.Count; i++)
                 {
                     var arg = ArgList[i];
-                    var argName = arg.Key;
+                    var argName = arg.ArgName;
                     var index = i;
 
                     if (string.IsNullOrWhiteSpace(argName))
@@ -142,11 +141,15 @@ namespace Icarus.UnityGameFramework.Bolt
 
                     if (isOut)
                     {
-                        _setArgOut(argName, arg.Value,index);
+                        _setArgOut(argName, arg.ArgType,index);
                     }
                     else
                     {
-                        _setArgIn(argName, arg.Value, index);
+                        _setArgIn(argName, arg.ArgType, index);
+                        if (arg.NotNull)
+                        {
+                            Requirement(_argsIn[index],_enter);
+                        }
                     }
                 }
             }
@@ -162,6 +165,7 @@ namespace Icarus.UnityGameFramework.Bolt
                     else
                     {
                         _setArgIn($"{nameof(_argsIn)}_{i}", typeof(object), index);
+                        Requirement(_argsIn[index], _enter);
                     }
                 }
             }

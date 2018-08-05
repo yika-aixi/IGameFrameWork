@@ -4,10 +4,8 @@
 //2018年07月30日-05:12
 //Icarus.UnityGameFramework.Bolt
 
-using System;
-using System.Collections.Generic;
 using Bolt;
-using Ludiq;
+using System.Collections.Generic;
 
 namespace Icarus.UnityGameFramework.Bolt.Event
 {
@@ -23,10 +21,8 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
         /// <summary>
         /// 参数列表
-        /// key : 参数名
-        /// value : 参数类型
         /// </summary>
-        List<KeyValuePair<string, Type>> ArgList { get; }
+        List<ArgEntity> ArgList { get; }
         
         int EventArgCount { get; }
     }

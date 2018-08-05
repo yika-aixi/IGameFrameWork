@@ -4,13 +4,11 @@
 //2018年07月29日-07:57
 //Icarus.UnityGameFramework.Bolt
 
+using Icarus.UnityGameFramework.Editor;
+using Ludiq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bolt;
-using Icarus.GameFramework;
-using Icarus.UnityGameFramework.Editor;
-using Ludiq;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -22,22 +20,14 @@ namespace Icarus.UnityGameFramework.Bolt.Event
     public class EventTableUnityInspector : GameFrameworkInspector
     {
         private EventTableScriptableObject _tableAsset;
-        private SerializedProperty _eventNames;
-        private SerializedProperty _eventIDs;
-        private SerializedProperty _eventArgCount;
-        private SerializedProperty _eventArgNames;
-        private SerializedProperty _eventArgTypeNames;
+        private SerializedProperty _events;
         private string[] _names;
         private int[] _ids;
 
         private void OnEnable()
         {
             _tableAsset = (EventTableScriptableObject)target;
-            _eventNames = serializedObject.FindProperty("_eventNames");
-            _eventIDs = serializedObject.FindProperty("_eventIds");
-            _eventArgCount = serializedObject.FindProperty("_eventArgCount");
-            _eventArgNames = serializedObject.FindProperty("_eventArgNames");
-            _eventArgTypeNames = serializedObject.FindProperty("_eventArgTypeNames");
+            _events = serializedObject.FindProperty("_events");
         }
 
         private bool _addMode;
@@ -49,7 +39,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
             _names = _tableAsset.GetEventNames().ToArray();
             _ids = _tableAsset.GetEventIDs().ToArray();
 
-            EditorGUILayout.LabelField($"Event Count:{_eventNames.arraySize}");
+            EditorGUILayout.LabelField($"Event Count:{_events.arraySize}");
             _autoSave = EditorGUILayout.Toggle("Auto Save", _autoSave);
             _addMode = EditorGUILayout.Toggle("Auto Add EventID", _addMode);
 
@@ -76,36 +66,107 @@ namespace Icarus.UnityGameFramework.Bolt.Event
             serializedObject.Update();
             Repaint();
         }
-
+        
         private void _showEventTable()
         {
-            for (var i = 0; i < _eventNames.arraySize; i++)
+            for (var i = 0; i < _events.arraySize; i++)
             {
+                var @event = _events.GetArrayElementAtIndex(i);
+                var eventName = @event.FindPropertyRelative("_eventName");
+                var eventID = @event.FindPropertyRelative("_eventId");
+                var eventArgs = @event.FindPropertyRelative("_args");
                 EditorGUILayout.BeginHorizontal();
                 {
-                    EditorGUILayout.PropertyField(_eventNames.GetArrayElementAtIndex(i), GUIContent.none);
-                    EditorGUILayout.PropertyField(_eventIDs.GetArrayElementAtIndex(i), GUIContent.none);
-                    EditorGUILayout.PropertyField(_eventArgCount.GetArrayElementAtIndex(i), GUIContent.none);
+                    EditorGUILayout.PropertyField(eventName, GUIContent.none);
+                    EditorGUILayout.PropertyField(eventID, GUIContent.none);
+                    var argCount = EditorGUILayout.IntField(eventArgs.arraySize);
+                    if (GUI.changed)
+                    {
+                        eventArgs.arraySize = argCount;
+                    }
                     if (GUILayout.Button("Remove"))
                     {
-                        _eventNames.DeleteArrayElementAtIndex(i);
-                        _eventIDs.DeleteArrayElementAtIndex(i);
-                        _eventArgCount.DeleteArrayElementAtIndex(i);
+                        _events.DeleteArrayElementAtIndex(i);
                         return;
                     }
                 }
                 EditorGUILayout.EndHorizontal();
+                
+                _showArgs(i,eventArgs);
 
-                _showArgs(i, _eventIDs.GetArrayElementAtIndex(i).intValue);
-
-                EditorGUILayout.Space();
+                if (i < _events.arraySize - 1)
+                {
+                    DrawUILine(Color.black);
+                }
             }
+        }
+
+        private void _showArgs(int index, SerializedProperty eventArgs)
+        {
+            if (!_foldout(index,eventArgs.arraySize))
+            {
+                return;
+            }
+
+            for (int i = 0; i < eventArgs.arraySize; i++)
+            {
+                var arg = eventArgs.GetArrayElementAtIndex(i);
+                var argName = arg.FindPropertyRelative("_argName");
+                var argTypeStr = arg.FindPropertyRelative("_argTypeStr");
+                var argDesc = arg.FindPropertyRelative("_argDesc");
+                var argNotNull = arg.FindPropertyRelative("_notNull");
+                EditorGUI.indentLevel++;
+                {
+                    if (i != 0)
+                    {
+                        DrawUILine(Color.white);
+                    }
+
+                    EditorGUIUtility.labelWidth = 80f;
+                    EditorGUILayout.PropertyField(argNotNull, new GUIContent("NotNull:"));
+                    var position = EditorGUILayout.BeginHorizontal();
+                    {
+                        EditorGUIUtility.labelWidth = 60f;
+                        EditorGUILayout.PropertyField(argName, new GUIContent("Name:"));
+
+                        GUIStyle fontStyle = new GUIStyle
+                        {
+                            normal = { textColor = Color.red },
+                            fontSize = EditorStyles.label.fontSize
+                        };
+
+                        EditorGUILayout.LabelField($"Type:{argTypeStr.stringValue.Split(',').First()}", fontStyle);
+                        _selectType(argTypeStr, position);
+                    }
+
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUIUtility.labelWidth = 60f;
+                    EditorGUILayout.PropertyField(argDesc, new GUIContent("Desc:"));
+                }
+                EditorGUI.indentLevel--;
+            }
+
+        }
+
+        readonly List<bool> _foldoutState = new List<bool>();
+
+        private bool _foldout(int index,int argCount)
+        {
+            if (_foldoutState.Count <= index)
+            {
+                _foldoutState.Add(false);
+            }
+
+            _foldoutState[index] = EditorGUILayout.Foldout(_foldoutState[index],
+                $"EventArgCount:{argCount}", true);
+            
+            return _foldoutState[index];
         }
 
         private bool _removeConfirm = false;
         private void _removeAll()
         {
-            if (_eventNames.arraySize > 0)
+            if (_events.arraySize > 0)
             {
                 if (_removeConfirm)
                 {
@@ -113,9 +174,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
                     {
                         if (GUILayout.Button("Confirm Remove All Event") || IsEnterClick())
                         {
-                            _eventNames.arraySize = 0;
-                            _eventIDs.arraySize = 0;
-                            _eventArgCount.arraySize = 0;
+                            _events.arraySize = 0;
                             _removeConfirm = false;
                         }
 
@@ -124,7 +183,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
                             _removeConfirm = false;
                         }
                     }
-                    EditorGUILayout.EndHorizontal();       
+                    EditorGUILayout.EndHorizontal();
                 }
                 else
                 {
@@ -133,7 +192,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
                         _removeConfirm = true;
                     }
                 }
-                
+
             }
         }
 
@@ -174,120 +233,44 @@ namespace Icarus.UnityGameFramework.Bolt.Event
                         }
                     }
 
-                    _addElement(_eventNames, _eventName, false);
-                    _addElement(_eventIDs, _id);
-                    _addElement(_eventArgCount, _argCount);
+                    _addElement(_eventName, _id, _argCount);
+                    //                    _addElement(_events, _eventName, false);
+                    //                    _addElement(_eventIDs, _id);
+                    //                    _addElement(_eventArgCount, _argCount);
                 }
             }
             EditorGUILayout.EndHorizontal();
         }
 
-        private void _addElement(SerializedProperty arraySer, object value, bool isInt = true)
+        private void _addElement(string eventName, int eventID, int argCount)
         {
-            var index = arraySer.arraySize;
-            arraySer.InsertArrayElementAtIndex(index);
-            if (isInt)
-            {
-                arraySer.GetArrayElementAtIndex(index).intValue = (int)value;
-            }
-            else
-            {
-                arraySer.GetArrayElementAtIndex(index).stringValue = (string)value;
-            }
+            _events.arraySize++;
+            var @event = _events.GetArrayElementAtIndex(_events.arraySize - 1);
+            var eventNameSer = @event.FindPropertyRelative("_eventName");
+            eventNameSer.stringValue = eventName;
+            var eventIDSer = @event.FindPropertyRelative("_eventId");
+            eventIDSer.intValue = eventID;
+            var eventArgsSer = @event.FindPropertyRelative("_args");
+            eventArgsSer.arraySize = argCount;
         }
 
-        private void _showArray(SerializedProperty arraySer, bool showRemove = false, bool isArgs = false,
-            params GUILayoutOption[] guiLayout)
+        private void _selectType(SerializedProperty argTypeStr, Rect position)
         {
-            EditorGUILayout.BeginVertical();
+            if (GUILayout.Button("Select Type"))
             {
-                for (int i = 0; i < arraySer.arraySize; i++)
-                {
-                    EditorGUILayout.BeginHorizontal();
+                var rect = GUILayoutUtility.GetLastRect();
+                rect = new Rect(position.width, position.yMax / 2, rect.width, rect.height);
+                FuzzyWindow.Show(rect,
+                    _getOptionTree(_getCurrentType(argTypeStr.stringValue)), (option) =>
                     {
-                        EditorGUILayout.PropertyField(arraySer.GetArrayElementAtIndex(i), new GUIContent(""),
-                            guiLayout);
-                        if (showRemove)
-                        {
-                            if (GUILayout.Button("Remove", guiLayout))
-                            {
-                                _eventNames.DeleteArrayElementAtIndex(i);
-                                _eventIDs.DeleteArrayElementAtIndex(i);
-                                _eventArgCount.DeleteArrayElementAtIndex(i);
-                            }
-                        }
-                    }
-                    EditorGUILayout.EndHorizontal();
+                        argTypeStr.stringValue = ((Type)option.value).AssemblyQualifiedName;
 
-                    //                    if (isArgs)
-                    //                    {
-                    //                        _showArgs(i, arraySer.GetArrayElementAtIndex(i).intValue,
-                    //                            guiLayout);
-                    //                    }
-                }
+                        serializedObject.ApplyModifiedProperties();
+
+                        FuzzyWindow.instance.Close();
+                        InternalEditorUtility.RepaintAllViews();
+                    });
             }
-            EditorGUILayout.EndVertical();
-        }
-
-        readonly List<bool> _foldoutState = new List<bool>();
-        private void _showArgs(int index,int eventID,params GUILayoutOption[] guiLayout)
-        {
-            if (_foldoutState.Count <= index)
-            {
-                _foldoutState.Add(false);
-            }
-
-            _foldoutState[index] = EditorGUILayout.Foldout(_foldoutState[index],
-                $"EventArgCount:{_eventArgCount.GetArrayElementAtIndex(index).intValue}", true);
-
-            if (!_foldoutState[index])
-            {
-                return;
-            }
-
-            var args = _tableAsset.ArgGroup[eventID];
-
-            EditorGUI.indentLevel++;
-            {
-                for (var i = args[0]; i < args[1]; i++)
-                {
-                    var argIndex = i;
-
-                    var argName = _eventArgNames.GetArrayElementAtIndex(argIndex);
-                    if (argName.stringValue == EventTableScriptableObject.NullStr)
-                    {
-                        continue;
-                    }
-                    var arg = _eventArgTypeNames.GetArrayElementAtIndex(argIndex);
-                    var position = EditorGUILayout.BeginHorizontal();
-                    {
-                        EditorGUIUtility.labelWidth = 80f;
-                        EditorGUILayout.PropertyField(argName, new GUIContent("Arg Name:"));
-                        GUIStyle fontStyle = new GUIStyle();
-                        fontStyle.normal.background = null;    //设置背景填充  
-                        fontStyle.normal.textColor = new Color(1, 0, 0);   //设置字体颜色  
-                        fontStyle.fontSize = EditorStyles.label.fontSize;       //字体大小  
-                        EditorGUILayout.LabelField($"Type:{arg.stringValue.Split(',').First()}", fontStyle);
-                        if (GUILayout.Button("Select Type"))
-                        {
-                            var rect = GUILayoutUtility.GetLastRect();
-                            rect = new Rect(position.width, position.yMax / 2, rect.width,rect.height);
-                            FuzzyWindow.Show(rect, _getOptionTree(_getCurrentType(arg.stringValue)), (option) =>
-                            {
-                                arg.stringValue = ((Type)option.value).AssemblyQualifiedName;
-
-                                serializedObject.ApplyModifiedProperties();
-
-
-                                FuzzyWindow.instance.Close();
-                                InternalEditorUtility.RepaintAllViews();
-                            });
-                        }
-                    }
-                    EditorGUILayout.EndHorizontal();
-                }
-            }
-            EditorGUI.indentLevel--;
         }
 
         private Type _getCurrentType(string argStringValue)

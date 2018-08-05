@@ -26,9 +26,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
         }
 
         private Metadata _events => metadata["Events"];
-
-        private Metadata _argsTable => metadata["ArgsTable"];
-
+        
         private Metadata _selectEventName => metadata["SelectEventName"];
 
         private Metadata _selectEventID => metadata["SelectEventID"];
@@ -44,12 +42,13 @@ namespace Icarus.UnityGameFramework.Bolt.Event
             _ids = new[] { 0 };
             try
             {
-                var table = (Dictionary<string, int>)_events.value;
+                var events = (List<EventEntity>)_events.value;
 
-                if (table.Count != 0)
+                if (events.Count != 0)
                 {
-                    _names = table.Keys.ToArray();
-                    _ids = table.Values.ToArray();
+                    _names = events.Select(x => x.EventName).ToArray();
+                    _ids = events.Select(x => x.EventID).ToArray(); ;
+                    _initIndex();
                 }
 
                 _eror = false;
@@ -62,7 +61,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
             BeginBlock(metadata, position);
             {
                 var popRect = new Rect(position.x + 50, position.y, position.width, position.height);
-                _index = EditorGUI.IntPopup(popRect, _index, _names, _ids);
+                _index = EditorGUI.Popup(popRect, _index, _names);
 
                 if (_eror)
                 {
@@ -71,7 +70,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
                 try
                 {
-                    var index = _index - 1;
+                    var index = _index;
                     _selectEventName.value = _names[index];
                     _selectEventID.value = _ids[index];
                 }
@@ -85,6 +84,18 @@ namespace Icarus.UnityGameFramework.Bolt.Event
                 metadata.RecordUndo();
             }
 
+        }
+
+        private void _initIndex()
+        {
+            string selectName = (string) _selectEventName.value;
+            for (var i = 0; i < _names.Length; i++)
+            {
+                if (_names[i] == selectName)
+                {
+                    _index = i;
+                }
+            }
         }
     }
 }

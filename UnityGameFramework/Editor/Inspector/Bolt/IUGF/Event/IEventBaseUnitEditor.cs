@@ -4,10 +4,9 @@
 //2018年07月30日-05:25
 //Icarus.UnityGameFramework.Editor
 
-using System;
-using System.Collections.Generic;
 using Bolt;
 using Ludiq;
+using System;
 using UnityEngine;
 
 namespace Icarus.UnityGameFramework.Bolt.Event
@@ -21,11 +20,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
         protected Metadata EventId => metadata["EventId"];
 
         protected Metadata EventName => metadata["EventName"];
-
-        protected Metadata ArgList => metadata["ArgList"];
-
-        protected Metadata EventArgCount => metadata["EventArgCount"];
-
+        
         public IEventBaseUnitEditor(Metadata metadata) : base(metadata)
         {
         }

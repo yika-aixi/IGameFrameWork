@@ -31,7 +31,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         [PortLabel("Event Name")]
         public ValueInput EventName { get; private set; }
         [Serialize]
-        public List<KeyValuePair<string, Type>> ArgList { get; private set; }
+        public List<ArgEntity> ArgList { get; private set; }
 
         [Serialize]
         [Inspectable, UnitHeaderInspectable("ArgCount")]
@@ -55,14 +55,14 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                 for (var i = 0; i < ArgList.Count; i++)
                 {
                     var arg = ArgList[i];
-                    var argName = arg.Key;
+                    var argName = arg.ArgName;
 
                     if (string.IsNullOrWhiteSpace(argName))
                     {
                         argName = $"argument_{i}";
                     }
 
-                    argumentPorts.Add(ValueOutput(arg.Value, argName));
+                    argumentPorts.Add(ValueOutput(arg.ArgType, argName));
                 }
             }
             else
