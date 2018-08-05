@@ -1,5 +1,7 @@
 # IGameFramework
 
+## 该框架还不稳定,不建议使用,推荐使用[UGF](https://github.com/EllanJiang/UnityGameFramework),我还在边做项目边完善和修复
+
 该分支依赖:`Bolt`否则会报错
 
 [Bolt](https://www.assetstore.unity3d.com/#!/content/87491?aid=1011lGiW)
