@@ -12,6 +12,7 @@ using Icarus.UnityGameFramework.Runtime;
 using Ludiq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Icarus.UnityGameFramework.Bolt
 {
@@ -25,10 +26,11 @@ namespace Icarus.UnityGameFramework.Bolt
         [DoNotSerialize]
         [Inspectable, UnitHeaderInspectable("TableAsset")]
         public EventTableScriptableObject EventTableAsset { get; private set; }
-        [DoNotSerialize]
+
+        [Serialize]
         [Inspectable, UnitHeaderInspectable("Events")]
         public EventTable EventTable { get; private set; }
-
+        
         [DoNotSerialize]
         [PortLabel("Event ID")]
         public ValueInput EventId { get; private set; }
@@ -78,7 +80,7 @@ namespace Icarus.UnityGameFramework.Bolt
             //备份现在所选事件表或设置事件表
             _setBackOrAsset();
         }
-        
+
         protected override void Definition()
         {
             base.Definition();
@@ -121,7 +123,6 @@ namespace Icarus.UnityGameFramework.Bolt
             }
 
             Succession(_enter, _exit);
-
         }
 
         void _setArgList(bool isOut)
@@ -141,14 +142,14 @@ namespace Icarus.UnityGameFramework.Bolt
 
                     if (isOut)
                     {
-                        _setArgOut(argName, arg.ArgType,index);
+                        _setArgOut(argName, arg.ArgType, index);
                     }
                     else
                     {
                         _setArgIn(argName, arg.ArgType, index);
                         if (arg.NotNull)
                         {
-                            Requirement(_argsIn[index],_enter);
+                            Requirement(_argsIn[index], _enter);
                         }
                     }
                 }
@@ -173,7 +174,7 @@ namespace Icarus.UnityGameFramework.Bolt
 
         private void _setArgIn(string argName, Type argValue, int index)
         {
-            _argsIn[index] = ValueInput(argValue,argName);
+            _argsIn[index] = ValueInput(argValue, argName);
         }
 
         private void _setArgOut(string argName, Type argValue, int index)
@@ -198,12 +199,14 @@ namespace Icarus.UnityGameFramework.Bolt
 
         private void _setEventArgCountAndArgList()
         {
-            if (EventTableAsset == null || EventTable == null)
+            //没有事件表资源初始化
+            if (EventTable == null || EventTable.Events.Count == 0)
             {
                 return;
             }
 
             EventArgCount = EventTable.GetArgCount();
+            
             ArgList = EventTable.GetArgList();
         }
 

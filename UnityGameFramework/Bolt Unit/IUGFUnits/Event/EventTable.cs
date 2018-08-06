@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ludiq;
 using UnityEngine;
 
 namespace Icarus.UnityGameFramework.Bolt.Event
@@ -109,8 +110,9 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
     public class EventTable
     {
+        [DoNotSerialize]
         public readonly List<EventEntity> Events = new List<EventEntity>();
-        public string SelectEventName { get; set; } = "None Event";
+        public string SelectEventName { get; set; }
         public int SelectEventID { get; set; }
 
         public override string ToString()

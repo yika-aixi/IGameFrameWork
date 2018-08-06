@@ -23,9 +23,10 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         [DoNotSerialize]
         [Inspectable, UnitHeaderInspectable("TableAsset")]
         public EventTableScriptableObject EventTableAsset { get; private set; }
-        [DoNotSerialize]
+        [Serialize]
         [Inspectable, UnitHeaderInspectable("Events")]
         public EventTable EventTable { get; private set; }
+
         [DoNotSerialize]
         public ValueInput EventId { get; private set; }
         [DoNotSerialize]
@@ -50,6 +51,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         protected override void Definition()
         {
             base.Definition();
+
             EventName = ValueInput(nameof(EventName), string.Empty);
 
             target = ValueInput<GameObject>(nameof(target), null).NullMeansSelf();
@@ -83,21 +85,21 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                 }
             }
             
-
             Requirement(EventName, _enter);
             Requirement(target, _enter);
             Succession(_enter, _exit);
-
         }
 
         private void _setEventArgCountAndArgList()
         {
-            if (EventTableAsset == null || EventTable == null)
+            //没有事件表资源初始化
+            if (EventTable == null || EventTable.Events.Count == 0)
             {
                 return;
             }
 
             EventArgCount = EventTable.GetArgCount();
+
             ArgList = EventTable.GetArgList();
         }
 
@@ -107,7 +109,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
             var name = flow.GetValue<string>(EventName);
             var arguments = this.arguments.Select(flow.GetConvertedValue).ToArray();
 
-            CustomEvent.Trigger(target, name, arguments);
+            NewCustomEventUnit.Trigger(target, name, arguments);
 
             return _exit;
         }

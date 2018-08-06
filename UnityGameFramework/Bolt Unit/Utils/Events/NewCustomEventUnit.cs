@@ -22,9 +22,11 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         [DoNotSerialize]
         [Inspectable, UnitHeaderInspectable("TableAsset")]
         public EventTableScriptableObject EventTableAsset { get; private set; }
-        [DoNotSerialize]
+
+        [Serialize]
         [Inspectable, UnitHeaderInspectable("Events")]
         public EventTable EventTable { get; private set; }
+        
         [DoNotSerialize]
         public ValueInput EventId { get; private set; }
         [DoNotSerialize]
@@ -37,7 +39,8 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         [Inspectable, UnitHeaderInspectable("ArgCount")]
         public int EventArgCount { get; private set; }
 
-        protected override string hookName => EventHooks.Custom;
+        private static readonly string NewhookName = $"New {EventHooks.Custom}";
+        protected override string hookName => NewhookName;
 
         [DoNotSerialize]
         public List<ValueOutput> argumentPorts { get; } = new List<ValueOutput>();
@@ -76,12 +79,14 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         }
         private void _setEventArgCountAndArgList()
         {
-            if (EventTableAsset == null || EventTable == null)
+            //没有事件表资源初始化
+            if (EventTable == null || EventTable.Events.Count == 0)
             {
                 return;
             }
 
             EventArgCount = EventTable.GetArgCount();
+
             ArgList = EventTable.GetArgList();
         }
 
@@ -100,7 +105,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 
         public static void Trigger(GameObject target, string name, params object[] args)
         {
-            EventBus.Trigger(EventHooks.Custom, target, new CustomEventArgs(name, args));
+            EventBus.Trigger(NewhookName, target, new CustomEventArgs(name, args));
         }
     }
 }

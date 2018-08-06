@@ -26,21 +26,36 @@ namespace Icarus.UnityGameFramework.Bolt.Event
         }
 
         private Metadata _events => metadata["Events"];
-        
+
         private Metadata _selectEventName => metadata["SelectEventName"];
 
         private Metadata _selectEventID => metadata["SelectEventID"];
 
-        private string[] _names = { "No Table" };
+        private string[] _names;
         private int[] _ids;
-        private int _index = -1;
+        private int _selectId;
+        private int _nowSelectId;
         private bool _eror;
+        private const string NoTable = "No Table";
         protected override void OnGUI(Rect position, GUIContent label)
         {
-            _names = new[] { "No Table" };
+            if (!string.IsNullOrEmpty((string)_selectEventName.value))
+            {
+                _names = new[] { (string)_selectEventName.value };
 
-            _ids = new[] { 0 };
-            try
+                _ids = new[] { (int)_selectEventID.value };
+
+                _initIndex();
+
+            }
+            else
+            {
+                _names = new[] { NoTable };
+
+                _ids = new[] { 0 };
+            }
+
+            if (_events.value != null)
             {
                 var events = (List<EventEntity>)_events.value;
 
@@ -48,36 +63,58 @@ namespace Icarus.UnityGameFramework.Bolt.Event
                 {
                     _names = events.Select(x => x.EventName).ToArray();
                     _ids = events.Select(x => x.EventID).ToArray(); ;
-                    _initIndex();
                 }
-
                 _eror = false;
             }
-            catch (Exception)
+            else
             {
                 _eror = true;
             }
-
+            
             BeginBlock(metadata, position);
             {
                 var popRect = new Rect(position.x + 50, position.y, position.width, position.height);
-                _index = EditorGUI.Popup(popRect, _index, _names);
 
-                if (_eror)
+                _nowSelectId = EditorGUI.IntPopup(popRect, _nowSelectId, _names, _ids);
+
+
+                #region 避免选择不同得事件表没有找到事件重置的问题
+
+                bool hit = false;
+                foreach (var id in _ids)
+                {
+                    if (id == _selectId)
+                    {
+                        _selectId = _nowSelectId;
+                        hit = true;
+                    }
+                }
+
+                #endregion
+                
+                if (_eror || !hit)
                 {
                     return;
                 }
 
-                try
+                int index = 0;
+
+                for (var i = 0; i < _ids.Length; i++)
                 {
-                    var index = _index;
-                    _selectEventName.value = _names[index];
-                    _selectEventID.value = _ids[index];
+                    if (_ids[i] == _selectId)
+                    {
+                        index = i;
+                    }
                 }
-                catch (Exception)
+
+                //没有事件表,不赋值
+                if(_names[index] == NoTable)
                 {
-                    _index = -1;
+                    return;
                 }
+
+                _selectEventName.value = _names[index];
+                _selectEventID.value = _ids[index];
             }
             if (EndBlock(metadata))
             {
@@ -88,14 +125,8 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
         private void _initIndex()
         {
-            string selectName = (string) _selectEventName.value;
-            for (var i = 0; i < _names.Length; i++)
-            {
-                if (_names[i] == selectName)
-                {
-                    _index = i;
-                }
-            }
+            _selectId = (int)_selectEventID.value;
+            _nowSelectId = _selectId;
         }
     }
 }

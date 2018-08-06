@@ -20,7 +20,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
         protected Metadata EventId => metadata["EventId"];
 
         protected Metadata EventName => metadata["EventName"];
-        
+
         public IEventBaseUnitEditor(Metadata metadata) : base(metadata)
         {
         }
@@ -29,31 +29,33 @@ namespace Icarus.UnityGameFramework.Bolt.Event
         {
             BeginBlock(metadata, position);
             {
-                try
+                if (Table.value == null)
                 {
-                    if (TableScriptableObject.value == null)
-                    {
-                        Table.value = new EventTable();
-                        return;
-                    }
-
-                    Table.value = ((EventTableScriptableObject)TableScriptableObject.value).Table;
-
-                    if (EventId.value != null)
-                    {
-                        var idInput = (ValueInput)EventId.value;
-                        idInput.SetDefaultValue(((EventTable)Table.value).SelectEventID);
-                    }
-
-                    if (EventName.value != null)
-                    {
-                        var nameInput = (ValueInput)EventName.value;
-                        nameInput.SetDefaultValue(((EventTable)Table.value).SelectEventName);
-                    }
-
+                    Table.value = new EventTable();
+                    return;
                 }
-                catch (Exception)
+                var table = (EventTable)Table.value;
+
+                if (TableScriptableObject.value != null)
                 {
+                    var tableAsset = ((EventTableScriptableObject)
+                        TableScriptableObject.value);
+
+
+                    table.Events.Clear();
+                    table.Events.AddRange(tableAsset.Table.Events);
+                }
+
+                if (EventId.value != null)
+                {
+                    var idInput = (ValueInput)EventId.value;
+                    idInput.SetDefaultValue(table.SelectEventID);
+                }
+
+                if (EventName.value != null)
+                {
+                    var nameInput = (ValueInput)EventName.value;
+                    nameInput.SetDefaultValue(table.SelectEventName);
                 }
             }
             if (EndBlock(metadata))
