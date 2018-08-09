@@ -9,6 +9,7 @@ using Ludiq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Icarus.GameFramework;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -35,6 +36,18 @@ namespace Icarus.UnityGameFramework.Bolt.Event
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
+            var path = AssetDatabase.GetAssetOrScenePath(Selection.activeObject);
+            if (oldEventTableUpdateTool.IsCanUpdate(path))
+            {
+                if (GUILayout.Button("Update EventTable"))
+                {
+                    if (!oldEventTableUpdateTool.Update(path,serializedObject))
+                    {
+                        throw new GameFrameworkException("Update EventTable Failure");
+                    }
+                }
+            }
+
             serializedObject.Update();
             _names = _tableAsset.GetEventNames().ToArray();
             _ids = _tableAsset.GetEventIDs().ToArray();
@@ -128,7 +141,6 @@ namespace Icarus.UnityGameFramework.Bolt.Event
                     EditorGUILayout.PropertyField(argNotNull, new GUIContent("NotNull:"));
                     EditorGUIUtility.labelWidth = 60f;
                     EditorGUILayout.PropertyField(argName, new GUIContent("Name:"));
-
                     var position = EditorGUILayout.BeginHorizontal();
                     {
                         GUIStyle fontStyle = new GUIStyle
@@ -263,6 +275,27 @@ namespace Icarus.UnityGameFramework.Bolt.Event
             eventIDSer.intValue = eventID;
             var eventArgsSer = @event.FindPropertyRelative("_args");
             eventArgsSer.arraySize = argCount;
+            _initEventArgs(eventArgsSer);
+        }
+        /// <summary>
+        /// 增加了arraySize后他会复制最后一个元素的值,所以在这里重置一下
+        /// </summary>
+        /// <param name="eventArgsSer"></param>
+        private void _initEventArgs(SerializedProperty eventArgsSer)
+        {
+            for (var i = 0; i < eventArgsSer.arraySize; i++)
+            {
+                var arg = eventArgsSer.GetArrayElementAtIndex(i);
+                var argName = arg.FindPropertyRelative("_argName");
+                var _argTypeStr = arg.FindPropertyRelative("_argTypeStr");
+                var _argDesc = arg.FindPropertyRelative("_argDesc");
+                var _notNull = arg.FindPropertyRelative("_notNull");
+
+                argName.stringValue = string.Empty;
+                _argTypeStr.stringValue = typeof(object).AssemblyQualifiedName;
+                _argDesc.stringValue = string.Empty;
+                _notNull.boolValue = true;
+            }
         }
 
         private void _selectType(SerializedProperty argTypeStr, Rect position)

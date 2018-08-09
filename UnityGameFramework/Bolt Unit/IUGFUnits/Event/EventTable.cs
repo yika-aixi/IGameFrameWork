@@ -24,10 +24,10 @@ namespace Icarus.UnityGameFramework.Bolt.Event
         private string _argDesc;
         [SerializeField]
         private bool _notNull;
-        [SerializeField]
-        private bool _isDefault;
-        [SerializeField]
-        private object _default;
+//        [SerializeField]
+//        private bool _isDefault;
+//        [SerializeField]
+//        private object _default;
 
         public ArgEntity(ArgEntity arg)
         {
@@ -35,18 +35,18 @@ namespace Icarus.UnityGameFramework.Bolt.Event
             _argTypeStr = arg.ArgTypeStr;
             _argDesc = arg.ArgDesc;
             _notNull = arg.NotNull;
-            _isDefault = arg.IsDefault;
-            _default = arg.Default;
+//            _isDefault = arg.IsDefault;
+//            _default = arg.Default;
         }
 
         public ArgEntity():this(string.Empty,typeof(object).AssemblyQualifiedName,string.Empty,true)
         {
         }
 
-        public ArgEntity(string argName, string argTypeStr, string argDesc, bool notNull)
+        public ArgEntity(string argName, string argAssemblyQualifiedName, string argDesc, bool notNull)
         {
             _argName = argName;
-            _argTypeStr = argTypeStr;
+            _argTypeStr = argAssemblyQualifiedName;
             _argDesc = argDesc;
             _notNull = notNull;
         }
@@ -79,9 +79,9 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
         public string ArgTypeStr => _argTypeStr;
 
-        public bool IsDefault => _isDefault;
-
-        public object Default => _default;
+//        public bool IsDefault => _isDefault;
+//
+//        public object Default => _default;
 
         public override string ToString()
         {
