@@ -19,11 +19,6 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
         ValueInput EventName { get; }
 
-        /// <summary>
-        /// 参数列表
-        /// </summary>
-        List<ArgEntity> ArgList { get; }
-        
         int EventArgCount { get; }
     }
 }

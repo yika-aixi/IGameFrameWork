@@ -66,7 +66,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
             serializedObject.Update();
             Repaint();
         }
-        
+
         private void _showEventTable()
         {
             for (var i = 0; i < _events.arraySize; i++)
@@ -91,8 +91,8 @@ namespace Icarus.UnityGameFramework.Bolt.Event
                     }
                 }
                 EditorGUILayout.EndHorizontal();
-                
-                _showArgs(i,eventArgs);
+
+                _showArgs(i, eventArgs);
 
                 if (i < _events.arraySize - 1)
                 {
@@ -103,7 +103,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
         private void _showArgs(int index, SerializedProperty eventArgs)
         {
-            if (!_foldout(index,eventArgs.arraySize))
+            if (!_foldout(index, eventArgs.arraySize))
             {
                 return;
             }
@@ -115,6 +115,8 @@ namespace Icarus.UnityGameFramework.Bolt.Event
                 var argTypeStr = arg.FindPropertyRelative("_argTypeStr");
                 var argDesc = arg.FindPropertyRelative("_argDesc");
                 var argNotNull = arg.FindPropertyRelative("_notNull");
+//                var isDefault = arg.FindPropertyRelative("_isDefault");
+               // var @default = arg.FindPropertyRelative("_default");
                 EditorGUI.indentLevel++;
                 {
                     if (i != 0)
@@ -124,11 +126,11 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
                     EditorGUIUtility.labelWidth = 80f;
                     EditorGUILayout.PropertyField(argNotNull, new GUIContent("NotNull:"));
+                    EditorGUIUtility.labelWidth = 60f;
+                    EditorGUILayout.PropertyField(argName, new GUIContent("Name:"));
+
                     var position = EditorGUILayout.BeginHorizontal();
                     {
-                        EditorGUIUtility.labelWidth = 60f;
-                        EditorGUILayout.PropertyField(argName, new GUIContent("Name:"));
-
                         GUIStyle fontStyle = new GUIStyle
                         {
                             normal = { textColor = Color.red },
@@ -138,8 +140,17 @@ namespace Icarus.UnityGameFramework.Bolt.Event
                         EditorGUILayout.LabelField($"Type:{argTypeStr.stringValue.Split(',').First()}", fontStyle);
                         _selectType(argTypeStr, position);
                     }
-
                     EditorGUILayout.EndHorizontal();
+
+//                    EditorGUIUtility.labelWidth = 80f;
+//                    EditorGUILayout.PropertyField(isDefault, new GUIContent("Is Default:"));
+
+//                    if (isDefault.boolValue)
+//                    {
+//                        EditorGUIUtility.labelWidth = 60f;
+//                        EditorGUILayout.PropertyField(@default, new GUIContent("Default:"));
+//                    }
+
                     EditorGUIUtility.labelWidth = 60f;
                     EditorGUILayout.PropertyField(argDesc, new GUIContent("Desc:"));
                 }
@@ -150,7 +161,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
         readonly List<bool> _foldoutState = new List<bool>();
 
-        private bool _foldout(int index,int argCount)
+        private bool _foldout(int index, int argCount)
         {
             if (_foldoutState.Count <= index)
             {
@@ -159,7 +170,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
             _foldoutState[index] = EditorGUILayout.Foldout(_foldoutState[index],
                 $"EventArgCount:{argCount}", true);
-            
+
             return _foldoutState[index];
         }
 

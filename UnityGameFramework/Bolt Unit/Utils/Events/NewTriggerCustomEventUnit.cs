@@ -31,8 +31,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         public ValueInput EventId { get; private set; }
         [DoNotSerialize]
         public ValueInput EventName { get; private set; }
-        [Serialize]
-        public List<ArgEntity> ArgList { get; private set; }
+
         [Serialize]
         [Inspectable, UnitHeaderInspectable("Arg Count")]
         public int EventArgCount { get; private set; }
@@ -58,18 +57,20 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 
             arguments = new List<ValueInput>();
             _setEventArgCountAndArgList();
-            if (ArgList != null && ArgList.Count == EventArgCount)
+            if (EventTable != null && EventTable.SelectEvent != null &&
+                EventTable.SelectEvent.Args != null &&
+                EventTable.SelectEvent.Args.Count == EventArgCount)
             {
-                for (var i = 0; i < ArgList.Count; i++)
+                for (var i = 0; i < EventTable.SelectEvent.Args.Count; i++)
                 {
-                    var argName = ArgList[i].ArgName;
+                    var argName = EventTable.SelectEvent.Args[i].ArgName;
                     if (string.IsNullOrWhiteSpace(argName))
                     {
                         argName = $"argument_{i}";
                     }
-                    var argument = ValueInput(ArgList[i].ArgType,argName);
+                    var argument = ValueInput(EventTable.SelectEvent.Args[i].ArgType,argName);
                     arguments.Add(argument);
-                    if(ArgList[i].NotNull)
+                    if(EventTable.SelectEvent.Args[i].NotNull)
                     {
                         Requirement(argument, _enter);
                     }
@@ -93,14 +94,13 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         private void _setEventArgCountAndArgList()
         {
             //没有事件表资源初始化
-            if (EventTable == null || EventTable.Events.Count == 0)
+            if (EventTable == null || EventTable.Events == null)
             {
                 return;
             }
 
             EventArgCount = EventTable.GetArgCount();
 
-            ArgList = EventTable.GetArgList();
         }
 
         protected override ControlOutput Enter(Flow flow)

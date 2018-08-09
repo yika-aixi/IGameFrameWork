@@ -24,6 +24,10 @@ namespace Icarus.UnityGameFramework.Bolt.Event
         private string _argDesc;
         [SerializeField]
         private bool _notNull;
+        [SerializeField]
+        private bool _isDefault;
+        [SerializeField]
+        private object _default;
 
         public ArgEntity(ArgEntity arg)
         {
@@ -31,6 +35,8 @@ namespace Icarus.UnityGameFramework.Bolt.Event
             _argTypeStr = arg.ArgTypeStr;
             _argDesc = arg.ArgDesc;
             _notNull = arg.NotNull;
+            _isDefault = arg.IsDefault;
+            _default = arg.Default;
         }
 
         public ArgEntity():this(string.Empty,typeof(object).AssemblyQualifiedName,string.Empty,true)
@@ -73,6 +79,10 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
         public string ArgTypeStr => _argTypeStr;
 
+        public bool IsDefault => _isDefault;
+
+        public object Default => _default;
+
         public override string ToString()
         {
             return ArgName;
@@ -96,11 +106,47 @@ namespace Icarus.UnityGameFramework.Bolt.Event
             this._eventId = eventID;
         }
 
-        public string EventName => _eventName;
+       
 
-        public int EventID => _eventId;
 
-        public List<ArgEntity> Args => _args;
+        public string EventName
+        {
+            get
+            {
+                return _eventName;
+            }
+
+            set
+            {
+                _eventName = value;
+            }
+        }
+
+        public int EventID
+        {
+            get
+            {
+                return _eventId;
+            }
+
+            set
+            {
+                _eventId = value;
+            }
+        }
+
+        public List<ArgEntity> Args
+        {
+            get
+            {
+                return _args;
+            }
+
+            set
+            {
+                _args = value;
+            }
+        }
 
         public override string ToString()
         {
@@ -110,39 +156,72 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
     public class EventTable
     {
+        /// <summary>
+        /// 表资源名
+        /// </summary>
+        public string TableAssetName;
+
         [DoNotSerialize]
-        public readonly List<EventEntity> Events = new List<EventEntity>();
-        public string SelectEventName { get; set; }
-        public int SelectEventID { get; set; }
+        public List<EventEntity> Events;
+
+
+        public EventEntity SelectEvent { get; set; }
+
+        public string SelectEventOfAssetName { get; set; }
 
         public override string ToString()
         {
-            return $"Select Event Name:{SelectEventName},ID:{SelectEventID}";
+            return $"Select Event Name:{SelectEvent.EventName},ID:{SelectEvent.EventID}";
         }
 
         public EventEntity GetEvent(int eventID)
         {
-            var @event = Events.FirstOrDefault(x => x.EventID == SelectEventID);
+            if (Events == null)
+            {
+                return null;
+            }
+
+            var @event = Events.FirstOrDefault(x => x.EventID == eventID);
 
             return @event;
         }
 
         public int GetArgCount()
         {
-            var @event = GetEvent(SelectEventID);
-            if (@event == null)
+            if (SelectEvent == null)
             {
                 return 0;
             }
 
-            return @event.Args.Count;
+            var @event = GetEvent(SelectEvent.EventID);
+
+            if (@event != null)
+            {
+                if (SelectEvent != null && @event.Args.Count != SelectEvent.Args.Count &&
+                    SelectEventOfAssetName != TableAssetName)
+                {
+                    return SelectEvent.Args.Count;
+                }
+                else
+                {
+                    return @event.Args.Count;
+                }
+            }
+
+            if (SelectEvent != null)
+            {
+                return SelectEvent.Args.Count;
+            }
+
+            return 0;
         }
 
         public List<ArgEntity> GetArgList()
         {
-            var @event = GetEvent(SelectEventID);
+            var @event = GetEvent(SelectEvent.EventID);
 
             return @event?.Args;
         }
+
     }
 }

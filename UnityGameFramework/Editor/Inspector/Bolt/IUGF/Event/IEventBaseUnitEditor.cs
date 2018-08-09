@@ -7,6 +7,7 @@
 using Bolt;
 using Ludiq;
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace Icarus.UnityGameFramework.Bolt.Event
@@ -14,12 +15,12 @@ namespace Icarus.UnityGameFramework.Bolt.Event
     [Editor(typeof(IEventBaseUnit))]
     public class IEventBaseUnitEditor : UnitEditor
     {
-        protected Metadata TableScriptableObject => metadata["EventTableAsset"];
-        protected Metadata Table => metadata["EventTable"];
+        protected Metadata TableScriptableObject => metadata[nameof(IEventBaseUnit.EventTableAsset)];
+        protected Metadata Table => metadata[nameof(IEventBaseUnit.EventTable)];
 
-        protected Metadata EventId => metadata["EventId"];
+        protected Metadata EventId => metadata[nameof(IEventBaseUnit.EventId)];
 
-        protected Metadata EventName => metadata["EventName"];
+        protected Metadata EventName => metadata[nameof(IEventBaseUnit.EventName)];
 
         public IEventBaseUnitEditor(Metadata metadata) : base(metadata)
         {
@@ -27,6 +28,8 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
         protected override void OnGUI(Rect position, GUIContent label)
         {
+            base.OnGUI(position, label);
+
             BeginBlock(metadata, position);
             {
                 if (Table.value == null)
@@ -41,30 +44,36 @@ namespace Icarus.UnityGameFramework.Bolt.Event
                     var tableAsset = ((EventTableScriptableObject)
                         TableScriptableObject.value);
 
-
-                    table.Events.Clear();
-                    table.Events.AddRange(tableAsset.Table.Events);
+                    EventEntity[] entities = new EventEntity[tableAsset.Table.Events.Count];
+                    tableAsset.Table.Events.CopyTo(entities, 0);
+                    table.Events = entities.ToList();
+                    var tableAssetName = Table[nameof(EventTable.TableAssetName)];
+                    tableAssetName.value = tableAsset.name;
                 }
 
                 if (EventId.value != null)
                 {
                     var idInput = (ValueInput)EventId.value;
-                    idInput.SetDefaultValue(table.SelectEventID);
+
+                    if (table.SelectEvent != null)
+                    {
+                        idInput.SetDefaultValue(table.SelectEvent.EventID);
+                    }
                 }
 
                 if (EventName.value != null)
                 {
                     var nameInput = (ValueInput)EventName.value;
-                    nameInput.SetDefaultValue(table.SelectEventName);
+                    if (table.SelectEvent != null)
+                    {
+                        nameInput.SetDefaultValue(table.SelectEvent.EventName);
+                    }
                 }
             }
             if (EndBlock(metadata))
             {
                 metadata.RecordUndo();
             }
-
-            base.OnGUI(position, label);
-
         }
     }
 }

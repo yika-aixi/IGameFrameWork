@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bolt;
+using Icarus.GameFramework;
 using Ludiq;
 using UnityEditor;
 using UnityEngine;
@@ -25,96 +27,109 @@ namespace Icarus.UnityGameFramework.Bolt.Event
             return 20f;
         }
 
-        private Metadata _events => metadata["Events"];
+        protected Metadata Events => metadata["Events"];
 
-        private Metadata _selectEventName => metadata["SelectEventName"];
+        protected Metadata SelectEvent => metadata[nameof(EventTable.SelectEvent)];
 
-        private Metadata _selectEventID => metadata["SelectEventID"];
+        protected Metadata SelectEventOfAssetName => metadata[nameof(EventTable.SelectEventOfAssetName)];
 
-        private string[] _names;
-        private int[] _ids;
-        private int _selectId;
-        private int _nowSelectId;
-        private bool _eror;
+        private List<string> _names;
+        private List<int> _ids;
+        private int _selectIndex;
         private const string NoTable = "No Table";
+        private const string NoEvent = "No Event";
+
         protected override void OnGUI(Rect position, GUIContent label)
         {
-            if (!string.IsNullOrEmpty((string)_selectEventName.value))
+            var table = (EventTable)metadata.value;
+            _names = new List<string>();
+            _ids = new List<int>();
+            var popRect = new Rect(position.x + 50, position.y, position.width, position.height);
+
+            if (table.SelectEvent != null)
             {
-                _names = new[] { (string)_selectEventName.value };
-
-                _ids = new[] { (int)_selectEventID.value };
-
-                _initIndex();
-
-            }
-            else
-            {
-                _names = new[] { NoTable };
-
-                _ids = new[] { 0 };
-            }
-
-            if (_events.value != null)
-            {
-                var events = (List<EventEntity>)_events.value;
-
-                if (events.Count != 0)
+                if (table.Events == null)
                 {
-                    _names = events.Select(x => x.EventName).ToArray();
-                    _ids = events.Select(x => x.EventID).ToArray(); ;
+                    _names.Add(table.SelectEvent.EventName);
+                    _ids.Add(table.SelectEvent.EventID);
+                    _selectIndex = 0;
                 }
-                _eror = false;
+                else
+                {
+                    var nowEvent = table.GetEvent(table.SelectEvent.EventID);
+                    _names.AddRange(table.Events.Select(x => x.EventName));
+                    _ids.AddRange(table.Events.Select(x => x.EventID));
+                    if (nowEvent == null || table.SelectEventOfAssetName != table.TableAssetName)
+                    {
+                        _names.Insert(0, table.SelectEvent.EventName);
+                        _ids.Insert(0, table.SelectEvent.EventID);
+                        _selectIndex = 0;
+                    }
+                    else
+                    {
+                        _initIndex(table.SelectEvent.EventID);
+                    }
+                }
+
+            }
+            else if (table.Events != null)
+            {
+                _names.AddRange(table.Events.Select(x => x.EventName));
+                _ids.AddRange(table.Events.Select(x => x.EventID));
+                _selectIndex = -1;
             }
             else
             {
-                _eror = true;
+                _names.Add(NoTable);
+                _ids.Add(0);
+                _selectIndex = 0;
+            }
+
+            if (_names.Count == 0)
+            {
+                _names.Add(NoEvent);
+                _ids.Add(0);
+                _selectIndex = 0;
+            }
+
+            _selectIndex = EditorGUI.Popup(popRect, _selectIndex, _names.ToArray());
+            
+            if (_selectIndex < 0 || 
+                _names[_selectIndex] == NoTable ||
+                _names[_selectIndex] == NoEvent)
+            {
+                return;
+            }
+
+            if (_selectIndex == 0)
+            {
+                if (!string.IsNullOrEmpty(table.SelectEventOfAssetName) && 
+                    table.SelectEventOfAssetName != table.TableAssetName)
+                {
+                    return;
+                }
+            }
+
+            if (table.SelectEvent != null)
+            {
+                if (table.SelectEventOfAssetName == table.TableAssetName)
+                {
+                    if (_ids[_selectIndex] == table.SelectEvent.EventID)
+                    {
+                        return;
+                    }
+                }
             }
             
             BeginBlock(metadata, position);
             {
-                var popRect = new Rect(position.x + 50, position.y, position.width, position.height);
-
-                _nowSelectId = EditorGUI.IntPopup(popRect, _nowSelectId, _names, _ids);
-
-
-                #region 避免选择不同得事件表没有找到事件重置的问题
-
-                bool hit = false;
-                foreach (var id in _ids)
-                {
-                    if (id == _selectId)
-                    {
-                        _selectId = _nowSelectId;
-                        hit = true;
-                    }
-                }
-
-                #endregion
-                
-                if (_eror || !hit)
-                {
-                    return;
-                }
-
-                int index = 0;
-
-                for (var i = 0; i < _ids.Length; i++)
-                {
-                    if (_ids[i] == _selectId)
-                    {
-                        index = i;
-                    }
-                }
-
-                //没有事件表,不赋值
-                if(_names[index] == NoTable)
-                {
-                    return;
-                }
-
-                _selectEventName.value = _names[index];
-                _selectEventID.value = _ids[index];
+                Debug.Log("设置");
+                SelectEvent.value = table.GetEvent(_ids[_selectIndex]);
+                var selectEventName = SelectEvent[nameof(EventEntity.EventName)];
+                var selectEventId = SelectEvent[nameof(EventEntity.EventID)];
+                selectEventName.value = _names[_selectIndex];
+                selectEventId.value = _ids[_selectIndex];
+                SelectEventOfAssetName.value = table.TableAssetName;
             }
             if (EndBlock(metadata))
             {
@@ -123,10 +138,15 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
         }
 
-        private void _initIndex()
+        private void _initIndex(int eventEventId)
         {
-            _selectId = (int)_selectEventID.value;
-            _nowSelectId = _selectId;
+            for (var i = 0; i < _ids.Count; i++)
+            {
+                if (_ids[i] == eventEventId)
+                {
+                    _selectIndex = i;
+                }
+            }
         }
     }
 }

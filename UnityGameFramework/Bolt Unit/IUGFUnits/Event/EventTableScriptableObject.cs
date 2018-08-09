@@ -43,7 +43,7 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
         public void OnAfterDeserialize()
         {
-            _table.Events.Clear();
+            _table.Events = new List<EventEntity>();
 
             if (_events != null)
             {

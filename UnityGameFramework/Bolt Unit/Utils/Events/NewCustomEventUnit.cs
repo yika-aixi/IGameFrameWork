@@ -32,8 +32,6 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         [DoNotSerialize]
         [PortLabel("Event Name")]
         public ValueInput EventName { get; private set; }
-        [Serialize]
-        public List<ArgEntity> ArgList { get; private set; }
 
         [Serialize]
         [Inspectable, UnitHeaderInspectable("ArgCount")]
@@ -53,11 +51,13 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 
             argumentPorts.Clear();
             _setEventArgCountAndArgList();
-            if (ArgList != null && ArgList.Count == EventArgCount)
+            if (EventTable != null && EventTable.SelectEvent != null &&
+                EventTable.SelectEvent.Args != null &&
+                EventTable.SelectEvent.Args.Count == EventArgCount)
             {
-                for (var i = 0; i < ArgList.Count; i++)
+                for (var i = 0; i < EventTable.SelectEvent.Args.Count; i++)
                 {
-                    var arg = ArgList[i];
+                    var arg = EventTable.SelectEvent.Args[i];
                     var argName = arg.ArgName;
 
                     if (string.IsNullOrWhiteSpace(argName))
@@ -80,14 +80,13 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         private void _setEventArgCountAndArgList()
         {
             //没有事件表资源初始化
-            if (EventTable == null || EventTable.Events.Count == 0)
+            if (EventTable == null || EventTable.Events == null)
             {
                 return;
             }
 
             EventArgCount = EventTable.GetArgCount();
 
-            ArgList = EventTable.GetArgList();
         }
 
         protected override bool ShouldTrigger(Flow flow, CustomEventArgs args)

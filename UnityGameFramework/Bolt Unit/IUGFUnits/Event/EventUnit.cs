@@ -37,8 +37,6 @@ namespace Icarus.UnityGameFramework.Bolt
 
         [DoNotSerialize]
         public ValueInput EventName { get; private set; }
-        [Serialize]
-        public List<ArgEntity> ArgList { get; private set; }
 
         [Serialize]
         [Inspectable, UnitHeaderInspectable("ArgCount")]
@@ -74,11 +72,12 @@ namespace Icarus.UnityGameFramework.Bolt
         private ValueInput[] _argsIn;
         [DoNotSerialize]
         private object[] _args;
-
-        public EventUnit()
+        
+        public override void Instantiate(GraphReference instance)
         {
+            base.Instantiate(instance);
             //备份现在所选事件表或设置事件表
-            _setBackOrAsset();
+//            _setBackOrAsset();
         }
 
         protected override void Definition()
@@ -127,11 +126,13 @@ namespace Icarus.UnityGameFramework.Bolt
 
         void _setArgList(bool isOut)
         {
-            if (ArgList != null && ArgList.Count == EventArgCount)
+            if (EventTable != null && EventTable.SelectEvent != null &&
+                EventTable.SelectEvent.Args != null && 
+                EventTable.SelectEvent.Args.Count == EventArgCount)
             {
-                for (var i = 0; i < ArgList.Count; i++)
+                for (var i = 0; i < EventTable.SelectEvent.Args.Count; i++)
                 {
-                    var arg = ArgList[i];
+                    var arg = EventTable.SelectEvent.Args[i];
                     var argName = arg.ArgName;
                     var index = i;
 
@@ -200,14 +201,12 @@ namespace Icarus.UnityGameFramework.Bolt
         private void _setEventArgCountAndArgList()
         {
             //没有事件表资源初始化
-            if (EventTable == null || EventTable.Events.Count == 0)
+            if (EventTable == null || EventTable.Events == null)
             {
                 return;
             }
 
-            EventArgCount = EventTable.GetArgCount();
-            
-            ArgList = EventTable.GetArgList();
+            EventArgCount = EventTable.GetArgCount();   
         }
 
         private void _checkArgCount()
