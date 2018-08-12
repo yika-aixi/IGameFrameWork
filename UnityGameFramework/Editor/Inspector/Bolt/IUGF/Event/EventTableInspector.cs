@@ -46,6 +46,11 @@ namespace Icarus.UnityGameFramework.Bolt.Event
             _ids = new List<int>();
             var popRect = new Rect(position.x + 50, position.y, position.width, position.height);
 
+            if (table == null)
+            {
+                return;
+            }
+
             if (table.SelectEvent != null)
             {
                 if (table.Events == null)
@@ -123,7 +128,6 @@ namespace Icarus.UnityGameFramework.Bolt.Event
             
             BeginBlock(metadata, position);
             {
-                Debug.Log("设置");
                 SelectEvent.value = table.GetEvent(_ids[_selectIndex]);
                 var selectEventName = SelectEvent[nameof(EventEntity.EventName)];
                 var selectEventId = SelectEvent[nameof(EventEntity.EventID)];
