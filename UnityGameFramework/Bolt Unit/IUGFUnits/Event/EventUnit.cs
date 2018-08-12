@@ -152,6 +152,10 @@ namespace Icarus.UnityGameFramework.Bolt
                         {
                             Requirement(_argsIn[index], _enter);
                         }
+                        else
+                        {
+                            _argsIn[index].SetDefaultValue(arg.ArgType.Default());
+                        }
                     }
                 }
             }

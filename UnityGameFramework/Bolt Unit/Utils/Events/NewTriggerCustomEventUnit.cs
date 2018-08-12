@@ -74,6 +74,10 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                     {
                         Requirement(argument, _enter);
                     }
+                    else
+                    {
+                        argument.SetDefaultValue(EventTable.SelectEvent.Args[i].ArgType.Default());
+                    }
                 }
             }
             else
