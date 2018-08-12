@@ -12,7 +12,7 @@ using UnityEngine.Events;
 namespace Assets.IGameFrameWork.UnityGameFramework.Runtime.I18N
 {
     [System.Serializable]
-    public class GetI18NEvent : UnityEvent<string> { }
+    public class GetI18NEvent : UnityEvent<string>{}
 
     public class GetI18NComponent:MonoBehaviour
     {
@@ -40,6 +40,19 @@ namespace Assets.IGameFrameWork.UnityGameFramework.Runtime.I18N
             set
             {
                 _key = value;
+            }
+        }
+
+        public GetI18NEvent OnGetI18NEvent
+        {
+            get
+            {
+                return _onGetI18NEvent;
+            }
+
+            set
+            {
+                _onGetI18NEvent = value;
             }
         }
 

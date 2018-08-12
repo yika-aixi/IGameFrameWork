@@ -16,7 +16,7 @@ namespace Icarus.UnityGameFramework.Editor
     public abstract class GameFrameworkInspector : UnityEditor.Editor
     {
         private bool m_IsCompiling = false;
-
+        protected virtual bool CallBaseOnInspectorGUI { get; set; } = false;
         /// <summary>
         /// 绘制事件。
         /// </summary>
@@ -32,7 +32,14 @@ namespace Icarus.UnityGameFramework.Editor
                 m_IsCompiling = true;
                 OnCompileStart();
             }
+
+            if (CallBaseOnInspectorGUI)
+            {
+                base.OnInspectorGUI();
+            }
         }
+
+
 
         /// <summary>
         /// 编译开始事件。
