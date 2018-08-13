@@ -160,7 +160,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                 case VersionCheckCallType.检查更新:
                     var headers = flow.GetValue <Dictionary<string, string>>(_headersIn);
                     var appUpdateUrl = flow.GetValue<string>(_appUpdateUrlIn);
-                    Flow fl = Flow.New(flow.stack.ToReference());
+                    Flow fl = Flow.New(flow.stack.AsReference());
                     version.Check(headers, x =>
                     {
                         _assetBundles = x;

@@ -239,7 +239,7 @@ namespace Icarus.UnityGameFramework.Bolt
             {
                 case EventCallType.单次事件:
                 case EventCallType.注册事件:
-                    _flow = Flow.New(flow.stack.ToReference());
+                    _flow = Flow.New(flow.stack.AsReference());
                     break;
             }
 

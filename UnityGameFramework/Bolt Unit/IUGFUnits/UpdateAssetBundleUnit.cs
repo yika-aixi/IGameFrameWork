@@ -116,7 +116,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
             var check = GameEntry.GetComponent<DefaultVersionCheckCompontent>();
             var url = flow.GetValue<string>(_UrlIn);
             var abList = flow.GetValue<IEnumerable<AssetBundleInfo>>(_assetBundleifInfos);
-            Flow fl = Flow.New(flow.stack.ToReference());
+            Flow fl = Flow.New(flow.stack.AsReference());
             var headers = flow.GetValue<Dictionary<string, string>>(_headersIn);
             update.UpdateAssetBundle(new UpdateInfo()
             {

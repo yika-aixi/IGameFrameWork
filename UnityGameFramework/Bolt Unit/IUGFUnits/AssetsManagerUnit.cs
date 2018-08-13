@@ -285,7 +285,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                 case AssetManagerCallType.加载场景:
                 case AssetManagerCallType.卸载场景:
                 case AssetManagerCallType.初始化:
-                    _flow = Flow.New(flow.stack.ToReference());
+                    _flow = Flow.New(flow.stack.AsReference());
                     break;
             }
 
