@@ -286,6 +286,18 @@ namespace Icarus.UnityGameFramework.Runtime
         /// </summary>
         public event EventHandler<GameFramework.Resource.ResourceInitCompleteEventArgs> ResourceInitComplete = null;
 
+        public event EventHandler<GameFramework.Resource.LoadAssetsCompleteEventArgs> LoadAssetsComplete
+        {
+            add
+            {
+                _loadAssetsComplete += value;
+            }
+            remove
+            {
+                _loadAssetsComplete -= value;
+            }
+        }
+
 #pragma warning restore 0067, 0414
         private void Awake()
         {
@@ -367,10 +379,10 @@ namespace Icarus.UnityGameFramework.Runtime
             }
             else
             {
-                if (_loadAssetsSuccessCallback != null)
+                if (_startLoadAssets)
                 {
-                    _loadAssetsSuccessCallback(_assetNames, _assets, _duration, _userData);
-                    _loadAssetsSuccessCallback = null;
+                    _startLoadAssets = false;
+                    _loadAssetsComplete(this,new GameFramework.Resource.LoadAssetsCompleteEventArgs(_assetNames, _assets, _duration, _userData));
                     _assetNames.Clear();
                     _assets.Clear();
                     _duration = 0;
@@ -669,28 +681,24 @@ namespace Icarus.UnityGameFramework.Runtime
             m_LoadAssetInfos.AddLast(new LoadAssetInfo(assetName, assetType, priority, DateTime.Now, m_MinLoadAssetRandomDelaySeconds + (float)Icarus.GameFramework.Utility.Random.GetRandomDouble() * (m_MaxLoadAssetRandomDelaySeconds - m_MinLoadAssetRandomDelaySeconds), loadAssetCallbacks, userData));
         }
 
-        public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,
-            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+        public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,LoadAssetCallbacks loadAssetCallbacks, object userData)
         {
-            LoadAssets(assetNames, new[] { assetType }, new[] { priority }, loadAssetsSuccessCallback, loadAssetCallbacks, userData);
+            LoadAssets(assetNames, new[] { assetType }, new[] { priority }, loadAssetCallbacks, userData);
         }
-        LoadAssetsSuccessCallback _loadAssetsSuccessCallback;
+
+        private bool _startLoadAssets;
         readonly List<string> _assetNames = new List<string>();
         readonly List<object> _assets = new List<object>();
         private float _duration;
         private object _userData;
-        public void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys,
-            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+        private EventHandler<GameFramework.Resource.LoadAssetsCompleteEventArgs> _loadAssetsComplete;
+
+        public void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys,LoadAssetCallbacks loadAssetCallbacks, object userData)
         {
+            _startLoadAssets = true;
             if (assetNames == null)
             {
                 Log.Error("Asset names is invalid.");
-                return;
-            }
-
-            if (loadAssetsSuccessCallback == null)
-            {
-                Log.Error("Load assets callbacks is invalid.");
                 return;
             }
 
@@ -700,7 +708,6 @@ namespace Icarus.UnityGameFramework.Runtime
                 return;
             }
 
-            _loadAssetsSuccessCallback = loadAssetsSuccessCallback;
             _userData = userData;
             int i = 0;
             Type type = null;

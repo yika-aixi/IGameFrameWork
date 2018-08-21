@@ -35,6 +35,7 @@ namespace Icarus.GameFramework.Resource
         private int m_InternalResourceVersion;
         private DecryptResourceCallback m_DecryptResourceCallback;
         private EventHandler<ResourceInitCompleteEventArgs> m_ResourceInitCompleteEventHandler;
+        
 
         /// <summary>
         /// 初始化资源管理器的新实例。
@@ -60,6 +61,7 @@ namespace Icarus.GameFramework.Resource
             m_DecryptResourceCallback = null;
 
             m_ResourceInitCompleteEventHandler = null;
+
         }
 
         /// <summary>
@@ -329,8 +331,23 @@ namespace Icarus.GameFramework.Resource
                 m_ResourceInitCompleteEventHandler -= value;
             }
         }
-       
-        
+
+        /// <summary>
+        /// 多资源加载完成事件。
+        /// </summary>
+        public event EventHandler<LoadAssetsCompleteEventArgs> LoadAssetsComplete
+        {
+            add
+            {
+                m_ResourceLoader.LoadAssetsComplete += value;
+            }
+            remove
+            {
+                m_ResourceLoader.LoadAssetsComplete -= value;
+            }
+        }
+
+
         /// <summary>
         /// 资源管理器轮询。
         /// </summary>
@@ -697,10 +714,9 @@ namespace Icarus.GameFramework.Resource
         /// <param name="loadAssetsSuccessCallback">资源列表加载完成回调</param>
         /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
         /// <param name="userData">用户自定义数据。</param>
-        public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,
-            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+        public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,LoadAssetCallbacks loadAssetCallbacks, object userData)
         {
-            LoadAssets(assetNames, new[] { assetType }, new[] { priority }, loadAssetsSuccessCallback, loadAssetCallbacks, userData);
+            LoadAssets(assetNames, new[] { assetType }, new[] { priority }, loadAssetCallbacks, userData);
         }
 
         /// <summary>
@@ -712,17 +728,11 @@ namespace Icarus.GameFramework.Resource
         /// <param name="loadAssetsSuccessCallback">资源列表加载完成回调</param>
         /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
         /// <param name="userData">用户自定义数据。</param>
-        public void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys,
-            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+        public void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys, LoadAssetCallbacks loadAssetCallbacks, object userData)
         {
             if (assetNames == null)
             {
                 throw new GameFrameworkException("Asset names is invalid.");
-            }
-
-            if (loadAssetsSuccessCallback == null)
-            {
-                throw new GameFrameworkException("Load assets callback is invalid.");
             }
 
             if (loadAssetCallbacks == null)
@@ -730,7 +740,7 @@ namespace Icarus.GameFramework.Resource
                 throw new GameFrameworkException("Load asset callbacks is invalid.");
             }
 
-            m_ResourceLoader.LoadAssets(assetNames, assetTypes, prioritys, loadAssetsSuccessCallback, loadAssetCallbacks, userData);
+            m_ResourceLoader.LoadAssets(assetNames, assetTypes, prioritys, loadAssetCallbacks, userData);
         }
 
         /// <summary>
@@ -929,6 +939,5 @@ namespace Icarus.GameFramework.Resource
                 m_ResourceInitCompleteEventHandler(this, new ResourceInitCompleteEventArgs());
             }
         }
-
     }
 }
