@@ -13,14 +13,28 @@ namespace Icarus.UnityGameFramework.Runtime
     [AddComponentMenu("Icarus/Game Framework/I18N")]
     public partial class I18NComponent : UnityGameFrameWorkBehaviour
     {
+        private const string _currentLanguageKey = "CurrentLanguage";
         private I18NManager _manager = new I18NManager();
         public I18NManager I18NManager => _manager;
         [SerializeField]
         private string _defaultLanguage;
         public string DefaultLanguage
         {
-            get { return _defaultLanguage;}
-            set { _defaultLanguage = value; }
+            get
+            {
+                var language = PlayerPrefs.GetString(_currentLanguageKey);
+                if (string.IsNullOrEmpty(language))
+                {
+                    return _defaultLanguage;
+                }
+
+                return language;
+            }
+            set
+            {
+                PlayerPrefs.SetString(_currentLanguageKey, value);
+                _defaultLanguage = value;
+            }
         }
 
         [SerializeField]

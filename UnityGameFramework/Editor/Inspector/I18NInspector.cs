@@ -68,8 +68,15 @@ namespace Icarus.UnityGameFramework.Editor
         private int _languageIndex = -1;
         private void _selectLanguage()
         {
-            _languages.Clear();
-            _languages.AddRange(_i18N.GetLanguges());
+            foreach (var languge in _i18N.GetLanguges())
+            {
+                if (_languages.Contains(languge))
+                {
+                    continue;
+                }
+                _languages.Add(languge);
+            }
+
             _checkLanguageIndex();
             _languageIndex = EditorGUILayout.Popup(_languageIndex, _languages.ToArray());
             _i18N.SetCurrentLanguage(_languages[_languageIndex]);
