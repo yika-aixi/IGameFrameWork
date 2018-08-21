@@ -25,7 +25,7 @@ namespace Icarus.GameFramework.Resource
             private readonly Dictionary<string, object> m_SceneToAssetMap;
             private IObjectPool<AssetObject> m_AssetPool;
             private IObjectPool<ResourceObject> m_ResourcePool;
-
+            private EventHandler<LoadAssetsCompleteEventArgs> _loadAssetsCompleteEvent;
             /// <summary>
             /// 初始化加载资源器的新实例。
             /// </summary>
@@ -38,6 +38,7 @@ namespace Icarus.GameFramework.Resource
                 m_SceneToAssetMap = new Dictionary<string, object>();
                 m_AssetPool = null;
                 m_ResourcePool = null;
+                _loadAssetsCompleteEvent = null;
             }
 
             /// <summary>
@@ -205,6 +206,21 @@ namespace Icarus.GameFramework.Resource
             }
 
             /// <summary>
+            /// 多资源加载完成事件。
+            /// </summary>
+            public event EventHandler<LoadAssetsCompleteEventArgs> LoadAssetsComplete
+            {
+                add
+                {
+                    _loadAssetsCompleteEvent += value;
+                }
+                remove
+                {
+                    _loadAssetsCompleteEvent -= value;
+                }
+            }
+
+            /// <summary>
             /// 加载资源器轮询。
             /// </summary>
             /// <param name="elapseSeconds">逻辑流逝时间，以秒为单位。</param>
@@ -212,20 +228,24 @@ namespace Icarus.GameFramework.Resource
             public void Update(float elapseSeconds, float realElapseSeconds)
             {
                 m_TaskPool.Update(elapseSeconds, realElapseSeconds);
-                if (_loadAssetsSuccessCallback != null)
+                _allLoadCompleteBack();
+            }
+
+            private void _allLoadCompleteBack()
+            {
+                if (_startLoadAssets)
                 {
                     if (m_TaskPool.WaitingTaskCount == 0 &&
                         m_TaskPool.WorkingAgentCount == 0)
                     {
-                        _loadAssetsSuccessCallback(_assetNames, _assets, _duration, _userData);
-                        _loadAssetsSuccessCallback = null;
-                        _assetNames.Clear();
-                        _assets.Clear();
-                        _duration = 0;
-                        _userData = null;
+                        _startLoadAssets = false;
+
+                        _loadAssetsCompleteEvent(this,
+                            new LoadAssetsCompleteEventArgs(_assetNames, _assets, _duration, _userData));
+
+                        
                     }
                 }
-                
             }
 
             /// <summary>
@@ -236,6 +256,7 @@ namespace Icarus.GameFramework.Resource
                 m_TaskPool.Shutdown();
                 m_DependencyCount.Clear();
                 m_SceneToAssetMap.Clear();
+                _clerCache();
             }
 
             /// <summary>
@@ -328,7 +349,7 @@ namespace Icarus.GameFramework.Resource
                 m_TaskPool.AddTask(mainTask);
             }
 
-           
+
             /// <summary>
             /// 异步加载资源列表。
             /// </summary>
@@ -338,13 +359,12 @@ namespace Icarus.GameFramework.Resource
             /// <param name="loadAssetsSuccessCallback">资源列表加载完成回调</param>
             /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
             /// <param name="userData">用户自定义数据。</param>
-            public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,
-                LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+            public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,LoadAssetCallbacks loadAssetCallbacks, object userData)
             {
-                LoadAssets(assetNames,new[]{assetType},new[]{priority}, loadAssetsSuccessCallback, loadAssetCallbacks,userData);
+                LoadAssets(assetNames, new[] { assetType }, new[] { priority }, loadAssetCallbacks, userData);
             }
 
-            LoadAssetsSuccessCallback _loadAssetsSuccessCallback;
+            private bool _startLoadAssets;
             readonly List<string> _assetNames = new List<string>();
             readonly List<object> _assets = new List<object>();
             private float _duration;
@@ -359,42 +379,63 @@ namespace Icarus.GameFramework.Resource
             /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
             /// <param name="userData">用户自定义数据。</param>
             public void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys,
-                LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+                LoadAssetCallbacks loadAssetCallbacks, object userData)
             {
-                _loadAssetsSuccessCallback = loadAssetsSuccessCallback;
+                _startLoadAssets = true;
+
+                _clerCache();
+
                 _userData = userData;
                 int i = 0;
                 Type type = null;
                 int priority = 0;
-                
                 foreach (var assetName in assetNames)
                 {
                     if (assetTypes != null)
                     {
-                        if (i > assetTypes.Length)
+                        if (i >= assetTypes.Length - 1)
                         {
                             type = assetTypes.Last();
                         }
+                        else
+                        {
+                            type = assetTypes[i];
+                        }
                     }
 
-                    if (prioritys == null)
+                    if (prioritys != null)
                     {
-                        if (i > prioritys.Length)
+                        if (i >= prioritys.Length - 1)
                         {
                             priority = prioritys.Last();
                         }
+                        else
+                        {
+                            priority = prioritys[i];
+                        }
                     }
-                    
-                    LoadAsset(assetName,type,priority,
+
+                    LoadAsset(assetName, type, priority,
                         new LoadAssetCallbacks((name, asset, duration, data) =>
                         {
                             _assetNames.Add(name);
                             _assets.Add(asset);
                             _duration += duration;
                             loadAssetCallbacks.LoadAssetSuccessCallback(assetName, asset, duration, userData);
-                        },loadAssetCallbacks.LoadAssetFailureCallback, loadAssetCallbacks.LoadAssetUpdateCallback,loadAssetCallbacks.LoadAssetDependencyAssetCallback),userData);
+                        }, loadAssetCallbacks.LoadAssetFailureCallback, loadAssetCallbacks.LoadAssetUpdateCallback, loadAssetCallbacks.LoadAssetDependencyAssetCallback), userData);
+
+                    i++;
                 }
             }
+
+            private void _clerCache()
+            {
+                _assetNames.Clear();
+                _assets.Clear();
+                _duration = 0;
+                _userData = null;
+            }
+
             /// <summary>
             /// 卸载资源。
             /// </summary>

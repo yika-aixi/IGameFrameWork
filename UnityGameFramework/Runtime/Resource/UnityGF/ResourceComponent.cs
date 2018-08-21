@@ -402,7 +402,7 @@ namespace Icarus.UnityGameFramework.Runtime
             m_ResourceManager.ResourceCapacity = m_ResourceCapacity;
             m_ResourceManager.ResourceExpireTime = m_ResourceExpireTime;
             m_ResourceManager.ResourcePriority = m_ResourcePriority;
-            
+            m_ResourceManager.LoadAssetsComplete += _loadAssetsComplete;
             m_ResourceHelper = Helper.CreateHelper(m_ResourceHelperTypeName, m_CustomResourceHelper);
             if (m_ResourceHelper == null)
             {
@@ -428,6 +428,12 @@ namespace Icarus.UnityGameFramework.Runtime
             {
                 AddLoadResourceAgentHelper(i);
             }
+        }
+
+        private void _loadAssetsComplete(object sender, GameFramework.Resource.LoadAssetsCompleteEventArgs e)
+        {
+            var args = ReferencePool.Acquire<LoadAssetsCompleteEventArgs>();
+            _eventComponent.Fire(sender, args.Fill(e));
         }
 
         private void Update()
@@ -621,28 +627,24 @@ namespace Icarus.UnityGameFramework.Runtime
             m_ResourceManager.LoadAsset(assetName, assetType, priority, loadAssetCallbacks, userData);
         }
 
-        public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,
-            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks)
+        public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority, LoadAssetCallbacks loadAssetCallbacks)
         {
-            LoadAssets(assetNames, assetType, priority, loadAssetsSuccessCallback, loadAssetCallbacks, null);
+            LoadAssets(assetNames, assetType, priority, loadAssetCallbacks, null);
         }
 
-        public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,
-            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+        public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority, LoadAssetCallbacks loadAssetCallbacks, object userData)
         {
-            m_ResourceManager.LoadAssets(assetNames, new[] { assetType }, new[] { priority }, loadAssetsSuccessCallback, loadAssetCallbacks, userData);
+            m_ResourceManager.LoadAssets(assetNames, new[] { assetType }, new[] { priority }, loadAssetCallbacks, userData);
         }
 
-        public void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys,
-            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks)
+        public void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys, LoadAssetCallbacks loadAssetCallbacks)
         {
-            m_ResourceManager.LoadAssets(assetNames, assetTypes, prioritys, loadAssetsSuccessCallback, loadAssetCallbacks, null);
+           m_ResourceManager.LoadAssets(assetNames, assetTypes, prioritys, loadAssetCallbacks, null);
         }
 
-        public void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys,
-            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks, object userData)
+        public void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys,LoadAssetCallbacks loadAssetCallbacks, object userData)
         {
-            m_ResourceManager.LoadAssets(assetNames, assetTypes, prioritys, loadAssetsSuccessCallback, loadAssetCallbacks, userData);
+           // m_ResourceManager.LoadAssets(assetNames, assetTypes, prioritys, loadAssetsSuccessCallback, loadAssetCallbacks, userData);
         }
 
         /// <summary>

@@ -180,7 +180,12 @@ namespace Icarus.GameFramework.Resource
         /// 资源初始化完成事件。
         /// </summary>
         event EventHandler<GameFramework.Resource.ResourceInitCompleteEventArgs> ResourceInitComplete;
-        
+
+        /// <summary>
+        /// 多资源加载完成事件。
+        /// </summary>
+        event EventHandler<LoadAssetsCompleteEventArgs> LoadAssetsComplete;
+
         /// <summary>
         /// 设置资源只读区路径。
         /// </summary>
@@ -333,8 +338,7 @@ namespace Icarus.GameFramework.Resource
         /// <param name="loadAssetsSuccessCallback">资源列表加载完成回调</param>
         /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
         /// <param name="userData">用户自定义数据。</param>
-        void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,
-            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks,
+        void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,LoadAssetCallbacks loadAssetCallbacks,
             object userData);
 
         /// <summary>
@@ -346,9 +350,9 @@ namespace Icarus.GameFramework.Resource
         /// <param name="loadAssetsSuccessCallback">资源列表加载完成回调</param>
         /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
         /// <param name="userData">用户自定义数据。</param>
-        void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys,
-            LoadAssetsSuccessCallback loadAssetsSuccessCallback, LoadAssetCallbacks loadAssetCallbacks,
+        void LoadAssets(IEnumerable<string> assetNames, Type[] assetTypes, int[] prioritys, LoadAssetCallbacks loadAssetCallbacks,
             object userData);
+
         /// <summary>
         /// 卸载资源。
         /// </summary>
