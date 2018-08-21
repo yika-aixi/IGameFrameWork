@@ -30,7 +30,7 @@ namespace Icarus.UnityGameFramework.Bolt
         [Serialize]
         [Inspectable, UnitHeaderInspectable("Events")]
         public EventTable EventTable { get; private set; }
-        
+
         [DoNotSerialize]
         [PortLabel("Event ID")]
         public ValueInput EventId { get; private set; }
@@ -72,18 +72,18 @@ namespace Icarus.UnityGameFramework.Bolt
         private ValueInput[] _argsIn;
         [DoNotSerialize]
         private object[] _args;
-        
-        public override void Instantiate(GraphReference instance)
+
+        public override void AfterAdd()
         {
-            base.Instantiate(instance);
-            //备份现在所选事件表或设置事件表
-//            _setBackOrAsset();
+            base.AfterAdd();
+            //使用备份
+            _useBack();
         }
 
         protected override void Definition()
         {
             base.Definition();
-
+            _setBack();
             EventId = ValueInput(nameof(EventId), 0);
 
             switch (_eventCallType)
@@ -124,10 +124,18 @@ namespace Icarus.UnityGameFramework.Bolt
             Succession(_enter, _exit);
         }
 
+        private void _setBack()
+        {
+            if (EventTableAsset != null)
+            {
+                _oldEventTableAsset = EventTableAsset;
+            }
+        }
+
         void _setArgList(bool isOut)
         {
             if (EventTable != null && EventTable.SelectEvent != null &&
-                EventTable.SelectEvent.Args != null && 
+                EventTable.SelectEvent.Args != null &&
                 EventTable.SelectEvent.Args.Count == EventArgCount)
             {
                 for (var i = 0; i < EventTable.SelectEvent.Args.Count; i++)
@@ -187,18 +195,11 @@ namespace Icarus.UnityGameFramework.Bolt
             _argsOut[index] = ValueOutput(argValue, argName, x => _args[index]);
         }
 
-        private void _setBackOrAsset()
+        private void _useBack()
         {
-            if (EventTableAsset != null)
+            if (_oldEventTableAsset != null)
             {
-                _oldEventTableAsset = EventTableAsset;
-            }
-            else
-            {
-                if (_oldEventTableAsset != null)
-                {
-                    EventTableAsset = _oldEventTableAsset;
-                }
+                EventTableAsset = _oldEventTableAsset;
             }
         }
 
@@ -210,7 +211,7 @@ namespace Icarus.UnityGameFramework.Bolt
                 return;
             }
 
-            EventArgCount = EventTable.GetArgCount();   
+            EventArgCount = EventTable.GetArgCount();
         }
 
         private void _checkArgCount()
