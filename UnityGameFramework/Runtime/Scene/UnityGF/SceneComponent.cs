@@ -118,6 +118,16 @@ namespace Icarus.UnityGameFramework.Runtime
         }
 
         /// <summary>
+        /// 设置活动场景
+        /// </summary>
+        /// <param name="sceneAssetName"></param>
+        /// <returns></returns>
+        public bool SetActiveScene(string sceneAssetName)
+        {
+            return SceneManager.SetActiveScene(SceneManager.GetSceneByPath(sceneAssetName));
+        }
+
+        /// <summary>
         /// 获取场景是否已加载。
         /// </summary>
         /// <param name="sceneAssetName">场景资源名称。</param>
