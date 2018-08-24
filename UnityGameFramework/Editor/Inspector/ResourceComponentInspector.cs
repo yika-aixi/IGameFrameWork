@@ -6,6 +6,7 @@
 //------------------------------------------------------------
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using Icarus.UnityGameFramework.Runtime;
@@ -259,14 +260,23 @@ namespace Icarus.UnityGameFramework.Editor
                             {
                                 _showState.Add(key, false);
                             }
-                            _showState[key] = EditorGUILayout.Foldout(_showState[key],$"资源包:{ab}",true);
+                            var assets = resourceComponent.GetAssetsList(ab);
+                            var assetCount = 0;
+
+                            if (assets != null)
+                            {
+                                assetCount = assets.Count();
+                            }
+
+                            _showState[key] = EditorGUILayout.Foldout(_showState[key],$"资源包:{ab},资源个数:{assetCount}",true);
+
                             if (_showState[key])
                             {
-                                var assets = resourceComponent.GetAssetsList(ab);
                                 if (assets == null)
                                 {
                                     return;
                                 }
+
                                 foreach (var asset in assets)
                                 {
                                     EditorGUI.indentLevel += 1;
