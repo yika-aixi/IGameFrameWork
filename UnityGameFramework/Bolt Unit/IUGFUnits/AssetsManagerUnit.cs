@@ -20,17 +20,11 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 {
     [UnitCategory("Icarus/IUGF")]
     [UnitTitle("Asset Manager")]
-    [UnitSubtitle("资源管理,'资源名'同时也是'资源组Tag'或'AB名'或'场景名',该Unit的多资源加载在封装为'Super Unit'时会出现跳转不了的问题")]
-    public class AssetsManagerUnit : Unit
+    [UnitSubtitle("资源管理,'资源名'同时也是'资源组Tag'或'AB名'或'场景名'," +
+                  "该Unit的多资源加载在封装为'Super Unit'时出现跳转不了的问题," +
+                  "把'Super Unit'变为'Embed'而不是'Macro'")]
+    public class AssetsManagerUnit : GameFrameWorkBaseUnit
     {
-        [DoNotSerialize]
-        [PortLabelHidden]
-        public ControlInput Enter;
-
-        [DoNotSerialize]
-        [PortLabelHidden]
-        public ControlOutput Exit;
-
         [Serialize]
         [Inspectable, UnitHeaderInspectable("操作类型:")]
         [InspectorToggleLeft]
@@ -111,8 +105,8 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 
         protected override void Definition()
         {
-            Enter = ControlInput(nameof(Enter), _enter);
-            Exit = ControlOutput(nameof(Exit));
+            base.Definition();
+
             if (Type == AssetManagerCallType.加载单个资源)
             {
                 anyLoadCompleteExit = ControlOutput(nameof(anyLoadCompleteExit));
@@ -137,7 +131,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                 case AssetManagerCallType.获取资源包资源列表:
                 case AssetManagerCallType.获取资源组资源包列表:
                     AssetName = ValueInput<string>(nameof(AssetName));
-                    Requirement(AssetName, Enter);
+                    Requirement(AssetName, _enter);
                     break;
             }
 
@@ -151,7 +145,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 
                 ResultList = ValueOutput(nameof(ResultList), x => _resultList);
 
-                Requirement(AssetName, Enter);
+                Requirement(AssetName, _enter);
 
                 Requirement(AssetName, ResultList);
 
@@ -175,10 +169,10 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                     DependencyName = ValueOutput(nameof(DependencyName), x => _dependencyName);
                     ProgressExit = ControlOutput(nameof(ProgressExit));
                     Progress = ValueOutput(nameof(Progress), x => _progress);
-                    Succession(Enter, ProgressExit);
+                    Succession(_enter, ProgressExit);
                     break;
             }
-            
+
             switch (Type)
             {
                 case AssetManagerCallType.加载单个资源:
@@ -187,7 +181,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                 case AssetManagerCallType.卸载场景:
                     ErrorExit = ControlOutput(nameof(ErrorExit));
                     ErrorMessage = ValueOutput(nameof(ErrorMessage), x => _errorMessage);
-                    Succession(Enter, ErrorExit);
+                    Succession(_enter, ErrorExit);
                     break;
                 case AssetManagerCallType.判断资源是否存在:
                     Exist = ValueOutput(nameof(Exist), x => _exist);
@@ -209,14 +203,12 @@ namespace Icarus.UnityGameFramework.Bolt.Units
             {
                 UnloadAsset = ValueInput<object>(nameof(UnloadAsset));
             }
-
-            Succession(Enter, Exit);
         }
 
         private Flow _flow;
         EventComponent _event;
 
-        private ControlOutput _enter(Flow flow)
+        protected override ControlOutput Enter(Flow flow)
         {
             var resource = GameEntry.GetComponent<ResourceComponent>();
             var scene = GameEntry.GetComponent<SceneComponent>();
@@ -259,7 +251,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                     break;
             }
 
-           
+
 
             bool performGCCollect = false;
 
@@ -292,7 +284,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
             switch (Type)
             {
                 case AssetManagerCallType.加载单个资源:
-                    resource.LoadAsset(assetName, AssetType, priority,_getLoadAssetCallbacks(true));
+                    resource.LoadAsset(assetName, AssetType, priority, _getLoadAssetCallbacks(true));
                     break;
                 case AssetManagerCallType.加载多个资源:
                     var names = flow.GetValue<IEnumerable<string>>(AssetName);
@@ -303,17 +295,17 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                     break;
                 case AssetManagerCallType.加载场景:
                     id = _getEventID<LoadSceneSuccessEventArgs>();
-                    _event.Subscribe(id,_loadSceneComplete);
+                    _event.Subscribe(id, _loadSceneComplete);
 
                     id = _getEventID<LoadSceneFailureEventArgs>();
-                    _event.Subscribe(id,_loadSceneFailure);
+                    _event.Subscribe(id, _loadSceneFailure);
 
                     id = _getEventID<LoadSceneUpdateEventArgs>();
-                    _event.Subscribe(id,_loadSceneUpdate);
+                    _event.Subscribe(id, _loadSceneUpdate);
 
                     id = _getEventID<LoadSceneDependencyAssetEventArgs>();
-                    _event.Subscribe(id,_loadSceneDependencyAsset);
-                    
+                    _event.Subscribe(id, _loadSceneDependencyAsset);
+
                     scene.LoadScene(assetName, priority);
                     break;
                 case AssetManagerCallType.卸载资源:
@@ -369,13 +361,13 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                     throw new ArgumentOutOfRangeException();
             }
 
-            return Exit;
+            return _exit;
         }
 
         private void _loadAllComplete(object sender, GameEventArgs e)
         {
             _resultList = ((Runtime.LoadAssetsCompleteEventArgs)e).Assets;
-            _event.Unsubscribe(e.Id,_loadAllComplete);
+            _event.Unsubscribe(e.Id, _loadAllComplete);
             _flow.EnterControl(CompleteExit);
             _displayFlow();
         }
@@ -387,7 +379,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
             {
                 _asset = asset;
                 _flow.EnterControl(anyLoadCompleteExit);
-                if(successIsFlowDisplay)
+                if (successIsFlowDisplay)
                 {
                     _displayFlow();
                 }
@@ -447,7 +439,6 @@ namespace Icarus.UnityGameFramework.Bolt.Units
             var dependency = (LoadSceneDependencyAssetEventArgs)args;
             _dependencyName = dependency.DependencyAssetName;
             _flow.EnterControl(DependencyExit);
-
         }
 
         private void _loadSceneUpdate(object sender, GameEventArgs args)
