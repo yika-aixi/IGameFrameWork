@@ -241,9 +241,9 @@ namespace Icarus.GameFramework.Resource
                         _startLoadAssets = false;
 
                         _loadAssetsCompleteEvent(this,
-                            new LoadAssetsCompleteEventArgs(_assetNames, _assets, _duration, _userData));
+                            new LoadAssetsCompleteEventArgs(_assetNames.ToArray(), _assets.ToArray(), _duration, _userData));
 
-                        
+                        _clerCache();
                     }
                 }
             }
@@ -256,7 +256,7 @@ namespace Icarus.GameFramework.Resource
                 m_TaskPool.Shutdown();
                 m_DependencyCount.Clear();
                 m_SceneToAssetMap.Clear();
-                _clerCache();
+                _userData = null;
             }
 
             /// <summary>
@@ -383,7 +383,6 @@ namespace Icarus.GameFramework.Resource
             {
                 _startLoadAssets = true;
 
-                _clerCache();
 
                 _userData = userData;
                 int i = 0;
@@ -433,7 +432,6 @@ namespace Icarus.GameFramework.Resource
                 _assetNames.Clear();
                 _assets.Clear();
                 _duration = 0;
-                _userData = null;
             }
 
             /// <summary>

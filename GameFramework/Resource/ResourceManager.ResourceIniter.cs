@@ -212,10 +212,7 @@ namespace Icarus.GameFramework.Resource
                             string variant = null;
                             int ABlength;
                             Dictionary<string, string[]> dependencyAssetNamesCollection = new Dictionary<string, string[]>();
-                            if (!_assetTable.ContainsKey(ABName))
-                            {
-                                _assetTable.Add(ABName,new List<string>());
-                            }
+                            
                             byte variantLength = binaryReader.ReadByte();
                             if (variantLength > 0)
                             {
@@ -323,8 +320,22 @@ namespace Icarus.GameFramework.Resource
                 }
             }
 
+            readonly List<string> _persistentCover = new List<string>();
             private void _addAssetName(string abName, string assetName)
             {
+                //存在并且现在是解析持久化目录并且还未进行覆盖就进行覆盖
+                if (_assetTable.ContainsKey(abName) && _isPersistent && !_persistentCover.Contains(abName))
+                {
+                    _assetTable[abName] = new List<string>();
+                    _persistentCover.Add(abName);
+                }
+
+                //不存在就新增
+                if (!_assetTable.ContainsKey(abName))
+                {
+                    _assetTable.Add(abName, new List<string>());
+                }
+                
                 if (_assetTable.ContainsKey(abName))
                 {
                     if (!_assetTable[abName].Contains(assetName))
