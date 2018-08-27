@@ -388,6 +388,8 @@ namespace Icarus.UnityGameFramework.Runtime
                 m_ResourceManager.SetReadWritePath(Application.persistentDataPath);
             }
 
+            m_ResourceManager.LoadAssetsComplete += _loadAssetsComplete;
+
             if (m_EditorResourceMode)
             {
                 return;
@@ -402,7 +404,6 @@ namespace Icarus.UnityGameFramework.Runtime
             m_ResourceManager.ResourceCapacity = m_ResourceCapacity;
             m_ResourceManager.ResourceExpireTime = m_ResourceExpireTime;
             m_ResourceManager.ResourcePriority = m_ResourcePriority;
-            m_ResourceManager.LoadAssetsComplete += _loadAssetsComplete;
             m_ResourceHelper = Helper.CreateHelper(m_ResourceHelperTypeName, m_CustomResourceHelper);
             if (m_ResourceHelper == null)
             {
