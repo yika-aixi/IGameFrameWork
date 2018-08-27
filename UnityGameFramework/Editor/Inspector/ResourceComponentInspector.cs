@@ -5,6 +5,7 @@
 // Feedback: mailto:jiangyin@gameframework.cn
 //------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -34,7 +35,7 @@ namespace Icarus.UnityGameFramework.Editor
 
         private HelperInfo<ResourceHelperBase> m_ResourceHelperInfo = new HelperInfo<ResourceHelperBase>("Resource");
         private HelperInfo<LoadResourceAgentHelperBase> m_LoadResourceAgentHelperInfo = new HelperInfo<LoadResourceAgentHelperBase>("LoadResourceAgent");
-
+        private bool isEditorResourceMode;
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
@@ -43,7 +44,7 @@ namespace Icarus.UnityGameFramework.Editor
 
             ResourceComponent t = (ResourceComponent)target;
 
-            bool isEditorResourceMode = (bool)m_EditorResourceModeFieldInfo.GetValue(target);
+            isEditorResourceMode = (bool)m_EditorResourceModeFieldInfo.GetValue(target);
 
             if (isEditorResourceMode)
             {
@@ -231,11 +232,18 @@ namespace Icarus.UnityGameFramework.Editor
         private Dictionary<string, bool> _showState = new Dictionary<string, bool>();
         private void _showResourceGroup(ResourceComponent resourceComponent)
         {
+            if (isEditorResourceMode)
+            {
+                return;
+            }
+
             var groups = resourceComponent.GetAllGroupList();
+
             if (groups == null)
             {
                 return;
             }
+
             foreach (var @group in groups)
             {
                 if (!_showState.ContainsKey(@group))
@@ -268,7 +276,7 @@ namespace Icarus.UnityGameFramework.Editor
                                 assetCount = assets.Count();
                             }
 
-                            _showState[key] = EditorGUILayout.Foldout(_showState[key],$"资源包:{ab},资源个数:{assetCount}",true);
+                            _showState[key] = EditorGUILayout.Foldout(_showState[key], $"资源包:{ab},资源个数:{assetCount}", true);
 
                             if (_showState[key])
                             {
@@ -285,9 +293,9 @@ namespace Icarus.UnityGameFramework.Editor
                                     }
                                     EditorGUI.indentLevel -= 1;
                                 }
-                                
+
                             }
-                        }                
+                        }
                     }
                     EditorGUI.indentLevel -= 1;
                 }
