@@ -412,6 +412,10 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         private void _unloadSceneFailure(object sender, GameEventArgs args)
         {
             _event.Unsubscribe(args.Id, _unloadSceneFailure);
+
+            var id = _getEventID<UnloadSceneSuccessEventArgs>();
+            _event.Unsubscribe(id, _unloadSceneSuccess);
+
             var failureArgs = (UnloadSceneFailureEventArgs)args;
             _errorMessage = $"卸载{failureArgs.SceneAssetName}场景失败.";
             _flow.EnterControl(ErrorExit);
@@ -422,6 +426,10 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         private void _unloadSceneSuccess(object sender, GameEventArgs args)
         {
             _event.Unsubscribe(args.Id, _unloadSceneSuccess);
+
+            var id = _getEventID<UnloadSceneFailureEventArgs>();
+            _event.Unsubscribe(id, _unloadSceneFailure);
+
             _flow.EnterControl(CompleteExit);
             _displayFlow();
         }
@@ -452,11 +460,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         {
             var id = args.Id;
             _event.Unsubscribe(id, _loadSceneFailure);
-            id = _getEventID<LoadSceneUpdateEventArgs>();
-            _event.Unsubscribe(id, _loadSceneUpdate);
-            id = _getEventID<LoadSceneDependencyAssetEventArgs>();
-            _event.Unsubscribe(id, _loadSceneDependencyAsset);
-
+            _unsubscribeLoadSceneEvent(true);
             var failure = (LoadSceneFailureEventArgs)args;
             _errorMessage = $"加载{failure.SceneAssetName}场景失败,失败信息:{failure.ErrorMessage}";
             _flow.EnterControl(ErrorExit);
@@ -467,13 +471,29 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         {
             var id = e.Id;
             _event.Unsubscribe(id, _loadSceneComplete);
-            id = _getEventID<LoadSceneUpdateEventArgs>();
-            _event.Unsubscribe(id, _loadSceneUpdate);
-            id = _getEventID<LoadSceneDependencyAssetEventArgs>();
-            _event.Unsubscribe(id, _loadSceneDependencyAsset);
+
+            _unsubscribeLoadSceneEvent(false);
 
             _flow.EnterControl(CompleteExit);
             _displayFlow();
+        }
+
+        void _unsubscribeLoadSceneEvent(bool complete)
+        {
+            var id = _getEventID<LoadSceneUpdateEventArgs>();
+            _event.Unsubscribe(id, _loadSceneUpdate);
+            id = _getEventID<LoadSceneDependencyAssetEventArgs>();
+            _event.Unsubscribe(id, _loadSceneDependencyAsset);
+            if (complete)
+            {
+                id = _getEventID<LoadSceneSuccessEventArgs>();
+                _event.Unsubscribe(id, _loadSceneComplete);
+            }
+            else
+            {
+                id = _getEventID<LoadSceneFailureEventArgs>();
+                _event.Unsubscribe(id, _loadSceneFailure);
+            } 
         }
 
         private void _displayFlow()
