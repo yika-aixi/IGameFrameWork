@@ -4,6 +4,7 @@
 //2018年08月21日-10:14
 //Icarus.UnityGameFramework.Bolt
 
+using System;
 using Bolt;
 using Icarus.GameFramework;
 using Ludiq;
@@ -12,6 +13,21 @@ namespace Icarus.UnityGameFramework.Bolt.Util
 {
     public static class FlowExpansion
     {
+
+        public static bool EnterTryControl(this Flow flow, ControlOutput control)
+        {
+            try
+            {
+                flow.EnterControl(control);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(ex.Message);
+            }
+
+            return false;
+        }
 
         public static void EnterControl(this Flow flow, ControlOutput control)
         {
@@ -23,12 +39,12 @@ namespace Icarus.UnityGameFramework.Bolt.Util
                 }
                 else
                 {
-                    Log.Error("Control is null, Enter Control Failure!");
+                    throw new GameFrameworkException("Control is null, Enter Control Failure!");
                 }
             }
             else
             {
-                Log.Error("Flow is null, Enter Control Failure!");
+                throw new GameFrameworkException("Flow is null, Enter Control Failure!");
             }
         }
 
@@ -36,6 +52,18 @@ namespace Icarus.UnityGameFramework.Bolt.Util
         {
             flow.EnterControl(control);
             flow.Dispose();
+        }
+
+        public static bool EnterTryControlAndDisplay(this Flow flow, ControlOutput control)
+        {
+            var result = flow.EnterTryControl(control);
+
+            if (result)
+            {
+                flow.Dispose();
+            }
+
+            return result;
         }
 
 
