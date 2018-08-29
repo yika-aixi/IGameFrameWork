@@ -4,6 +4,8 @@
 //2018年07月26日-09:22
 //Icarus.UnityGameFramework.Runtime
 
+using System.Text;
+using System.Text.RegularExpressions;
 using Icarus.GameFramework;
 using Icarus.UnityGameFramework.Runtime;
 using UnityEngine;
@@ -12,10 +14,11 @@ using UnityEngine.Events;
 namespace Assets.IGameFrameWork.UnityGameFramework.Runtime.I18N
 {
     [System.Serializable]
-    public class GetI18NEvent : UnityEvent<string>{}
+    public class GetI18NEvent : UnityEvent<string> { }
 
-    public class GetI18NComponent:MonoBehaviour
+    public class GetI18NComponent : MonoBehaviour
     {
+        [TextArea]
         [SerializeField]
         private string _defaultStr = "--";
 
@@ -85,11 +88,13 @@ namespace Assets.IGameFrameWork.UnityGameFramework.Runtime.I18N
         public void GetI18NValue()
         {
             var str = _i18NComponent.GetValue(_key);
+
             if (string.IsNullOrEmpty(str))
             {
                 str = _defaultStr;
             }
-            _onGetI18NEvent.Invoke(str);
+
+            _onGetI18NEvent.Invoke(str.EscapeReplace());
         }
     }
 }
