@@ -22,7 +22,7 @@ namespace Icarus.UnityGameFramework.Runtime
         private ISettingManager m_SettingManager = null;
 
         [SerializeField]
-        private string m_SettingHelperTypeName = "UnityGameFramework.Runtime.DefaultSettingHelper";
+        private string m_SettingHelperTypeName = "Icarus.UnityGameFramework.Runtime.DefaultSettingHelper";
 
         [SerializeField]
         private SettingHelperBase m_CustomSettingHelper = null;

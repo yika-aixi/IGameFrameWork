@@ -39,7 +39,7 @@ namespace Icarus.UnityGameFramework.Runtime
         private bool m_EnableLoadDataTableDependencyAssetEvent = false;
 
         [SerializeField]
-        private string m_DataTableHelperTypeName = "UnityGameFramework.Runtime.DefaultDataTableHelper";
+        private string m_DataTableHelperTypeName = "Icarus.UnityGameFramework.Runtime.DefaultDataTableHelper";
 
         [SerializeField]
         private DataTableHelperBase m_CustomDataTableHelper = null;

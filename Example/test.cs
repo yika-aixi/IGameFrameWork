@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Icarus.GameFramework;
@@ -9,6 +10,8 @@ using Icarus.GameFramework.Version;
 using UnityEngine;
 using Icarus.UnityGameFramework.Runtime;
 using UnityEngine.UI;
+using LoadAssetsCompleteEventArgs = Icarus.UnityGameFramework.Runtime.LoadAssetsCompleteEventArgs;
+using Object = UnityEngine.Object;
 
 public class test : MonoBehaviour
 {
@@ -98,7 +101,7 @@ public class test : MonoBehaviour
     [ContextMenu("显示资源组")]
     void _showAssetGroupABList()
     {
-        var list =_resourceComponent.GetAssetGroupList(_groupTag);
+        var list = _resourceComponent.GetAssetGroupList(_groupTag);
 
         if (list == null)
         {
@@ -145,23 +148,23 @@ public class test : MonoBehaviour
 
     private bool _isUpadteComplete;
     private void _UpdateAssetbundle(System.Collections.Generic.IEnumerable<AssetBundleInfo> abs
-    ,Action allCompleteHandle = null)
+    , Action allCompleteHandle = null)
     {
-        _update.UpdateAssetBundle(Info, abs, _versionCheck.PersistentInfos,_versionCheck.ServerVersionInfo.Version, (pro, str) =>
-        {
-            Debug.Log($"下载进度：{pro.Progress}，下载速度：{pro.Speed},下载描述：{str}");
-        }, x1 =>
-        {
-            Debug.Log("更新完成：" + x1);
-        }, ()=>
-        {
-            _isUpadteComplete = true;
-            Debug.Log("全部更新完成!");
-            allCompleteHandle?.Invoke();
-        }, ex =>
-        {
-            Debug.Log("更新出错：" + ex);
-        });
+        _update.UpdateAssetBundle(Info, abs, _versionCheck.PersistentInfos, _versionCheck.ServerVersionInfo.Version, (pro, str) =>
+         {
+             Debug.Log($"下载进度：{pro.Progress}，下载速度：{pro.Speed},下载描述：{str}");
+         }, x1 =>
+         {
+             Debug.Log("更新完成：" + x1);
+         }, () =>
+         {
+             _isUpadteComplete = true;
+             Debug.Log("全部更新完成!");
+             allCompleteHandle?.Invoke();
+         }, ex =>
+         {
+             Debug.Log("更新出错：" + ex);
+         });
     }
 
     public void LoadAsset()
@@ -193,7 +196,12 @@ public class test : MonoBehaviour
         _UpdateAssetbundle(list, _loadAsset1);
 
     }
+    [ContextMenu("加载场景")]
+    public void LoadScene()
+    {
+        LoadScene(AssetName);
 
+    }
     public void LoadScene(string name)
     {
         _sceneComponent.LoadScene(name);
@@ -213,6 +221,190 @@ public class test : MonoBehaviour
 
     }
 
+    [SerializeField]
+    private string groupTag;
+    [ContextMenu("加载指定资源组")]
+    void _loadGroup()
+    {
+        List<string> assetsPath = new List<string>();
+        var assetNames = _resourceComponent.GetAssetGroupList(groupTag);
+        foreach (var abName in assetNames)
+        {
+            if (abName.Contains("default"))
+            {
+                assetsPath = _resourceComponent.GetAssetsList(abName).ToList();
+            }
+        }
+        _eventComponent.Subscribe(ReferencePool.Acquire<LoadAssetsCompleteEventArgs>().Id, _allComplete);
+
+        _resourceComponent.LoadAssets(assetsPath, null, 0, new LoadAssetCallbacks(_loadAssetSuccessCallback));
+    }
+
+    private void _allComplete(object sender, GameEventArgs e)
+    {
+        var args = (LoadAssetsCompleteEventArgs) e;
+
+        _allComplete(args.AssetNames, args.Assets, args.Duration, args.UserData);
+    }
+
+    //[SerializeField]
+    private int loadCount = 2;
+    string[] result1;
+    string[] result2;
+    [ContextMenu("加载指定资源组-LoadAssets,分2次")]
+    void _loadGroupCount1()
+    {
+        List<string> assetsPath = new List<string>();
+        var assetNames = _resourceComponent.GetAssetGroupList(groupTag);
+        foreach (var abName in assetNames)
+        {
+            if (abName.Contains("default"))
+            {
+                assetsPath = _resourceComponent.GetAssetsList(abName).ToList();
+            }
+        }
+
+        var count = assetsPath.Count / loadCount;
+        result1 = new string[count];
+        result2 = new string[count];
+        for (var i = 0; i < result1.Length; i++)
+        {
+            result1[i] = assetsPath[i];
+        }
+        for (var i = 0; i < result2.Length; i++)
+        {
+            result2[i] = assetsPath[i + count];
+        }
+        //        var result = assetsPath.Take(count);
+        Debug.Log($"result Count:{result1.Length}");
+        Debug.Log($"result Count:{result2.Length}");
+        //        var result = assetsPath.Take(count);
+        _eventComponent.Subscribe(ReferencePool.Acquire<LoadAssetsCompleteEventArgs>().Id,_loadAssets);
+
+        _resourceComponent.LoadAssets(result1, null, 0,
+            new LoadAssetCallbacks(_loadAssetSuccessCallback2, _loadAssetFailureCallback, _loadDependency));
+
+    }
+
+    private void _loadAssets(object sender, GameEventArgs e)
+    {
+        _eventComponent.Unsubscribe(e.Id, _loadAssets);
+        _allComplete(sender,e);
+
+        _eventComponent.Subscribe(ReferencePool.Acquire<LoadAssetsCompleteEventArgs>().Id, _allComplete);
+
+        _resourceComponent.LoadAssets(result2, null, 0,
+            new LoadAssetCallbacks(_loadAssetSuccessCallback2, _loadAssetFailureCallback, _loadDependency));
+    }
+
+    private void Update()
+    {
+        _loadGroupCount2Update();
+    }
+
+    private void _loadGroupCount2Update()
+    {
+        if (!loadAssetMult)
+        {
+            return;
+        }
+
+        if (result1 != null)
+        {
+            if (completeCount == result1.Length)
+            {
+                completeCount = 0;
+                result1 = null;
+                _allComplete(null, null, 0, null);
+                foreach (var s in result2)
+                {
+                    _resourceComponent.LoadAsset(s,
+                        new LoadAssetCallbacks((assetName, asset, duration, data) =>
+                        {
+                            completeCount++;
+                            _loadAssetSuccessCallback(assetName, asset, duration, data);
+                        }));
+                }
+
+            }
+        }
+        
+        if (result2 != null)
+        {
+            if (completeCount == result2.Length)
+            {
+                _allComplete(null, null, 0, null);
+                completeCount = 0;
+                result2 = null;
+                loadAssetMult = false;
+
+            }
+        }
+    }
+   
+    private int completeCount;
+    private bool loadAssetMult;
+    [ContextMenu("加载指定资源组-LoadAsset,分2次")]
+    void _loadGroupCount2()
+    {
+        loadAssetMult = true;
+        List<string> assetsPath = new List<string>();
+        var assetNames = _resourceComponent.GetAssetGroupList(groupTag);
+        foreach (var abName in assetNames)
+        {
+            if (abName.Contains("default"))
+            {
+                assetsPath = _resourceComponent.GetAssetsList(abName).ToList();
+            }
+        }
+
+        var count = assetsPath.Count / loadCount;
+        result1 = new string[count];
+        result2 = new string[count];
+        for (var i = 0; i < result1.Length; i++)
+        {
+            result1[i] = assetsPath[i];
+        }
+        for (var i = 0; i < result2.Length; i++)
+        {
+            result2[i] = assetsPath[i + count];
+        }
+        //        var result = assetsPath.Take(count);
+        Debug.Log($"result Count:{result1.Length}");
+        Debug.Log($"result Count:{result2.Length}");
+
+        foreach (var s in result1)
+        {
+            _resourceComponent.LoadAsset(s,
+                new LoadAssetCallbacks((assetName, asset, duration, data) =>
+                {
+                    completeCount++;
+                    _loadAssetSuccessCallback(assetName, asset, duration, data);
+                }));
+        }
+    }
+
+    private void _loadDependency(string assetname, string dependencyassetname, int loadedcount, int totalcount, object userdata)
+    {
+        Debug.LogError($"资源{assetname},依赖资源:{dependencyassetname}");
+    }
+
+
+    private void _allComplete(IEnumerable<string> assetnames, IEnumerable<object> assets, float duration, object userdata)
+    {
+        Debug.LogError("All Complete");
+        if (assets == null)
+        {
+            return;
+        }
+        Debug.LogError($"assets Count:{assets.Count()}");
+        foreach (var asset in assets)
+        {
+            Instantiate((Object)asset);
+        }
+    }
+
+
     private void _checkOutGroup(object sender, GameEventArgs e)
     {
         _checkOutGroup();
@@ -230,7 +422,7 @@ public class test : MonoBehaviour
     {
         _load();
         var eventArgs = ReferencePool.Acquire<Icarus.UnityGameFramework.Runtime.ResourceInitCompleteEventArgs>();
-//        _eventComponent.Unsubscribe(eventArgs.Id,_loadAsset);
+        //        _eventComponent.Unsubscribe(eventArgs.Id,_loadAsset);
         ReferencePool.Release(eventArgs);
     }
 
@@ -238,7 +430,7 @@ public class test : MonoBehaviour
     void _load()
     {
         Debug.Log("资源加载完成");
-        _resourceComponent.LoadAsset(AssetName, new LoadAssetCallbacks(_loadAssetSuccessCallback,  _loadAssetFailureCallback, _loadAssetUpdateCallback));
+        _resourceComponent.LoadAsset(AssetName, new LoadAssetCallbacks(_loadAssetSuccessCallback, _loadAssetFailureCallback, _loadAssetUpdateCallback));
     }
 
     private void _loadAssetUpdateCallback(string assetname, float progress, object userdata)
@@ -253,13 +445,14 @@ public class test : MonoBehaviour
 
     private void _loadAssetSuccessCallback(string assetname, object asset, float duration, object userdata)
     {
-        var gameobject = (GameObject) asset;
+        var gameobject = (GameObject)asset;
         Instantiate(gameobject);
-        Debug.LogFormat("资源名为:{0},duration:{1}", assetname, duration);
+        Debug.LogErrorFormat("资源名为:{0},duration:{1}", assetname, duration);
     }
-    // Update is called once per frame
-    void Update()
-    {
 
+    private void _loadAssetSuccessCallback2(string assetname, object asset, float duration, object userdata)
+    {
+        Debug.LogErrorFormat("资源名为:{0},duration:{1}", assetname, duration);
     }
+
 }

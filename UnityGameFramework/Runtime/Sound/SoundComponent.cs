@@ -50,19 +50,19 @@ namespace Icarus.UnityGameFramework.Runtime
         private AudioMixer m_AudioMixer = null;
 
         [SerializeField]
-        private string m_SoundHelperTypeName = "UnityGameFramework.Runtime.DefaultSoundHelper";
+        private string m_SoundHelperTypeName = "Icarus.UnityGameFramework.Runtime.DefaultSoundHelper";
 
         [SerializeField]
         private SoundHelperBase m_CustomSoundHelper = null;
 
         [SerializeField]
-        private string m_SoundGroupHelperTypeName = "UnityGameFramework.Runtime.DefaultSoundGroupHelper";
+        private string m_SoundGroupHelperTypeName = "Icarus.UnityGameFramework.Runtime.DefaultSoundGroupHelper";
 
         [SerializeField]
         private SoundGroupHelperBase m_CustomSoundGroupHelper = null;
 
         [SerializeField]
-        private string m_SoundAgentHelperTypeName = "UnityGameFramework.Runtime.DefaultSoundAgentHelper";
+        private string m_SoundAgentHelperTypeName = "Icarus.UnityGameFramework.Runtime.DefaultSoundAgentHelper";
 
         [SerializeField]
         private SoundAgentHelperBase m_CustomSoundAgentHelper = null;
