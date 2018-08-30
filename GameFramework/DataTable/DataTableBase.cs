@@ -35,6 +35,37 @@ namespace Icarus.GameFramework.DataTable
         }
 
         /// <summary>
+        ///  随机获取行
+        /// </summary>
+        /// <returns></returns>
+        public abstract IDataRow GetDataRowRandom();
+        
+        /// <summary>
+        /// 获取id最小的行
+        /// </summary>
+        /// <returns></returns>
+        public abstract IDataRow GetDataRowMinId();
+        
+        /// <summary>
+        /// 获取id最大的行
+        /// </summary>
+        /// <returns></returns>
+        public abstract IDataRow GetDataRowMxnId();
+        
+        /// <summary>
+        /// 获取行
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public abstract IDataRow GetDataRowType(int id);
+        
+        /// <summary>
+        /// 获取所有数据表行。
+        /// </summary>
+        /// <returns>所有数据表行。</returns>
+        public abstract IDataRow[] GetAllDataRowTypes();
+        
+        /// <summary>
         /// 获取数据表名称。
         /// </summary>
         public string Name

@@ -8,6 +8,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Icarus.GameFramework.DataTable
 {
@@ -22,6 +23,7 @@ namespace Icarus.GameFramework.DataTable
             private readonly Dictionary<int, T> m_DataSet;
             private T m_MinIdDataRow;
             private T m_MaxIdDataRow;
+            private DataTableBase _dataTableBaseImplementation;
 
             /// <summary>
             /// 初始化数据表的新实例。
@@ -123,6 +125,50 @@ namespace Icarus.GameFramework.DataTable
                 }
 
                 return false;
+            }
+
+            public override IDataRow GetDataRowRandom()
+            {
+                var index = Utility.Random.GetRandom(0, Count);
+                
+                int i = 0;
+                
+                foreach (var key in m_DataSet.Keys)
+                {
+                    if (i == index)
+                    {
+                        return m_DataSet[key];
+                    }
+                    
+                    i++;
+                }
+                
+                return null;
+            }
+
+            public override IDataRow GetDataRowMinId()
+            {
+                return MinIdDataRow;
+            }
+
+            public override IDataRow GetDataRowMxnId()
+            {
+                return MaxIdDataRow;
+            }
+
+            /// <summary>
+            /// 获取数据表行。
+            /// </summary>
+            /// <param name="id">数据表行的编号。</param>
+            /// <returns>数据表行。</returns>
+            public override IDataRow GetDataRowType(int id)
+            {
+                return GetDataRow(id);
+            }
+
+            public override IDataRow[] GetAllDataRowTypes()
+            {
+                return m_DataSet.Values.ToArray();
             }
 
             /// <summary>
