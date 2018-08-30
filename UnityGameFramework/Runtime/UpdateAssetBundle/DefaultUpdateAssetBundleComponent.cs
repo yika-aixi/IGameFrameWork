@@ -16,7 +16,7 @@ namespace Icarus.UnityGameFramework.Runtime
     /// 使用UnityWebRequeDownload来更新
     /// </summary>
     [AddComponentMenu("Icarus/Game Framework/UpdateAssetBundle")]
-    public class DefaultUpdateAssetBundleComponent: UnityGameFrameWorkBehaviour, IUpdateAssetBundle
+    public class DefaultUpdateAssetBundleComponent: GameFrameworkComponent, IUpdateAssetBundle
     {
         public DownloadManager DownloadManager { get; private set; }
         [SerializeField]

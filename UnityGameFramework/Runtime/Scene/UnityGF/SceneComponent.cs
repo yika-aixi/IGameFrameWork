@@ -19,7 +19,7 @@ namespace Icarus.UnityGameFramework.Runtime
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Icarus/Game Framework/Scene")]
-    public sealed class SceneComponent : UnityGameFrameWorkBehaviour
+    public sealed class SceneComponent : GameFrameworkComponent
     {
         private const int DefaultPriority = 0;
 

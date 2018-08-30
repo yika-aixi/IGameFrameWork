@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Icarus.UnityGameFramework.Runtime
 {
-    public class BaseComponent : UnityGameFrameWorkBehaviour
+    public class BaseComponent : GameFrameworkComponent
     {
         public bool EditorResourceMode;
         public IResourceManager EditorResourceHelper;

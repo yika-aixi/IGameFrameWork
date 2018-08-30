@@ -12,7 +12,7 @@ namespace Icarus.UnityGameFramework.Runtime
 {
     [DisallowMultipleComponent]
     [AddComponentMenu("Icarus/Game Framework/VersionCheck")]
-    public class DefaultVersionCheckCompontent : UnityGameFrameWorkBehaviour, IVersionCheck
+    public class DefaultVersionCheckCompontent : GameFrameworkComponent, IVersionCheck
     {
         public string Url { get; set; }
         public bool StrictMode { get; set; } = true;
