@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Icarus.UnityGameFramework.Runtime
 {
-    public class UnityGameFrameWorkBehaviour:MonoBehaviour
+    public class GameFrameworkComponent:MonoBehaviour
     {
         protected virtual void Awake()
         {
