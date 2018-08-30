@@ -34,3 +34,12 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+
+#临时
+Config/
+/UnityGameFramework/Editor/AssetBundleBuilder/DefaultResourceConfigGenerate.cs
+/UnityGameFramework/Runtime/Components/LinekLinkComponent.cs
+/UnityGameFramework/Editor/AssetBundleBuilder/DefaultResourceConfigGenerate.cs.meta
+/UnityGameFramework/Runtime/Components.meta
+/UnityGameFramework/Runtime/Components/LinekLinkComponent.cs.meta
+/UnityGameFramework/Runtime/Config.meta
