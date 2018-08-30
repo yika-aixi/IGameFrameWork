@@ -11,7 +11,7 @@ namespace Icarus.UnityGameFramework.Runtime
 {
     [DisallowMultipleComponent]
     [AddComponentMenu("Icarus/Game Framework/I18N")]
-    public partial class I18NComponent : UnityGameFrameWorkBehaviour
+    public partial class I18NComponent : GameFrameworkComponent
     {
         private const string _currentLanguageKey = "CurrentLanguage";
         private I18NManager _manager = new I18NManager();

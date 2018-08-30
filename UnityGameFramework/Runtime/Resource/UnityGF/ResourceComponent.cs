@@ -19,7 +19,7 @@ namespace Icarus.UnityGameFramework.Runtime
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Icarus/Game Framework/Resource")]
-    public sealed partial class ResourceComponent: UnityGameFrameWorkBehaviour
+    public sealed partial class ResourceComponent: GameFrameworkComponent
     {
         private const int DefaultPriority = 0;
 

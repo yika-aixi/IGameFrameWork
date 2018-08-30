@@ -17,7 +17,7 @@ namespace Icarus.UnityGameFramework.Runtime
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Icarus/Game Framework/Event")]
-    public sealed class EventComponent : UnityGameFrameWorkBehaviour
+    public sealed class EventComponent : GameFrameworkComponent
     {
         private IEventManager m_EventManager = null;
 
