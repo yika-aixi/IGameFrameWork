@@ -86,7 +86,7 @@ namespace Icarus.UnityGameFramework.Editor
             return GetTypeNames(typeBase, EditorAssemblyNames);
         }
 
-        private static string[] GetTypeNames(System.Type typeBase, string[] assemblyNames)
+        public static string[] GetTypeNames(System.Type typeBase, string[] assemblyNames)
         {
             List<string> typeNames = new List<string>();
             foreach (string assemblyName in assemblyNames)
