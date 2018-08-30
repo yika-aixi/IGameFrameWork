@@ -5,6 +5,8 @@
 //Icarus.UnityGameFramework.Bolt
 
 using Bolt;
+using Icarus.GameFramework;
+using Icarus.GameFramework.Event;
 using Ludiq;
 
 namespace Icarus.UnityGameFramework.Bolt
@@ -26,5 +28,13 @@ namespace Icarus.UnityGameFramework.Bolt
         }
 
         protected abstract ControlOutput Enter(Flow flow);
+
+        protected int GetEventID<T>() where T : GameEventArgs, new()
+        {
+            var args = ReferencePool.Acquire<T>();
+            var id = args.Id;
+            ReferencePool.Release(args);
+            return id;
+        }
     }
 }

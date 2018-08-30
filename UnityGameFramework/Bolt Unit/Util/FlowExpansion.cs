@@ -54,7 +54,7 @@ namespace Icarus.UnityGameFramework.Bolt.Util
             flow.Dispose();
         }
 
-        public static bool EnterTryControlAndDisplay(this Flow flow, ControlOutput control)
+        public static bool EnterTryControlAndDispose(this Flow flow, ControlOutput control)
         {
             var result = flow.EnterTryControl(control);
 

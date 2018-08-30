@@ -288,22 +288,22 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                     break;
                 case AssetManagerCallType.加载多个资源:
                     var names = flow.GetValue<IEnumerable<string>>(AssetName);
-                    var id = _getEventID<Runtime.LoadAssetsCompleteEventArgs>();
+                    var id = GetEventID<Runtime.LoadAssetsCompleteEventArgs>();
                     _event.Subscribe(id, _loadAllComplete);
 
                     resource.LoadAssets(names, AssetType, priority, _getLoadAssetCallbacks(false));
                     break;
                 case AssetManagerCallType.加载场景:
-                    id = _getEventID<LoadSceneSuccessEventArgs>();
+                    id = GetEventID<LoadSceneSuccessEventArgs>();
                     _event.Subscribe(id, _loadSceneComplete);
 
-                    id = _getEventID<LoadSceneFailureEventArgs>();
+                    id = GetEventID<LoadSceneFailureEventArgs>();
                     _event.Subscribe(id, _loadSceneFailure);
 
-                    id = _getEventID<LoadSceneUpdateEventArgs>();
+                    id = GetEventID<LoadSceneUpdateEventArgs>();
                     _event.Subscribe(id, _loadSceneUpdate);
 
-                    id = _getEventID<LoadSceneDependencyAssetEventArgs>();
+                    id = GetEventID<LoadSceneDependencyAssetEventArgs>();
                     _event.Subscribe(id, _loadSceneDependencyAsset);
 
                     scene.LoadScene(assetName, priority);
@@ -313,12 +313,12 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                     break;
                 case AssetManagerCallType.卸载场景:
 
-                    id = _getEventID<UnloadSceneSuccessEventArgs>();
+                    id = GetEventID<UnloadSceneSuccessEventArgs>();
 
                     _event.Subscribe(id, _unloadSceneSuccess);
 
 
-                    id = _getEventID<UnloadSceneFailureEventArgs>();
+                    id = GetEventID<UnloadSceneFailureEventArgs>();
                     _event.Subscribe(id, _unloadSceneFailure);
 
                     scene.UnloadScene(assetName);
@@ -350,7 +350,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                         return CompleteExit;
                     }
 
-                    id = _getEventID<ResourceInitCompleteEventArgs>();
+                    id = GetEventID<ResourceInitCompleteEventArgs>();
 
                     _event.Subscribe(id, _initComplete);
 
@@ -413,7 +413,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         {
             _event.Unsubscribe(args.Id, _unloadSceneFailure);
 
-            var id = _getEventID<UnloadSceneSuccessEventArgs>();
+            var id = GetEventID<UnloadSceneSuccessEventArgs>();
             _event.Unsubscribe(id, _unloadSceneSuccess);
 
             var failureArgs = (UnloadSceneFailureEventArgs)args;
@@ -427,20 +427,14 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         {
             _event.Unsubscribe(args.Id, _unloadSceneSuccess);
 
-            var id = _getEventID<UnloadSceneFailureEventArgs>();
+            var id = GetEventID<UnloadSceneFailureEventArgs>();
             _event.Unsubscribe(id, _unloadSceneFailure);
 
             _flow.EnterControl(CompleteExit);
             _displayFlow();
         }
 
-        private int _getEventID<T>() where T : GameEventArgs, new()
-        {
-            var args = ReferencePool.Acquire<T>();
-            var id = args.Id;
-            ReferencePool.Release(args);
-            return id;
-        }
+        
 
         private void _loadSceneDependencyAsset(object sender, GameEventArgs args)
         {
@@ -480,18 +474,18 @@ namespace Icarus.UnityGameFramework.Bolt.Units
 
         void _unsubscribeLoadSceneEvent(bool complete)
         {
-            var id = _getEventID<LoadSceneUpdateEventArgs>();
+            var id = GetEventID<LoadSceneUpdateEventArgs>();
             _event.Unsubscribe(id, _loadSceneUpdate);
-            id = _getEventID<LoadSceneDependencyAssetEventArgs>();
+            id = GetEventID<LoadSceneDependencyAssetEventArgs>();
             _event.Unsubscribe(id, _loadSceneDependencyAsset);
             if (complete)
             {
-                id = _getEventID<LoadSceneSuccessEventArgs>();
+                id = GetEventID<LoadSceneSuccessEventArgs>();
                 _event.Unsubscribe(id, _loadSceneComplete);
             }
             else
             {
-                id = _getEventID<LoadSceneFailureEventArgs>();
+                id = GetEventID<LoadSceneFailureEventArgs>();
                 _event.Unsubscribe(id, _loadSceneFailure);
             } 
         }
