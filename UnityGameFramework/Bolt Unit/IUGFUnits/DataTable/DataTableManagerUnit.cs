@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Bolt;
 using Icarus.GameFramework;
@@ -20,7 +21,7 @@ using LoadDataTableUpdateEventArgs = Icarus.UnityGameFramework.Runtime.LoadDataT
 
 namespace Icarus.UnityGameFramework.Bolt.Units
 {
-
+    
     public enum CallDataTableType
     {
         加载数据表,
@@ -28,6 +29,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         获取_ID最大的行,
         获取_随机一行,
         获取_遍历数据,
+        获取_根据ID,
     }
 
     /// <summary>
@@ -42,6 +44,10 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         [Inspectable, UnitHeaderInspectable("数据表类型:")]
         public Type _type { get; set; }
 
+        [Serialize]
+        [Inspectable, UnitHeaderInspectable("反射输出:")]
+        public bool _isType { get; set; }
+        
         [Serialize]
         [Inspectable, UnitHeaderInspectable("获取类型:")]
         public CallDataTableType _callDataTableTableType { get; set; } = CallDataTableType.加载数据表;
@@ -70,9 +76,17 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         [DoNotSerialize]
         [PortLabel("DataTabble Content")]
         public ValueInput _content;
+        
+        [DoNotSerialize]
+        [PortLabel("ID")]
+        public ValueInput _id;
 
         [DoNotSerialize]
         public ValueOutput[] _colsOut;
+        
+        [DoNotSerialize]
+        [PortLabel("查询结果")]
+        public ValueOutput _resultOut;
 
         [DoNotSerialize]
         [PortLabel("加载成功")]
@@ -106,6 +120,7 @@ namespace Icarus.UnityGameFramework.Bolt.Units
         private string _errorMesage;
         private object[] _cols;
         private object _userData;
+        private object _result;
         protected override void Definition()
         {
             base.Definition();
@@ -142,6 +157,12 @@ namespace Icarus.UnityGameFramework.Bolt.Units
             {
                 _body = ControlOutput(nameof(_body));
             }
+            
+            if (_callDataTableTableType == CallDataTableType.获取_根据ID)
+            {
+                _id = ValueInput(nameof(_id), 0);
+            }
+
 
             switch (_callDataTableTableType)
             {
@@ -149,19 +170,37 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                 case CallDataTableType.获取_ID最大的行:
                 case CallDataTableType.获取_随机一行:
                 case CallDataTableType.获取_遍历数据:
+                case CallDataTableType.获取_根据ID:
                     var properties = _type.GetProperties();
-                    var count = properties.Length;
-                    _colsOut = new ValueOutput[count];
-                    _cols = new object[count];
-                    for (var i = 0; i < properties.Length; i++)
+                    if (_isType)
                     {
-                        var property = properties[i];
-                        int index = i;
-                        _colsOut[i] = ValueOutput(property.PropertyType,property.Name,x=>_cols[index]);
+                        _initCol(properties);
+                    }
+                    else
+                    {
+                        _initResult();
                     }
                     break;
             }
 
+        }
+
+        private void _initResult()
+        {
+            _resultOut = ValueOutput(_type, nameof(_resultOut), x => _result);
+        }
+
+        private void _initCol(PropertyInfo[] properties)
+        {
+            var count = properties.Length;
+            _colsOut = new ValueOutput[count];
+            _cols = new object[count];
+            for (var i = 0; i < properties.Length; i++)
+            {
+                var property = properties[i];
+                int index = i;
+                _colsOut[i] = ValueOutput(property.PropertyType, property.Name, x => _cols[index]);
+            }
         }
 
         private bool _typeCheck()
@@ -230,26 +269,31 @@ namespace Icarus.UnityGameFramework.Bolt.Units
                 case CallDataTableType.获取_ID最大的行:
                 case CallDataTableType.获取_随机一行:
                 case CallDataTableType.获取_遍历数据:
+                case CallDataTableType.获取_根据ID: 
                     var table = _dataTableComponent.GetDataTable(_type, dataTableNameInType);
                     switch (_callDataTableTableType)
                     {
                         case CallDataTableType.获取_ID最小的行:
                             var row = table.GetDataRowMinId();
-                            _setCols(row);
+                            _setResult(row);
                             break;
                         case CallDataTableType.获取_ID最大的行:
                              row = table.GetDataRowMxnId();
-                            _setCols(row);
+                            _setResult(row);
                             break;
                         case CallDataTableType.获取_随机一行:
                             row = table.GetDataRowRandom();
-                            _setCols(row);
+                            _setResult(row);
+                            break;
+                        case CallDataTableType.获取_根据ID:
+                            row = table.GetDataRowType(flow.GetValue<int>(_id));
+                            _setResult(row);
                             break;
                         case CallDataTableType.获取_遍历数据:
                             var rows = table.GetAllDataRowTypes();
                             foreach (var dataRow in rows)
                             {
-                                _setCols(dataRow);
+                                _setResult(dataRow);
                                 _flow.EnterTryControl(_body);
                             }
                             _flow.Dispose();
@@ -264,6 +308,19 @@ namespace Icarus.UnityGameFramework.Bolt.Units
             }
 
             return _exit;
+        }
+
+        
+        private void _setResult(IDataRow row)
+        {
+            if (_isType)
+            {
+                _setCols(row);
+            }
+            else
+            {
+                _result = row;
+            }
         }
 
         private void _setCols(IDataRow row)
