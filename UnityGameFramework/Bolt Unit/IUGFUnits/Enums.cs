@@ -37,6 +37,7 @@ namespace Icarus.UnityGameFramework.Bolt
         单次事件,
         注册事件,
         释放事件,
-        触发事件
+        触发事件,
+        判断事件是否存在
     }
 }

@@ -13,6 +13,7 @@ using Ludiq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Icarus.UnityGameFramework.Bolt.Util;
 
 namespace Icarus.UnityGameFramework.Bolt
 {
@@ -63,6 +64,10 @@ namespace Icarus.UnityGameFramework.Bolt
         [DoNotSerialize]
         [PortLabel("Event Handle")]
         public ValueOutput _handleOut;
+        
+        [DoNotSerialize]
+        [PortLabel("Result")]
+        public ValueOutput _result;
 
         [DoNotSerialize]
         private EventHandler<GameEventArgs> _handler;
@@ -112,6 +117,7 @@ namespace Icarus.UnityGameFramework.Bolt
                     Succession(_enter, _triggerExit);
                     break;
                 case EventCallType.释放事件:
+                case EventCallType.判断事件是否存在:
                     _handleIn = ValueInput<EventHandler<GameEventArgs>>(nameof(_handleIn));
                     break;
                 case EventCallType.触发事件:
@@ -121,7 +127,12 @@ namespace Icarus.UnityGameFramework.Bolt
                     break;
             }
 
-            Succession(_enter, _exit);
+            if (_eventCallType == EventCallType.判断事件是否存在)
+            {
+                _result = ValueOutput<bool>(nameof(_result));
+                Assignment(_enter,_result);
+            }
+
         }
 
         private void _setBack()
@@ -223,18 +234,23 @@ namespace Icarus.UnityGameFramework.Bolt
         }
 
         private Flow _flow;
+        private static EventComponent _event;
+
         protected override ControlOutput Enter(Flow flow)
         {
+            if (_event == null)
+            {
+                _event = GameEntry.GetComponent<EventComponent>();
+                
+                if (!_event)
+                {
+                    throw new GameFrameworkException("EventComponent 没有注册到 GameEntry");
+                }
+            }
+            
             _checkArgCount();
 
             var eventID = flow.GetValue<int>(EventId);
-
-            var eventC = GameEntry.GetComponent<EventComponent>();
-
-            if (!eventC)
-            {
-                throw new GameFrameworkException("EventComponent 没有注册到 GameEntry");
-            }
 
             switch (_eventCallType)
             {
@@ -247,19 +263,28 @@ namespace Icarus.UnityGameFramework.Bolt
             switch (_eventCallType)
             {
                 case EventCallType.单次事件:
-                    eventC.Subscribe(eventID, _handleD);
+                    _event.Subscribe(eventID, _handleD);
                     break;
                 case EventCallType.注册事件:
-                    eventC.Subscribe(eventID, _handle);
+                    _event.Subscribe(eventID, _handle);
                     _handler = _handle;
                     break;
                 case EventCallType.释放事件:
+                case EventCallType.判断事件是否存在:
                     var handle = flow.GetValue<EventHandler<GameEventArgs>>(_handleIn);
-                    _unSubscribe(eventID, handle);
+                    if (_eventCallType == EventCallType.释放事件)
+                    {
+                        _unSubscribe(eventID, handle);
+                    }
+                    else
+                    {
+                        var result = _event.Check(eventID, handle);
+                        flow.SetValue(_result,result);
+                    }
                     break;
                 case EventCallType.触发事件:
 
-                    if (!eventC.Check(eventID))
+                    if (!_event.Check(eventID))
                     {
                         break;
                     }
@@ -274,11 +299,11 @@ namespace Icarus.UnityGameFramework.Bolt
                     eventArgs.SetArgs(_args);
                     if (atOnce)
                     {
-                        eventC.FireNow(null, eventArgs);
+                        _event.FireNow(null, eventArgs);
                     }
                     else
                     {
-                        eventC.Fire(null, eventArgs);
+                        _event.Fire(null, eventArgs);
                     }
                     break;
                 default:
@@ -291,29 +316,43 @@ namespace Icarus.UnityGameFramework.Bolt
 
         private void _unSubscribe(int id, EventHandler<GameEventArgs> handle)
         {
-            var eventC = GameEntry.GetComponent<EventComponent>();
-            eventC.Unsubscribe(id, handle);
+            _event.Unsubscribe(id, handle);
+            
+            //释放Flow
+            ((EventUnit)handle.Target).DisposeFlow();     
         }
 
         //单次事件
         private void _handleD(object sender, GameEventArgs e)
         {
             _handle(sender, e);
+            
             _unSubscribe(e.Id, _handleD);
-            _display(e.Id);
         }
 
-        private void _display(int Id)
+        public override void Dispose()
         {
-            _flow.Dispose();
-            _flow = null;
+            base.Dispose();
+
+            _handler = null;
+
+            _args = null;
+        }
+
+        private void DisposeFlow()
+        {
+            if (_flow != null)
+            {
+                _flow.Dispose();
+                _flow = null;
+            }
         }
 
         private void _handle(object sender, GameEventArgs e)
         {
             _args = ((BoltEventArgs)e).Args;
 
-            _flow.Invoke(_triggerExit);
+            _flow.EnterTryControl(_triggerExit);
         }
 
     }
