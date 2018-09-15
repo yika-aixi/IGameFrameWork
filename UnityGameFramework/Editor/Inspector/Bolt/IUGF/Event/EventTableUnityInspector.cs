@@ -49,8 +49,8 @@ namespace Icarus.UnityGameFramework.Bolt.Event
             }
 
             serializedObject.Update();
-            _names = _tableAsset.GetEventNames().ToArray();
-            _ids = _tableAsset.GetEventIDs().ToArray();
+            _names = _tableAsset.GetEventNames()?.ToArray();
+            _ids = _tableAsset.GetEventIDs()?.ToArray();
 
             EditorGUILayout.LabelField($"Event Count:{_events.arraySize}");
             _autoSave = EditorGUILayout.Toggle("Auto Save", _autoSave);
@@ -237,13 +237,13 @@ namespace Icarus.UnityGameFramework.Bolt.Event
                     {
                         return;
                     }
-                    if (_names.Contains(_eventName))
+                    if (_names != null && _names.Contains(_eventName))
                     {
                         return;
                     }
 
 
-                    if (_ids.Contains(_id))
+                    if (_ids != null && _ids.Contains(_id))
                     {
                         if (!_addMode)
                         {

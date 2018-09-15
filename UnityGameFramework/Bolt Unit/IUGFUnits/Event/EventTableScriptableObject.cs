@@ -27,6 +27,10 @@ namespace Icarus.UnityGameFramework.Bolt.Event
         {
             _init();
             int i = 0;
+            if (_table.Events == null)
+            {
+                return;
+            }
             foreach (var @event in _table.Events)
             {
                 _events[i] = @event;
@@ -37,6 +41,11 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
         private void _init()
         {
+            if (_table.Events == null )
+            {
+                return;
+            }
+
             _eventCount = _table.Events.Count;
             _events = new EventEntity[_eventCount];
         }
@@ -67,12 +76,12 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
         public IEnumerable<string> GetEventNames()
         {
-            return _table.Events.Select(x=>x.EventName);
+            return _table.Events?.Select(x=>x.EventName);
         }
 
         public IEnumerable<int> GetEventIDs()
         {
-            return _table.Events.Select(x => x.EventID); ;
+            return _table.Events?.Select(x => x.EventID); ;
         }
     }
 }

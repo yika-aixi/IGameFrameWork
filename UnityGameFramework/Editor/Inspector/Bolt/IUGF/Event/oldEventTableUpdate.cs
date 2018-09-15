@@ -17,6 +17,11 @@ namespace Icarus.UnityGameFramework.Bolt.Event
 
         public static bool Update(string assetPath, SerializedObject target)
         {
+            if (target == null)
+            {
+                return false;
+            }
+            
             if (!IsCanUpdate(assetPath))
             {
                 return false;
@@ -77,6 +82,11 @@ namespace Icarus.UnityGameFramework.Bolt.Event
         /// <returns></returns>
         public static bool IsCanUpdate(string assetPath)
         {
+            if (string.IsNullOrEmpty(assetPath))
+            {
+                return false;
+            }
+            
             _serializerYAML(assetPath);
 
             try
