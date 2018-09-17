@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Icarus.GameFramework;
+using Icarus.GameFramework.Localization;
 using Icarus.GameFramework.Resource;
 using UnityEngine;
 
@@ -20,6 +21,9 @@ namespace Icarus.UnityGameFramework.Runtime
 
         [SerializeField]
         private bool m_EditorResourceMode = true;
+        
+        [SerializeField]
+        private Language m_EditorLanguage = Language.Unspecified;
 
         [SerializeField]
         private string m_LogHelperTypeName = "Icarus.UnityGameFramework.Runtime.UnityLog";
@@ -54,6 +58,21 @@ namespace Icarus.UnityGameFramework.Runtime
             set
             {
                 m_EditorResourceMode = value;
+            }
+        }
+        
+        /// <summary>
+        /// 获取或设置编辑器语言（仅编辑器内有效）。
+        /// </summary>
+        public Language EditorLanguage
+        {
+            get
+            {
+                return m_EditorLanguage;
+            }
+            set
+            {
+                m_EditorLanguage = value;
             }
         }
 

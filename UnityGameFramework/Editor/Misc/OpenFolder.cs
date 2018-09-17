@@ -53,6 +53,11 @@ namespace Icarus.UnityGameFramework.Editor
             InternalOpenFolder(Application.dataPath);
         }
 
+        public static void Open(string folder)
+        {
+            InternalOpenFolder(folder);
+        }
+
         private static void InternalOpenFolder(string folder)
         {
             folder = string.Format("\"{0}\"", folder);

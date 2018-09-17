@@ -23,6 +23,7 @@ namespace Icarus.UnityGameFramework.Editor
         private readonly string[] GameSpeedTexts = new string[] { "0x", "0.25x", "0.5x", "1x", "1.5x", "2x", "4x", "8x" };
 
         private SerializedProperty m_EditorResourceMode = null;
+        private SerializedProperty m_EditorLanguage = null;
         private SerializedProperty m_LogHelperTypeName = null;
         private SerializedProperty m_ZipHelperTypeName = null;
         private SerializedProperty m_JsonHelperTypeName = null;
@@ -54,6 +55,8 @@ namespace Icarus.UnityGameFramework.Editor
                 m_EditorResourceMode.boolValue = EditorGUILayout.BeginToggleGroup("Editor Resource Mode", m_EditorResourceMode.boolValue);
                 {
                     EditorGUILayout.HelpBox("Editor resource mode option is only for editor mode. Game Framework will use editor resource files, which you should validate first.", MessageType.Warning);
+                    EditorGUILayout.PropertyField(m_EditorLanguage);
+                    EditorGUILayout.HelpBox("Editor language option is only use for localization test in editor mode.", MessageType.Info);
                 }
                 EditorGUILayout.EndToggleGroup();
 
@@ -168,6 +171,7 @@ namespace Icarus.UnityGameFramework.Editor
         private void OnEnable()
         {
             m_EditorResourceMode = serializedObject.FindProperty("m_EditorResourceMode");
+            m_EditorLanguage = serializedObject.FindProperty("m_EditorLanguage");
             m_LogHelperTypeName = serializedObject.FindProperty("m_LogHelperTypeName");
             m_ZipHelperTypeName = serializedObject.FindProperty("m_ZipHelperTypeName");
             m_JsonHelperTypeName = serializedObject.FindProperty("m_JsonHelperTypeName");

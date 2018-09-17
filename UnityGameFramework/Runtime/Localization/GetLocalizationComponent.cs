@@ -8,15 +8,16 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Icarus.GameFramework;
 using Icarus.UnityGameFramework.Runtime;
+using IGameFrameWork.UnityGameFramework.Runtime.Attributes;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Assets.IGameFrameWork.UnityGameFramework.Runtime.I18N
 {
     [System.Serializable]
-    public class GetI18NEvent : UnityEvent<string> { }
+    public class GetLocalizationEvent : UnityEvent<string> { }
 
-    public class GetI18NComponent : MonoBehaviour
+    public class GetLocalizationComponent : MonoBehaviour
     {
         [TextArea]
         [SerializeField]
@@ -28,10 +29,14 @@ namespace Assets.IGameFrameWork.UnityGameFramework.Runtime.I18N
         [SerializeField]
         private bool _enableGet = true;
 
-        [SerializeField]
-        private GetI18NEvent _onGetI18NEvent;
+        public bool IsGetRawString = true;
+        [ConditionalHide("IsGetRawString",true,true)]
+        [SerializeField] private string[] _args;
 
-        private I18NComponent _i18NComponent;
+        [SerializeField]
+        private GetLocalizationEvent _onGetLocalizationEvent;
+
+        private LocalizationComponent _localization;
         
         public string Key
         {
@@ -46,35 +51,39 @@ namespace Assets.IGameFrameWork.UnityGameFramework.Runtime.I18N
             }
         }
 
-        public GetI18NEvent OnGetI18NEvent
+        public GetLocalizationEvent OnGetLocalizationEvent
         {
             get
             {
-                return _onGetI18NEvent;
+                return _onGetLocalizationEvent;
             }
 
             set
             {
-                _onGetI18NEvent = value;
+                _onGetLocalizationEvent = value;
             }
+        }
+
+        public string[] Args
+        {
+            get { return _args; }
+            set { _args = value; }
         }
 
         void Start()
         {
-            _i18NComponent = GameEntry.GetComponent<I18NComponent>();
+            _localization = GameEntry.GetComponent<LocalizationComponent>();
 
-            if (!_i18NComponent)
+            if (!_localization)
             {
-                throw new GameFrameworkException("I18NComponent 没有注册到 GameEntry 中.");
+                throw new GameFrameworkException("LocalizationComponent 没有注册到 GameEntry 中.");
             }
-
-            _i18NComponent.I18NManager.LanguageChange += _languageChange;
             GetI18NValue();
         }
 
         void OnEnable()
         {
-            if (_enableGet && _i18NComponent)
+            if (_enableGet && _localization)
             {
                 GetI18NValue();
             }
@@ -87,14 +96,23 @@ namespace Assets.IGameFrameWork.UnityGameFramework.Runtime.I18N
 
         public void GetI18NValue()
         {
-            var str = _i18NComponent.GetValue(_key);
+            string str;
+            
+            if (IsGetRawString)
+            {
+                str = _localization.GetRawString(_key);
+            }
+            else
+            {
+                str = _localization.GetString(_key, _args);
+            }
 
             if (string.IsNullOrEmpty(str))
             {
                 str = _defaultStr;
             }
 
-            _onGetI18NEvent.Invoke(str.EscapeReplace());
+            _onGetLocalizationEvent.Invoke(str.EscapeReplace());
         }
     }
 }
