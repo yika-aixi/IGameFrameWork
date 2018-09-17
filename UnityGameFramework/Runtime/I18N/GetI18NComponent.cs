@@ -32,7 +32,7 @@ namespace Assets.IGameFrameWork.UnityGameFramework.Runtime.I18N
         private GetI18NEvent _onGetI18NEvent;
 
         private I18NComponent _i18NComponent;
-
+        
         public string Key
         {
             get

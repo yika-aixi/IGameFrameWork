@@ -19,6 +19,7 @@ namespace Icarus.UnityGameFramework.Editor
         private SerializedProperty _defaultLanguageSer;
         private SerializedProperty _languageNamesSer;
         private Dictionary<string, bool> _showState = new Dictionary<string, bool>();
+
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
@@ -47,11 +48,11 @@ namespace Icarus.UnityGameFramework.Editor
             //设置后缀名
             _suffx();
 
-            //创建语言GUI
-            _createLanguageGUI();
-
-            //添加条目
-            _addItem();
+//            //创建语言GUI
+//            _createLanguageGUI();
+//
+//            //添加条目
+//            _addItem();
 
             //文件操作,读取或导出
             _fileLoadAndExport();
@@ -66,6 +67,7 @@ namespace Icarus.UnityGameFramework.Editor
 
         private readonly List<string> _languages = new List<string>();
         private int _languageIndex = -1;
+
         private void _selectLanguage()
         {
             foreach (var languge in _i18N.GetLanguges())
@@ -74,6 +76,7 @@ namespace Icarus.UnityGameFramework.Editor
                 {
                     continue;
                 }
+
                 _languages.Add(languge);
             }
 
@@ -203,19 +206,16 @@ namespace Icarus.UnityGameFramework.Editor
 
             serializedObject.ApplyModifiedProperties();
             serializedObject.Update();
-
         }
 
         private void _fileLoadAndExport()
         {
-
             _load();
 
-            if (_languageNamesSer.arraySize > 0)
-            {
-                _export();
-            }
-
+//            if (_languageNamesSer.arraySize > 0)
+//            {
+//                _export();
+//            }
         }
 
         private void _load()
@@ -227,7 +227,9 @@ namespace Icarus.UnityGameFramework.Editor
                 {
                     return;
                 }
-                var filePaths = Directory.GetFiles(path, $"*.{_suffixNameSer.stringValue}", SearchOption.AllDirectories);
+
+                var filePaths =
+                    Directory.GetFiles(path, $"*.{_suffixNameSer.stringValue}", SearchOption.AllDirectories);
                 _clearSer();
                 foreach (var filePath in filePaths)
                 {
@@ -267,6 +269,7 @@ namespace Icarus.UnityGameFramework.Editor
                             {
                                 return;
                             }
+
                             var keyIndex = _keysSer.arraySize - 1;
                             _insertValue(false);
                             var valueIndex = _getValueIndex(keyIndex, languageIndex);
@@ -285,6 +288,7 @@ namespace Icarus.UnityGameFramework.Editor
                         nextIndex++;
                     }
                 }
+
                 serializedObject.ApplyModifiedProperties();
                 serializedObject.Update();
             }
@@ -317,9 +321,7 @@ namespace Icarus.UnityGameFramework.Editor
                     sb.Remove(sb.Length - 1, 1);
                     File.WriteAllText(Path.Combine(path, $"{pair.Key}.{_suffixNameSer.stringValue}"), sb.ToString());
                 }
-
             }
-
         }
 
         string _getPath(string title)
@@ -329,6 +331,7 @@ namespace Icarus.UnityGameFramework.Editor
             {
                 EditorPrefs.SetString(_pathKey, path);
             }
+
             return path;
         }
 
@@ -341,6 +344,7 @@ namespace Icarus.UnityGameFramework.Editor
                     _clearSer();
                 }
             }
+
             for (var i = 0; i < _languageNamesSer.arraySize; i++)
             {
                 var languageName = _languageNamesSer.GetArrayElementAtIndex(i).stringValue;
@@ -370,6 +374,7 @@ namespace Icarus.UnityGameFramework.Editor
         }
 
         private string _key;
+
         private void _drowLanguageTable(int languageIndex)
         {
             EditorGUI.indentLevel += 1;
@@ -395,7 +400,6 @@ namespace Icarus.UnityGameFramework.Editor
                         }
                     }
                     EditorGUILayout.EndHorizontal();
-
                 }
             }
             EditorGUI.indentLevel -= 1;
@@ -408,6 +412,7 @@ namespace Icarus.UnityGameFramework.Editor
             {
                 _valuesSer.DeleteArrayElementAtIndex(_getValueIndex(keyIndex, i) - i);
             }
+
             _keysSer.DeleteArrayElementAtIndex(keyIndex);
 
             serializedObject.ApplyModifiedProperties();
@@ -453,6 +458,7 @@ namespace Icarus.UnityGameFramework.Editor
             {
                 return;
             }
+
             _showState.Add(languageName, true);
         }
 
@@ -477,6 +483,7 @@ namespace Icarus.UnityGameFramework.Editor
                 Debug.LogError(errorMeeage);
                 return false;
             }
+
             serialized.arraySize += 1;
             var pro = serialized.GetArrayElementAtIndex(serialized.arraySize - 1);
             pro.stringValue = value;
@@ -492,7 +499,7 @@ namespace Icarus.UnityGameFramework.Editor
 
         private void OnEnable()
         {
-            _i18N = (I18NComponent)target;
+            _i18N = (I18NComponent) target;
             //            _languageNames.AddRange(_i18N.GetLanguges());
             _defaultLanguageSer = serializedObject.FindProperty("_defaultLanguage");
             _languageNamesSer = serializedObject.FindProperty("_languageNames");
