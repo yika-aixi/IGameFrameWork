@@ -204,6 +204,41 @@ namespace Icarus.GameFramework.Sound
         int PlaySound(string soundAssetName, string soundGroupName, int priority, PlaySoundParams playSoundParams, object userData);
 
         /// <summary>
+        /// 播放声音。
+        /// </summary>
+        /// <param name="soundAsset">声音资源</param>
+        /// <param name="soundGroupName">声音组名称。</param>
+        /// <param name="priority">加载声音资源的优先级。</param>
+        /// <param name="playSoundParams">播放声音参数。</param>
+        /// <returns>声音的序列编号。</returns>
+        int PlaySound(object soundAsset, string soundGroupName, int priority, PlaySoundParams playSoundParams);
+        
+        /// <summary>
+        /// 播放声音
+        /// </summary>
+        /// <param name="soundAsset">声音资源</param>
+        /// <param name="soundGroupName">声音组名称。</param>
+        /// <param name="playSoundParams">播放声音参数。</param>
+        /// <param name="userData">用户自定义数据。</param>
+        /// <returns>声音的序列编号。</returns>
+        /// <exception cref="GameFrameworkException"></exception>
+        int PlaySound(object soundAsset, string soundGroupName, PlaySoundParams playSoundParams,
+            object userData);
+
+        /// <summary>
+        /// 播放声音
+        /// </summary>
+        /// <param name="soundAsset">声音资源</param>
+        /// <param name="soundGroupName">声音组名称。</param>
+        /// <param name="priority">加载声音资源的优先级。</param>
+        /// <param name="playSoundParams">播放声音参数。</param>
+        /// <param name="userData">用户自定义数据。</param>
+        /// <returns>声音的序列编号。</returns>
+        /// <exception cref="GameFrameworkException"></exception>
+        int PlaySound(object soundAsset, string soundGroupName, int priority, PlaySoundParams playSoundParams,
+            object userData);
+        
+        /// <summary>
         /// 停止播放声音。
         /// </summary>
         /// <param name="serialId">要停止播放声音的序列编号。</param>

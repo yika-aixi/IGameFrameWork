@@ -480,6 +480,118 @@ namespace Icarus.GameFramework.Sound
             return serialId;
         }
 
+        
+        /// <summary>
+        /// 播放声音。
+        /// </summary>
+        /// <param name="soundAsset">声音资源</param>
+        /// <param name="soundGroupName">声音组名称。</param>
+        /// <param name="priority">加载声音资源的优先级。</param>
+        /// <param name="playSoundParams">播放声音参数。</param>
+        /// <returns>声音的序列编号。</returns>
+        public int PlaySound(object soundAsset, string soundGroupName, int priority, PlaySoundParams playSoundParams)
+        {
+            return PlaySound(soundAsset, soundGroupName, priority, playSoundParams, null); 
+        }
+        
+        /// <summary>
+        /// 播放声音
+        /// </summary>
+        /// <param name="soundAsset">声音资源</param>
+        /// <param name="soundGroupName">声音组名称。</param>
+        /// <param name="playSoundParams">播放声音参数。</param>
+        /// <param name="userData">用户自定义数据。</param>
+        /// <returns>声音的序列编号。</returns>
+        /// <exception cref="GameFrameworkException"></exception>
+        public int PlaySound(object soundAsset, string soundGroupName, PlaySoundParams playSoundParams, object userData)
+        {
+            return PlaySound(soundAsset, soundGroupName, Resource.Constant.DefaultPriority, playSoundParams, userData);
+        }
+
+        /// <summary>
+        /// 播放声音
+        /// </summary>
+        /// <param name="soundAsset">声音资源</param>
+        /// <param name="soundGroupName">声音组名称。</param>
+        /// <param name="priority">加载声音资源的优先级。</param>
+        /// <param name="playSoundParams">播放声音参数。</param>
+        /// <param name="userData">用户自定义数据。</param>
+        /// <returns>声音的序列编号。</returns>
+        /// <exception cref="GameFrameworkException"></exception>
+        public int PlaySound(object soundAsset, string soundGroupName, int priority, PlaySoundParams playSoundParams,
+            object userData)
+        {
+            if (m_ResourceManager == null)
+            {
+                throw new GameFrameworkException("You must set resource manager first.");
+            }
+
+            if (m_SoundHelper == null)
+            {
+                throw new GameFrameworkException("You must set sound helper first.");
+            }
+
+            if (playSoundParams == null)
+            {
+                playSoundParams = new PlaySoundParams();
+            }
+            
+            int serialId = m_Serial++;
+            PlaySoundErrorCode? errorCode = null;
+            string errorMessage = null;
+            SoundGroup soundGroup = (SoundGroup)GetSoundGroup(soundGroupName);
+            if (soundGroup == null)
+            {
+                errorCode = PlaySoundErrorCode.SoundGroupNotExist;
+                errorMessage = string.Format("Sound group '{0}' is not exist.", soundGroupName);
+            }
+            else if (soundGroup.SoundAgentCount <= 0)
+            {
+                errorCode = PlaySoundErrorCode.SoundGroupHasNoAgent;
+                errorMessage = string.Format("Sound group '{0}' is have no sound agent.", soundGroupName);
+            }
+
+            if (errorCode.HasValue)
+            {
+                if (m_PlaySoundFailureEventHandler != null)
+                {
+                    m_PlaySoundFailureEventHandler(this, new PlaySoundFailureEventArgs(serialId, soundAsset.ToString(), soundGroupName, playSoundParams, errorCode.Value, errorMessage, userData));
+                    return serialId;
+                }
+
+                throw new GameFrameworkException(errorMessage);
+            }
+            
+            m_SoundsBeingLoaded.Add(serialId);
+
+            var playSoundInfo = new PlaySoundInfo(serialId, soundGroup, playSoundParams, userData);
+            var soundAgent = playSoundInfo.SoundGroup.PlaySound(serialId,soundAsset,playSoundParams,out errorCode);
+            
+            if (soundAgent != null)
+            {
+                if (m_PlaySoundSuccessEventHandler != null)
+                {
+                    m_PlaySoundSuccessEventHandler(this, new PlaySoundSuccessEventArgs(serialId, soundAsset.ToString(), soundAgent, 0f,userData));
+                }
+            }
+            else
+            {
+                m_SoundsToReleaseOnLoad.Remove(serialId);
+                m_SoundHelper.ReleaseSoundAsset(soundAsset);
+                errorMessage = string.Format("Sound group '{0}' play sound asset '{1}' failure.", soundGroupName, soundAsset);
+                if (m_PlaySoundFailureEventHandler != null)
+                {
+                    m_PlaySoundFailureEventHandler(this, new PlaySoundFailureEventArgs(serialId, soundAsset.ToString(), soundGroupName, playSoundParams, errorCode.Value, errorMessage, userData));
+                }
+                else
+                {
+                    throw new GameFrameworkException(errorMessage);
+                }
+            }
+            
+            return serialId;
+        }
+
         /// <summary>
         /// 停止播放声音。
         /// </summary>

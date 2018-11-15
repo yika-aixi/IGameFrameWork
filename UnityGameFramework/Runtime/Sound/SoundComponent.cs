@@ -484,6 +484,61 @@ namespace Icarus.UnityGameFramework.Runtime
         {
             return m_SoundManager.PlaySound(soundAssetName, soundGroupName, priority, playSoundParams, new PlaySoundInfo(null, worldPosition, userData));
         }
+        
+        /// <summary>
+        /// 播放声音。
+        /// </summary>
+        /// <param name="soundAsset">声音资源</param>
+        /// <param name="soundGroupName">声音组名称。</param>
+        /// <returns>声音的序列编号。</returns>
+        public int PlaySound(object soundAsset, string soundGroupName)
+        {
+            return m_SoundManager.PlaySound(soundAsset, soundGroupName,null,new PlaySoundInfo(null,Vector3.zero, null));
+        }
+        
+        /// <summary>
+        /// 播放声音。
+        /// </summary>
+        /// <param name="soundAsset">声音资源</param>
+        /// <param name="soundGroupName">声音组名称。</param>
+        /// <param name="priority">加载声音资源的优先级。</param>
+        /// <param name="playSoundParams">播放声音参数。</param>
+        /// <returns>声音的序列编号。</returns>
+        public int PlaySound(object soundAsset, string soundGroupName, int priority, PlaySoundParams playSoundParams)
+        {
+            return PlaySound(soundAsset, soundGroupName,priority,playSoundParams,null);
+        }
+        
+        /// <summary>
+        /// 播放声音
+        /// </summary>
+        /// <param name="soundAsset">声音资源</param>
+        /// <param name="soundGroupName">声音组名称。</param>
+        ///  /// <param name="priority">加载声音资源的优先级。</param>
+        /// <param name="playSoundParams">播放声音参数。</param>
+        /// <param name="userData">用户自定义数据。</param>
+        /// <returns>声音的序列编号。</returns>
+        /// <exception cref="GameFrameworkException"></exception>
+        public int PlaySound(object soundAsset, string soundGroupName,int priority, PlaySoundParams playSoundParams, object userData)
+        {
+            return PlaySound(soundAsset, soundGroupName,priority, playSoundParams, null, Vector3.zero, userData);
+        }
+
+        /// <summary>
+        /// 播放声音
+        /// </summary>
+        /// <param name="soundAsset">声音资源</param>
+        /// <param name="soundGroupName">声音组名称。</param>
+        /// <param name="priority">加载声音资源的优先级。</param>
+        /// <param name="playSoundParams">播放声音参数。</param>
+        /// <param name="userData">用户自定义数据。</param>
+        /// <returns>声音的序列编号。</returns>
+        /// <exception cref="GameFrameworkException"></exception>
+        public int PlaySound(object soundAsset, string soundGroupName, int priority, PlaySoundParams playSoundParams, Entity bindingEntity, Vector3  worldPosition,
+            object userData)
+        {
+            return m_SoundManager.PlaySound(soundAsset, soundGroupName, priority, playSoundParams,new PlaySoundInfo(null,worldPosition, userData));
+        }
 
         /// <summary>
         /// 停止播放声音。
