@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace Icarus.GameFramework.ObjectPool
 {
-    internal partial class ObjectPoolManager
+internal partial class ObjectPoolManager
     {
         /// <summary>
         /// 对象池。
@@ -19,6 +19,8 @@ namespace Icarus.GameFramework.ObjectPool
         private sealed class ObjectPool<T> : ObjectPoolBase, IObjectPool<T> where T : ObjectBase
         {
             private readonly LinkedList<Object<T>> m_Objects;
+            private readonly List<T> m_CachedCanReleaseObjects;
+            private readonly List<T> m_CachedToReleaseObjects;
             private readonly bool m_AllowMultiSpawn;
             private float m_AutoReleaseInterval;
             private int m_Capacity;
@@ -39,6 +41,8 @@ namespace Icarus.GameFramework.ObjectPool
                 : base(name)
             {
                 m_Objects = new LinkedList<Object<T>>();
+                m_CachedCanReleaseObjects = new List<T>();
+                m_CachedToReleaseObjects = new List<T>();
                 m_AllowMultiSpawn = allowMultiSpawn;
                 m_AutoReleaseInterval = autoReleaseInterval;
                 Capacity = capacity;
@@ -76,7 +80,7 @@ namespace Icarus.GameFramework.ObjectPool
             {
                 get
                 {
-                    return GetCanReleaseObjects().Count;
+                    return m_CachedCanReleaseObjects.Count;
                 }
             }
 
@@ -295,7 +299,7 @@ namespace Icarus.GameFramework.ObjectPool
                     }
                 }
 
-                throw new GameFrameworkException(string.Format("Can not find target in object pool '{0}'.", Utility.Text.GetFullName<T>(Name)));
+                throw new GameFrameworkException(Utility.Text.Format("Can not find target in object pool '{0}'.", Utility.Text.GetFullName<T>(Name)));
             }
 
             /// <summary>
@@ -335,7 +339,7 @@ namespace Icarus.GameFramework.ObjectPool
                     }
                 }
 
-                throw new GameFrameworkException(string.Format("Can not find target in object pool '{0}'.", Utility.Text.GetFullName<T>(Name)));
+                throw new GameFrameworkException(Utility.Text.Format("Can not find target in object pool '{0}'.", Utility.Text.GetFullName<T>(Name)));
             }
 
             /// <summary>
@@ -375,7 +379,7 @@ namespace Icarus.GameFramework.ObjectPool
                     }
                 }
 
-                throw new GameFrameworkException(string.Format("Can not find target in object pool '{0}'.", Utility.Text.GetFullName<T>(Name)));
+                throw new GameFrameworkException(Utility.Text.Format("Can not find target in object pool '{0}'.", Utility.Text.GetFullName<T>(Name)));
             }
 
             /// <summary>
@@ -428,8 +432,8 @@ namespace Icarus.GameFramework.ObjectPool
                     expireTime = DateTime.Now.AddSeconds(-m_ExpireTime);
                 }
 
-                LinkedList<T> canReleaseObjects = GetCanReleaseObjects();
-                LinkedList<T> toReleaseObjects = releaseObjectFilterCallback(canReleaseObjects, toReleaseCount, expireTime);
+                GetCanReleaseObjects(m_CachedCanReleaseObjects);
+                List<T> toReleaseObjects = releaseObjectFilterCallback(m_CachedCanReleaseObjects, toReleaseCount, expireTime);
                 if (toReleaseObjects == null || toReleaseObjects.Count <= 0)
                 {
                     return;
@@ -493,13 +497,13 @@ namespace Icarus.GameFramework.ObjectPool
             public override ObjectInfo[] GetAllObjectInfos()
             {
                 int index = 0;
-                ObjectInfo[] objectInfos = new ObjectInfo[m_Objects.Count];
+                ObjectInfo[] results = new ObjectInfo[m_Objects.Count];
                 foreach (Object<T> obj in m_Objects)
                 {
-                    objectInfos[index++] = new ObjectInfo(obj.Name, obj.Locked, obj.Priority, obj.LastUseTime, obj.SpawnCount);
+                    results[index++] = new ObjectInfo(obj.Name, obj.Locked, obj.CustomCanReleaseFlag, obj.Priority, obj.LastUseTime, obj.SpawnCount);
                 }
 
-                return objectInfos;
+                return results;
             }
 
             internal override void Update(float elapseSeconds, float realElapseSeconds)
@@ -528,10 +532,14 @@ namespace Icarus.GameFramework.ObjectPool
                 }
             }
 
-            private LinkedList<T> GetCanReleaseObjects()
+            private void GetCanReleaseObjects(List<T> results)
             {
-                LinkedList<T> canReleaseObjects = new LinkedList<T>();
+                if (results == null)
+                {
+                    throw new GameFrameworkException("Results is invalid.");
+                }
 
+                results.Clear();
                 foreach (Object<T> obj in m_Objects)
                 {
                     if (obj.IsInUse || obj.Locked || !obj.CustomCanReleaseFlag)
@@ -539,54 +547,47 @@ namespace Icarus.GameFramework.ObjectPool
                         continue;
                     }
 
-                    canReleaseObjects.AddLast(obj.Peek());
+                    results.Add(obj.Peek());
                 }
-
-                return canReleaseObjects;
             }
 
-            private LinkedList<T> DefaultReleaseObjectFilterCallback(LinkedList<T> candidateObjects, int toReleaseCount, DateTime expireTime)
+            private List<T> DefaultReleaseObjectFilterCallback(List<T> candidateObjects, int toReleaseCount, DateTime expireTime)
             {
-                LinkedList<T> toReleaseObjects = new LinkedList<T>();
+                m_CachedToReleaseObjects.Clear();
 
                 if (expireTime > DateTime.MinValue)
                 {
-                    LinkedListNode<T> current = candidateObjects.First;
-                    while (current != null)
+                    for (int i = candidateObjects.Count - 1; i >= 0; i--)
                     {
-                        if (current.Value.LastUseTime <= expireTime)
+                        if (candidateObjects[i].LastUseTime <= expireTime)
                         {
-                            toReleaseObjects.AddLast(current.Value);
-                            LinkedListNode<T> next = current.Next;
-                            candidateObjects.Remove(current);
-                            current = next;
+                            m_CachedToReleaseObjects.Add(candidateObjects[i]);
+                            candidateObjects.RemoveAt(i);
                             continue;
                         }
-
-                        current = current.Next;
                     }
 
-                    toReleaseCount -= toReleaseObjects.Count;
+                    toReleaseCount -= m_CachedToReleaseObjects.Count;
                 }
 
-                for (LinkedListNode<T> i = candidateObjects.First; toReleaseCount > 0 && i != null; i = i.Next)
+                for (int i = 0; toReleaseCount > 0 && i < candidateObjects.Count; i++)
                 {
-                    for (LinkedListNode<T> j = i.Next; j != null; j = j.Next)
+                    for (int j = i + 1; j < candidateObjects.Count; j++)
                     {
-                        if (i.Value.Priority > j.Value.Priority || i.Value.Priority == j.Value.Priority && i.Value.LastUseTime > j.Value.LastUseTime)
+                        if (candidateObjects[i].Priority > candidateObjects[j].Priority
+                            || candidateObjects[i].Priority == candidateObjects[j].Priority && candidateObjects[i].LastUseTime > candidateObjects[j].LastUseTime)
                         {
-                            T temp = i.Value;
-                            i.Value = j.Value;
-                            j.Value = temp;
+                            T temp = candidateObjects[i];
+                            candidateObjects[i] = candidateObjects[j];
+                            candidateObjects[j] = temp;
                         }
                     }
 
-                    toReleaseObjects.AddLast(i.Value);
+                    m_CachedToReleaseObjects.Add(candidateObjects[i]);
                     toReleaseCount--;
                 }
 
-                return toReleaseObjects;
+                return m_CachedToReleaseObjects;
             }
-        }
     }
 }

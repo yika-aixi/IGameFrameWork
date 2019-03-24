@@ -26,6 +26,7 @@ namespace Icarus.GameFramework.Resource
             private IObjectPool<AssetObject> m_AssetPool;
             private IObjectPool<ResourceObject> m_ResourcePool;
             private EventHandler<LoadAssetsCompleteEventArgs> _loadAssetsCompleteEvent;
+
             /// <summary>
             /// 初始化加载资源器的新实例。
             /// </summary>
@@ -46,10 +47,7 @@ namespace Icarus.GameFramework.Resource
             /// </summary>
             public int TotalAgentCount
             {
-                get
-                {
-                    return m_TaskPool.TotalAgentCount;
-                }
+                get { return m_TaskPool.TotalAgentCount; }
             }
 
             /// <summary>
@@ -57,10 +55,7 @@ namespace Icarus.GameFramework.Resource
             /// </summary>
             public int FreeAgentCount
             {
-                get
-                {
-                    return m_TaskPool.FreeAgentCount;
-                }
+                get { return m_TaskPool.FreeAgentCount; }
             }
 
             /// <summary>
@@ -68,10 +63,7 @@ namespace Icarus.GameFramework.Resource
             /// </summary>
             public int WorkingAgentCount
             {
-                get
-                {
-                    return m_TaskPool.WorkingAgentCount;
-                }
+                get { return m_TaskPool.WorkingAgentCount; }
             }
 
             /// <summary>
@@ -79,10 +71,7 @@ namespace Icarus.GameFramework.Resource
             /// </summary>
             public int WaitingTaskCount
             {
-                get
-                {
-                    return m_TaskPool.WaitingTaskCount;
-                }
+                get { return m_TaskPool.WaitingTaskCount; }
             }
 
             /// <summary>
@@ -90,14 +79,8 @@ namespace Icarus.GameFramework.Resource
             /// </summary>
             public float AssetAutoReleaseInterval
             {
-                get
-                {
-                    return m_AssetPool.AutoReleaseInterval;
-                }
-                set
-                {
-                    m_AssetPool.AutoReleaseInterval = value;
-                }
+                get { return m_AssetPool.AutoReleaseInterval; }
+                set { m_AssetPool.AutoReleaseInterval = value; }
             }
 
             /// <summary>
@@ -105,14 +88,8 @@ namespace Icarus.GameFramework.Resource
             /// </summary>
             public int AssetCapacity
             {
-                get
-                {
-                    return m_AssetPool.Capacity;
-                }
-                set
-                {
-                    m_AssetPool.Capacity = value;
-                }
+                get { return m_AssetPool.Capacity; }
+                set { m_AssetPool.Capacity = value; }
             }
 
             /// <summary>
@@ -120,14 +97,8 @@ namespace Icarus.GameFramework.Resource
             /// </summary>
             public float AssetExpireTime
             {
-                get
-                {
-                    return m_AssetPool.ExpireTime;
-                }
-                set
-                {
-                    m_AssetPool.ExpireTime = value;
-                }
+                get { return m_AssetPool.ExpireTime; }
+                set { m_AssetPool.ExpireTime = value; }
             }
 
             /// <summary>
@@ -135,14 +106,8 @@ namespace Icarus.GameFramework.Resource
             /// </summary>
             public int AssetPriority
             {
-                get
-                {
-                    return m_AssetPool.Priority;
-                }
-                set
-                {
-                    m_AssetPool.Priority = value;
-                }
+                get { return m_AssetPool.Priority; }
+                set { m_AssetPool.Priority = value; }
             }
 
             /// <summary>
@@ -150,14 +115,8 @@ namespace Icarus.GameFramework.Resource
             /// </summary>
             public float ResourceAutoReleaseInterval
             {
-                get
-                {
-                    return m_ResourcePool.AutoReleaseInterval;
-                }
-                set
-                {
-                    m_ResourcePool.AutoReleaseInterval = value;
-                }
+                get { return m_ResourcePool.AutoReleaseInterval; }
+                set { m_ResourcePool.AutoReleaseInterval = value; }
             }
 
             /// <summary>
@@ -165,14 +124,8 @@ namespace Icarus.GameFramework.Resource
             /// </summary>
             public int ResourceCapacity
             {
-                get
-                {
-                    return m_ResourcePool.Capacity;
-                }
-                set
-                {
-                    m_ResourcePool.Capacity = value;
-                }
+                get { return m_ResourcePool.Capacity; }
+                set { m_ResourcePool.Capacity = value; }
             }
 
             /// <summary>
@@ -180,14 +133,8 @@ namespace Icarus.GameFramework.Resource
             /// </summary>
             public float ResourceExpireTime
             {
-                get
-                {
-                    return m_ResourcePool.ExpireTime;
-                }
-                set
-                {
-                    m_ResourcePool.ExpireTime = value;
-                }
+                get { return m_ResourcePool.ExpireTime; }
+                set { m_ResourcePool.ExpireTime = value; }
             }
 
             /// <summary>
@@ -195,14 +142,8 @@ namespace Icarus.GameFramework.Resource
             /// </summary>
             public int ResourcePriority
             {
-                get
-                {
-                    return m_ResourcePool.Priority;
-                }
-                set
-                {
-                    m_ResourcePool.Priority = value;
-                }
+                get { return m_ResourcePool.Priority; }
+                set { m_ResourcePool.Priority = value; }
             }
 
             /// <summary>
@@ -210,14 +151,8 @@ namespace Icarus.GameFramework.Resource
             /// </summary>
             public event EventHandler<LoadAssetsCompleteEventArgs> LoadAssetsComplete
             {
-                add
-                {
-                    _loadAssetsCompleteEvent += value;
-                }
-                remove
-                {
-                    _loadAssetsCompleteEvent -= value;
-                }
+                add { _loadAssetsCompleteEvent += value; }
+                remove { _loadAssetsCompleteEvent -= value; }
             }
 
             /// <summary>
@@ -241,7 +176,8 @@ namespace Icarus.GameFramework.Resource
                         _startLoadAssets = false;
 
                         _loadAssetsCompleteEvent(this,
-                            new LoadAssetsCompleteEventArgs(_assetNames.ToArray(), _assets.ToArray(), _duration, _userData));
+                            new LoadAssetsCompleteEventArgs(_assetNames.ToArray(), _assets.ToArray(), _duration,
+                                _userData));
 
                         _clerCache();
                     }
@@ -277,14 +213,18 @@ namespace Icarus.GameFramework.Resource
             /// <param name="readOnlyPath">资源只读区路径。</param>
             /// <param name="readWritePath">资源读写区路径。</param>
             /// <param name="decryptResourceCallback">要设置的解密资源回调函数。</param>
-            public void AddLoadResourceAgentHelper(ILoadResourceAgentHelper loadResourceAgentHelper, IResourceHelper resourceHelper, string readOnlyPath, string readWritePath, DecryptResourceCallback decryptResourceCallback)
+            public void AddLoadResourceAgentHelper(ILoadResourceAgentHelper loadResourceAgentHelper,
+                IResourceHelper resourceHelper, string readOnlyPath, string readWritePath,
+                DecryptResourceCallback decryptResourceCallback)
             {
                 if (m_AssetPool == null || m_ResourcePool == null)
                 {
                     throw new GameFrameworkException("You must set object pool manager first.");
                 }
 
-                LoadResourceAgent agent = new LoadResourceAgent(loadResourceAgentHelper, resourceHelper, m_AssetPool, m_ResourcePool, this, readOnlyPath, readWritePath, decryptResourceCallback ?? DefaultDecryptResourceCallback);
+                LoadResourceAgent agent = new LoadResourceAgent(loadResourceAgentHelper, resourceHelper, m_AssetPool,
+                    m_ResourcePool, this, readOnlyPath, readWritePath,
+                    decryptResourceCallback ?? DefaultDecryptResourceCallback);
                 m_TaskPool.AddAgent(agent);
             }
 
@@ -311,34 +251,42 @@ namespace Icarus.GameFramework.Resource
             /// <param name="priority">加载资源的优先级。</param>
             /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
             /// <param name="userData">用户自定义数据。</param>
-            public void LoadAsset(string assetName, Type assetType, int priority, LoadAssetCallbacks loadAssetCallbacks, object userData)
+            public void LoadAsset(string assetName, Type assetType, int priority, LoadAssetCallbacks loadAssetCallbacks,
+                object userData)
             {
                 ResourceInfo? resourceInfo = null;
                 string resourceChildName = null;
                 string[] dependencyAssetNames = null;
                 string[] scatteredDependencyAssetNames = null;
 
-                if (!CheckAsset(assetName, out resourceInfo, out resourceChildName, out dependencyAssetNames, out scatteredDependencyAssetNames))
+                if (!CheckAsset(assetName, out resourceInfo, out resourceChildName, out dependencyAssetNames,
+                    out scatteredDependencyAssetNames))
                 {
                     string errorMessage = string.Format("Can not load asset '{0}'.", assetName);
                     if (loadAssetCallbacks.LoadAssetFailureCallback != null)
                     {
-                        loadAssetCallbacks.LoadAssetFailureCallback(assetName, LoadResourceStatus.NotReady, errorMessage, userData);
+                        loadAssetCallbacks.LoadAssetFailureCallback(assetName, LoadResourceStatus.NotReady,
+                            errorMessage, userData);
                         return;
                     }
 
                     throw new GameFrameworkException(errorMessage);
                 }
 
-                LoadAssetTask mainTask = new LoadAssetTask(assetName, assetType, priority, resourceInfo.Value, resourceChildName, dependencyAssetNames, scatteredDependencyAssetNames, loadAssetCallbacks, userData);
+                LoadAssetTask mainTask = new LoadAssetTask(assetName, assetType, priority, resourceInfo.Value,
+                    resourceChildName, dependencyAssetNames, scatteredDependencyAssetNames, loadAssetCallbacks,
+                    userData);
                 foreach (string dependencyAssetName in dependencyAssetNames)
                 {
                     if (!LoadDependencyAsset(dependencyAssetName, priority, mainTask, userData))
                     {
-                        string errorMessage = string.Format("Can not load dependency asset '{0}' when load asset '{1}'.", dependencyAssetName, assetName);
+                        string errorMessage =
+                            string.Format("Can not load dependency asset '{0}' when load asset '{1}'.",
+                                dependencyAssetName, assetName);
                         if (loadAssetCallbacks.LoadAssetFailureCallback != null)
                         {
-                            loadAssetCallbacks.LoadAssetFailureCallback(assetName, LoadResourceStatus.DependencyError, errorMessage, userData);
+                            loadAssetCallbacks.LoadAssetFailureCallback(assetName, LoadResourceStatus.DependencyError,
+                                errorMessage, userData);
                             return;
                         }
 
@@ -359,9 +307,10 @@ namespace Icarus.GameFramework.Resource
             /// <param name="loadAssetsSuccessCallback">资源列表加载完成回调</param>
             /// <param name="loadAssetCallbacks">加载资源回调函数集。</param>
             /// <param name="userData">用户自定义数据。</param>
-            public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,LoadAssetCallbacks loadAssetCallbacks, object userData)
+            public void LoadAssets(IEnumerable<string> assetNames, Type assetType, int priority,
+                LoadAssetCallbacks loadAssetCallbacks, object userData)
             {
-                LoadAssets(assetNames, new[] { assetType }, new[] { priority }, loadAssetCallbacks, userData);
+                LoadAssets(assetNames, new[] {assetType}, new[] {priority}, loadAssetCallbacks, userData);
             }
 
             private bool _startLoadAssets;
@@ -369,6 +318,7 @@ namespace Icarus.GameFramework.Resource
             readonly List<object> _assets = new List<object>();
             private float _duration;
             private object _userData;
+
             /// <summary>
             /// 异步加载资源列表。
             /// </summary>
@@ -416,12 +366,13 @@ namespace Icarus.GameFramework.Resource
 
                     LoadAsset(assetName, type, priority,
                         new LoadAssetCallbacks((name, asset, duration, data) =>
-                        {
-                            _assetNames.Add(name);
-                            _assets.Add(asset);
-                            _duration += duration;
-                            loadAssetCallbacks.LoadAssetSuccessCallback(assetName, asset, duration, userData);
-                        }, loadAssetCallbacks.LoadAssetFailureCallback, loadAssetCallbacks.LoadAssetUpdateCallback, loadAssetCallbacks.LoadAssetDependencyAssetCallback), userData);
+                            {
+                                _assetNames.Add(name);
+                                _assets.Add(asset);
+                                _duration += duration;
+                                loadAssetCallbacks.LoadAssetSuccessCallback(assetName, asset, duration, userData);
+                            }, loadAssetCallbacks.LoadAssetFailureCallback, loadAssetCallbacks.LoadAssetUpdateCallback,
+                            loadAssetCallbacks.LoadAssetDependencyAssetCallback), userData);
 
                     i++;
                 }
@@ -450,34 +401,42 @@ namespace Icarus.GameFramework.Resource
             /// <param name="priority">加载场景资源的优先级。</param>
             /// <param name="loadSceneCallbacks">加载场景回调函数集。</param>
             /// <param name="userData">用户自定义数据。</param>
-            public void LoadScene(string sceneAssetName, int priority, LoadSceneCallbacks loadSceneCallbacks, object userData)
+            public void LoadScene(string sceneAssetName, int priority, LoadSceneCallbacks loadSceneCallbacks,
+                object userData)
             {
                 ResourceInfo? resourceInfo = null;
                 string resourceChildName = null;
                 string[] dependencyAssetNames = null;
                 string[] scatteredDependencyAssetNames = null;
 
-                if (!CheckAsset(sceneAssetName, out resourceInfo, out resourceChildName, out dependencyAssetNames, out scatteredDependencyAssetNames))
+                if (!CheckAsset(sceneAssetName, out resourceInfo, out resourceChildName, out dependencyAssetNames,
+                    out scatteredDependencyAssetNames))
                 {
                     string errorMessage = string.Format("Can not load scene '{0}'.", sceneAssetName);
                     if (loadSceneCallbacks.LoadSceneFailureCallback != null)
                     {
-                        loadSceneCallbacks.LoadSceneFailureCallback(sceneAssetName, LoadResourceStatus.NotReady, errorMessage, userData);
+                        loadSceneCallbacks.LoadSceneFailureCallback(sceneAssetName, LoadResourceStatus.NotReady,
+                            errorMessage, userData);
                         return;
                     }
 
                     throw new GameFrameworkException(errorMessage);
                 }
 
-                LoadSceneTask mainTask = new LoadSceneTask(sceneAssetName, priority, resourceInfo.Value, resourceChildName, dependencyAssetNames, scatteredDependencyAssetNames, loadSceneCallbacks, userData);
+                LoadSceneTask mainTask = new LoadSceneTask(sceneAssetName, priority, resourceInfo.Value,
+                    resourceChildName, dependencyAssetNames, scatteredDependencyAssetNames, loadSceneCallbacks,
+                    userData);
                 foreach (string dependencyAssetName in dependencyAssetNames)
                 {
                     if (!LoadDependencyAsset(dependencyAssetName, priority, mainTask, userData))
                     {
-                        string errorMessage = string.Format("Can not load dependency asset '{0}' when load scene '{1}'.", dependencyAssetName, sceneAssetName);
+                        string errorMessage =
+                            string.Format("Can not load dependency asset '{0}' when load scene '{1}'.",
+                                dependencyAssetName, sceneAssetName);
                         if (loadSceneCallbacks.LoadSceneFailureCallback != null)
                         {
-                            loadSceneCallbacks.LoadSceneFailureCallback(sceneAssetName, LoadResourceStatus.DependencyError, errorMessage, userData);
+                            loadSceneCallbacks.LoadSceneFailureCallback(sceneAssetName,
+                                LoadResourceStatus.DependencyError, errorMessage, userData);
                             return;
                         }
 
@@ -509,13 +468,15 @@ namespace Icarus.GameFramework.Resource
                 }
                 else
                 {
-                    throw new GameFrameworkException(string.Format("Can not find asset of scene '{0}'.", sceneAssetName));
+                    throw new GameFrameworkException(
+                        string.Format("Can not find asset of scene '{0}'.", sceneAssetName));
                 }
 
                 m_ResourceManager.m_ResourceHelper.UnloadScene(sceneAssetName, unloadSceneCallbacks, userData);
             }
 
-            private bool LoadDependencyAsset(string assetName, int priority, LoadResourceTaskBase mainTask, object userData)
+            private bool LoadDependencyAsset(string assetName, int priority, LoadResourceTaskBase mainTask,
+                object userData)
             {
                 if (mainTask == null)
                 {
@@ -527,18 +488,22 @@ namespace Icarus.GameFramework.Resource
                 string[] dependencyAssetNames = null;
                 string[] scatteredDependencyAssetNames = null;
 
-                if (!CheckAsset(assetName, out resourceInfo, out resourceChildName, out dependencyAssetNames, out scatteredDependencyAssetNames))
+                if (!CheckAsset(assetName, out resourceInfo, out resourceChildName, out dependencyAssetNames,
+                    out scatteredDependencyAssetNames))
                 {
                     Log.Debug("Can not load asset '{0}'.", assetName);
                     return false;
                 }
 
-                LoadDependencyAssetTask dependencyTask = new LoadDependencyAssetTask(assetName, priority, resourceInfo.Value, resourceChildName, dependencyAssetNames, scatteredDependencyAssetNames, mainTask, userData);
+                LoadDependencyAssetTask dependencyTask = new LoadDependencyAssetTask(assetName, priority,
+                    resourceInfo.Value, resourceChildName, dependencyAssetNames, scatteredDependencyAssetNames,
+                    mainTask, userData);
                 foreach (string dependencyAssetName in dependencyAssetNames)
                 {
                     if (!LoadDependencyAsset(dependencyAssetName, priority, dependencyTask, userData))
                     {
-                        Log.Debug("Can not load dependency asset '{0}' when load dependency asset '{1}'.", dependencyAssetName, assetName);
+                        Log.Debug("Can not load dependency asset '{0}' when load dependency asset '{1}'.",
+                            dependencyAssetName, assetName);
                         return false;
                     }
                 }
@@ -547,7 +512,8 @@ namespace Icarus.GameFramework.Resource
                 return true;
             }
 
-            private bool CheckAsset(string assetName, out ResourceInfo? resourceInfo, out string resourceChildName, out string[] dependencyAssetNames, out string[] scatteredDependencyAssetNames)
+            private bool CheckAsset(string assetName, out ResourceInfo? resourceInfo, out string resourceChildName,
+                out string[] dependencyAssetNames, out string[] scatteredDependencyAssetNames)
             {
                 resourceInfo = null;
                 resourceChildName = null;
@@ -571,13 +537,7 @@ namespace Icarus.GameFramework.Resource
                     return false;
                 }
 
-                int childNamePosition = assetName.LastIndexOf('/');
-                if (childNamePosition + 1 >= assetName.Length)
-                {
-                    return false;
-                }
-
-                resourceChildName = assetName.Substring(childNamePosition + 1);
+                resourceChildName = assetInfo.Value.ResourceChildName;
 
                 AssetDependencyInfo? assetDependencyInfo = m_ResourceManager.GetAssetDependencyInfo(assetName);
                 if (assetDependencyInfo.HasValue)
@@ -589,14 +549,15 @@ namespace Icarus.GameFramework.Resource
                 return true;
             }
 
-            private byte[] DefaultDecryptResourceCallback(string name, string variant, int loadType, int length, int hashCode, bool storageInReadOnly, byte[] bytes)
+            private byte[] DefaultDecryptResourceCallback(string name, string variant, int loadType, int length,
+                int hashCode, bool storageInReadOnly, byte[] bytes)
             {
-                switch ((LoadType)loadType)
+                switch ((LoadType) loadType)
                 {
                     case LoadType.LoadFromMemoryAndQuickDecrypt:
-                        return Icarus.GameFramework.Utility.Encryption.GetQuickXorBytes(bytes, Icarus.GameFramework.Utility.Converter.GetBytes(hashCode));
+                        return Utility.Encryption.GetQuickSelfXorBytes(bytes, Utility.Converter.GetBytes(hashCode));
                     case LoadType.LoadFromMemoryAndDecrypt:
-                        return Icarus.GameFramework.Utility.Encryption.GetXorBytes(bytes, Icarus.GameFramework.Utility.Converter.GetBytes(hashCode));
+                        return Utility.Encryption.GetSelfXorBytes(bytes, Utility.Converter.GetBytes(hashCode));
                     default:
                         return bytes;
                 }

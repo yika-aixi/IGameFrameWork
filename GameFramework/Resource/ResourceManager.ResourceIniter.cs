@@ -95,7 +95,7 @@ namespace Icarus.GameFramework.Resource
                         byte[] encryptBytes = binaryReader.ReadBytes(4);
                         byte[] packVersionInfo = binaryReader.ReadBytes(bytes.Length - 4);
                         string str = Icarus.GameFramework.Utility.Converter.GetString(
-                            Icarus.GameFramework.Utility.Encryption.GetXorBytes(packVersionInfo, encryptBytes));
+                            Icarus.GameFramework.Utility.Encryption.GetSelfXorBytes(packVersionInfo, encryptBytes));
                         var packs = str.Split('|');
                         //todo 测试
                         foreach (var pack in packs)
@@ -198,14 +198,14 @@ namespace Icarus.GameFramework.Resource
                             byte[] encryptBytes = binaryReader.ReadBytes(4);
                             var applicableGameVersionLenght = binaryReader.ReadByte();
                             m_ResourceManager.m_ApplicableGameVersion =
-                                Icarus.GameFramework.Utility.Converter.GetString(Icarus.GameFramework.Utility.Encryption.GetXorBytes(binaryReader.ReadBytes(applicableGameVersionLenght), encryptBytes));
+                                Icarus.GameFramework.Utility.Converter.GetString(Icarus.GameFramework.Utility.Encryption.GetSelfXorBytes(binaryReader.ReadBytes(applicableGameVersionLenght), encryptBytes));
                             m_ResourceManager.m_InternalResourceVersion = binaryReader.ReadInt32();
 
                             var ABNameCount = binaryReader.ReadByte();
-                            string ABName = Icarus.GameFramework.Utility.Converter.GetString(Icarus.GameFramework.Utility.Encryption.GetXorBytes(binaryReader.ReadBytes(ABNameCount), encryptBytes));
+                            string ABName = Icarus.GameFramework.Utility.Converter.GetString(Icarus.GameFramework.Utility.Encryption.GetSelfXorBytes(binaryReader.ReadBytes(ABNameCount), encryptBytes));
 
                             var ABGroupTagCount = binaryReader.ReadInt32();
-                            string ABGroupTag = Icarus.GameFramework.Utility.Converter.GetString(Icarus.GameFramework.Utility.Encryption.GetXorBytes(binaryReader.ReadBytes(ABGroupTagCount), encryptBytes));
+                            string ABGroupTag = Icarus.GameFramework.Utility.Converter.GetString(Icarus.GameFramework.Utility.Encryption.GetSelfXorBytes(binaryReader.ReadBytes(ABGroupTagCount), encryptBytes));
 
                             _assetGroupAdd(ABGroupTag, ABName);
                             
@@ -216,7 +216,7 @@ namespace Icarus.GameFramework.Resource
                             byte variantLength = binaryReader.ReadByte();
                             if (variantLength > 0)
                             {
-                                variant = Icarus.GameFramework.Utility.Converter.GetString(Icarus.GameFramework.Utility.Encryption.GetXorBytes(binaryReader.ReadBytes(variantLength), encryptBytes));
+                                variant = Icarus.GameFramework.Utility.Converter.GetString(Icarus.GameFramework.Utility.Encryption.GetSelfXorBytes(binaryReader.ReadBytes(variantLength), encryptBytes));
                             }
 
                             LoadType loadType = (LoadType)binaryReader.ReadByte();
@@ -227,13 +227,13 @@ namespace Icarus.GameFramework.Resource
                             string[] assetNames = new string[assetNamesCount];
                             for (int j = 0; j < assetNamesCount; j++)
                             {
-                                assetNames[j] = Icarus.GameFramework.Utility.Converter.GetString(Icarus.GameFramework.Utility.Encryption.GetXorBytes(binaryReader.ReadBytes(binaryReader.ReadByte()), Icarus.GameFramework.Utility.Converter.GetBytes(hashCode)));
+                                assetNames[j] = Icarus.GameFramework.Utility.Converter.GetString(Icarus.GameFramework.Utility.Encryption.GetSelfXorBytes(binaryReader.ReadBytes(binaryReader.ReadByte()), Icarus.GameFramework.Utility.Converter.GetBytes(hashCode)));
                                 _addAssetName(ABName,assetNames[j]);
                                 int dependencyAssetNamesCount = binaryReader.ReadInt32();
                                 string[] dependencyAssetNames = new string[dependencyAssetNamesCount];
                                 for (int k = 0; k < dependencyAssetNamesCount; k++)
                                 {
-                                    dependencyAssetNames[k] = Icarus.GameFramework.Utility.Converter.GetString(Icarus.GameFramework.Utility.Encryption.GetXorBytes(binaryReader.ReadBytes(binaryReader.ReadByte()), Icarus.GameFramework.Utility.Converter.GetBytes(hashCode)));
+                                    dependencyAssetNames[k] = Icarus.GameFramework.Utility.Converter.GetString(Icarus.GameFramework.Utility.Encryption.GetSelfXorBytes(binaryReader.ReadBytes(binaryReader.ReadByte()), Icarus.GameFramework.Utility.Converter.GetBytes(hashCode)));
                                 }
 
                                 if (variant == null || variant == m_CurrentVariant)
@@ -374,13 +374,19 @@ namespace Icarus.GameFramework.Resource
             {
                 foreach (string assetName in assetNames)
                 {
+                    int childNamePosition = assetName.LastIndexOf('/');
+                    if (childNamePosition < 0 || childNamePosition + 1 >= assetName.Length)
+                    {
+                        throw new GameFrameworkException(string.Format("Asset name '{0}' is invalid.", assetName));
+                    }
+                    
                     if (m_ResourceManager.m_AssetInfos.ContainsKey(assetName))
                     {
-                        m_ResourceManager.m_AssetInfos[assetName] = new AssetInfo(assetName, resourceName);
+                        m_ResourceManager.m_AssetInfos[assetName] = new AssetInfo(assetName, resourceName,assetName.Substring(childNamePosition + 1));
                     }
                     else
                     {
-                        m_ResourceManager.m_AssetInfos.Add(assetName, new AssetInfo(assetName, resourceName));
+                        m_ResourceManager.m_AssetInfos.Add(assetName, new AssetInfo(assetName, resourceName,assetName.Substring(childNamePosition + 1)));
                     }
                 }
             }
