@@ -422,13 +422,18 @@ namespace Icarus.GameFramework.DataTable
             /// 增加数据表行。
             /// </summary>
             /// <param name="dataRowSegment">要解析的数据表行片段。</param>
-            internal override void AddDataRow(GameFrameworkSegment<string> dataRowSegment)
+            internal override bool AddDataRow(GameFrameworkSegment<string> dataRowSegment)
             {
                 try
                 {
                     T dataRow = new T();
-                    dataRow.ParseDataRow(dataRowSegment);
+                    if (!dataRow.ParseDataRow(dataRowSegment))
+                    {
+                        return false;
+                    }
+
                     InternalAddDataRow(dataRow);
+                    return true;
                 }
                 catch (Exception exception)
                 {
@@ -447,13 +452,18 @@ namespace Icarus.GameFramework.DataTable
             /// 增加数据表行。
             /// </summary>
             /// <param name="dataRowSegment">要解析的数据表行片段。</param>
-            internal override void AddDataRow(GameFrameworkSegment<byte[]> dataRowSegment)
+            internal override bool AddDataRow(GameFrameworkSegment<byte[]> dataRowSegment)
             {
                 try
                 {
                     T dataRow = new T();
-                    dataRow.ParseDataRow(dataRowSegment);
+                    if (!dataRow.ParseDataRow(dataRowSegment))
+                    {
+                        return false;
+                    }
+
                     InternalAddDataRow(dataRow);
+                    return true;
                 }
                 catch (Exception exception)
                 {
@@ -472,13 +482,18 @@ namespace Icarus.GameFramework.DataTable
             /// 增加数据表行。
             /// </summary>
             /// <param name="dataRowSegment">要解析的数据表行片段。</param>
-            internal override void AddDataRow(GameFrameworkSegment<Stream> dataRowSegment)
+            internal override bool AddDataRow(GameFrameworkSegment<Stream> dataRowSegment)
             {
                 try
                 {
                     T dataRow = new T();
-                    dataRow.ParseDataRow(dataRowSegment);
+                    if (!dataRow.ParseDataRow(dataRowSegment))
+                    {
+                        return false;
+                    }
+
                     InternalAddDataRow(dataRow);
+                    return true;
                 }
                 catch (Exception exception)
                 {

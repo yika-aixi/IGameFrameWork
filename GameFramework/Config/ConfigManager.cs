@@ -218,9 +218,9 @@ namespace Icarus.GameFramework.Config
         /// </summary>
         /// <param name="text">要解析的配置文本。</param>
         /// <returns>是否解析配置成功。</returns>
-        public void ParseConfig(string text)
+        public bool ParseConfig(string text)
         {
-            ParseConfig(text, null);
+            return ParseConfig(text, null);
         }
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace Icarus.GameFramework.Config
         /// <param name="text">要解析的配置文本。</param>
         /// <param name="userData">用户自定义数据。</param>
         /// <returns>是否解析配置成功。</returns>
-        public void ParseConfig(string text, object userData)
+        public bool ParseConfig(string text, object userData)
         {
             if (m_ConfigHelper == null)
             {
@@ -238,7 +238,7 @@ namespace Icarus.GameFramework.Config
 
             try
             {
-                m_ConfigHelper.ParseConfig(text, userData);
+                return m_ConfigHelper.ParseConfig(text, userData);
             }
             catch (Exception exception)
             {
@@ -256,9 +256,9 @@ namespace Icarus.GameFramework.Config
         /// </summary>
         /// <param name="bytes">要解析的配置二进制流。</param>
         /// <returns>是否解析配置成功。</returns>
-        public void ParseConfig(byte[] bytes)
+        public bool ParseConfig(byte[] bytes)
         {
-            ParseConfig(bytes, null);
+            return ParseConfig(bytes, null);
         }
 
         /// <summary>
@@ -267,7 +267,7 @@ namespace Icarus.GameFramework.Config
         /// <param name="bytes">要解析的配置二进制流。</param>
         /// <param name="userData">用户自定义数据。</param>
         /// <returns>是否解析配置成功。</returns>
-        public void ParseConfig(byte[] bytes, object userData)
+        public bool ParseConfig(byte[] bytes, object userData)
         {
             if (m_ConfigHelper == null)
             {
@@ -276,7 +276,7 @@ namespace Icarus.GameFramework.Config
 
             try
             {
-                m_ConfigHelper.ParseConfig(bytes, userData);
+                return m_ConfigHelper.ParseConfig(bytes, userData);
             }
             catch (Exception exception)
             {
@@ -294,9 +294,9 @@ namespace Icarus.GameFramework.Config
         /// </summary>
         /// <param name="stream">要解析的配置二进制流。</param>
         /// <returns>是否解析配置成功。</returns>
-        public void ParseConfig(Stream stream)
+        public bool ParseConfig(Stream stream)
         {
-            ParseConfig(stream, null);
+            return ParseConfig(stream, null);
         }
 
         /// <summary>
@@ -305,7 +305,7 @@ namespace Icarus.GameFramework.Config
         /// <param name="stream">要解析的配置二进制流。</param>
         /// <param name="userData">用户自定义数据。</param>
         /// <returns>是否解析配置成功。</returns>
-        public void ParseConfig(Stream stream, object userData)
+        public bool ParseConfig(Stream stream, object userData)
         {
             if (m_ConfigHelper == null)
             {
@@ -314,7 +314,7 @@ namespace Icarus.GameFramework.Config
 
             try
             {
-                m_ConfigHelper.ParseConfig(stream, userData);
+                return m_ConfigHelper.ParseConfig(stream, userData);
             }
             catch (Exception exception)
             {

@@ -97,19 +97,19 @@ namespace Icarus.GameFramework.DataTable
         /// 增加数据表行。
         /// </summary>
         /// <param name="dataRowSegment">要解析的数据表行片段。</param>
-        internal abstract void AddDataRow(GameFrameworkSegment<string> dataRowSegment);
+        internal abstract bool AddDataRow(GameFrameworkSegment<string> dataRowSegment);
 
         /// <summary>
         /// 增加数据表行。
         /// </summary>
         /// <param name="dataRowSegment">要解析的数据表行片段。</param>
-        internal abstract void AddDataRow(GameFrameworkSegment<byte[]> dataRowSegment);
+        internal abstract bool AddDataRow(GameFrameworkSegment<byte[]> dataRowSegment);
 
         /// <summary>
         /// 增加数据表行。
         /// </summary>
         /// <param name="dataRowSegment">要解析的数据表行片段。</param>
-        internal abstract void AddDataRow(GameFrameworkSegment<Stream> dataRowSegment);
+        internal abstract bool AddDataRow(GameFrameworkSegment<Stream> dataRowSegment);
 
         
         /// <summary>

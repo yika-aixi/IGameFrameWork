@@ -256,9 +256,9 @@ namespace Icarus.GameFramework.Localization
         /// </summary>
         /// <param name="text">要解析的字典文本。</param>
         /// <returns>是否解析字典成功。</returns>
-        public void ParseDictionary(string text)
+        public bool ParseDictionary(string text)
         {
-            ParseDictionary(text, null);
+            return ParseDictionary(text, null);
         }
 
         /// <summary>
@@ -267,7 +267,7 @@ namespace Icarus.GameFramework.Localization
         /// <param name="text">要解析的字典文本。</param>
         /// <param name="userData">用户自定义数据。</param>
         /// <returns>是否解析字典成功。</returns>
-        public void ParseDictionary(string text, object userData)
+        public bool ParseDictionary(string text, object userData)
         {
             if (m_LocalizationHelper == null)
             {
@@ -276,7 +276,7 @@ namespace Icarus.GameFramework.Localization
 
             try
             {
-                m_LocalizationHelper.ParseDictionary(text, userData);
+                return m_LocalizationHelper.ParseDictionary(text, userData);
             }
             catch (Exception exception)
             {
@@ -294,9 +294,9 @@ namespace Icarus.GameFramework.Localization
         /// </summary>
         /// <param name="bytes">要解析的字典二进制流。</param>
         /// <returns>是否解析字典成功。</returns>
-        public void ParseDictionary(byte[] bytes)
+        public bool ParseDictionary(byte[] bytes)
         {
-            ParseDictionary(bytes, null);
+            return ParseDictionary(bytes, null);
         }
 
         /// <summary>
@@ -305,7 +305,7 @@ namespace Icarus.GameFramework.Localization
         /// <param name="bytes">要解析的字典二进制流。</param>
         /// <param name="userData">用户自定义数据。</param>
         /// <returns>是否解析字典成功。</returns>
-        public void ParseDictionary(byte[] bytes, object userData)
+        public bool ParseDictionary(byte[] bytes, object userData)
         {
             if (m_LocalizationHelper == null)
             {
@@ -314,7 +314,7 @@ namespace Icarus.GameFramework.Localization
 
             try
             {
-                m_LocalizationHelper.ParseDictionary(bytes, userData);
+                return m_LocalizationHelper.ParseDictionary(bytes, userData);
             }
             catch (Exception exception)
             {
@@ -332,9 +332,9 @@ namespace Icarus.GameFramework.Localization
         /// </summary>
         /// <param name="stream">要解析的字典二进制流。</param>
         /// <returns>是否解析字典成功。</returns>
-        public void ParseDictionary(Stream stream)
+        public bool ParseDictionary(Stream stream)
         {
-            ParseDictionary(stream, null);
+            return ParseDictionary(stream, null);
         }
 
         /// <summary>
@@ -343,7 +343,7 @@ namespace Icarus.GameFramework.Localization
         /// <param name="stream">要解析的字典二进制流。</param>
         /// <param name="userData">用户自定义数据。</param>
         /// <returns>是否解析字典成功。</returns>
-        public void ParseDictionary(Stream stream, object userData)
+        public bool ParseDictionary(Stream stream, object userData)
         {
             if (m_LocalizationHelper == null)
             {
@@ -352,7 +352,7 @@ namespace Icarus.GameFramework.Localization
 
             try
             {
-                m_LocalizationHelper.ParseDictionary(stream, userData);
+                return m_LocalizationHelper.ParseDictionary(stream, userData);
             }
             catch (Exception exception)
             {
