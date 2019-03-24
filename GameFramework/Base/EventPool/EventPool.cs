@@ -108,6 +108,24 @@ namespace Icarus.GameFramework
 
             return 0;
         }
+        
+        /// <summary>
+        /// 检查该id的事件是否有处理函数
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public bool Check(int id)
+        {
+            if (m_EventHandlers.ContainsKey(id))
+            {
+                if (m_EventHandlers[id] != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// 检查是否存在事件处理函数。
