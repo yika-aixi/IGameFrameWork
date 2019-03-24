@@ -121,6 +121,8 @@ namespace Icarus.GameFramework.Resource
                                 throw new GameFrameworkException(string.Format("Target '{0}' dependency asset reference count is invalid.", Name));
                             }
                         }
+                        
+                        m_ResourcePool.Unspawn(m_Resource);
                     }
 
                     m_DependencyCount.Remove(Target);
