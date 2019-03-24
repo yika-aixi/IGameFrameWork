@@ -22,17 +22,17 @@ namespace Icarus.GameFramework.DataTable
         protected virtual int ColCount { get; } = 2;
 
         public abstract int Id { get; protected set; }
-        public void ParseDataRow(GameFrameworkSegment<string> dataRowSegment)
+        public bool ParseDataRow(GameFrameworkSegment<string> dataRowSegment)
         {
             throw new NotImplementedException();
         }
 
-        public void ParseDataRow(GameFrameworkSegment<byte[]> dataRowSegment)
+        public bool ParseDataRow(GameFrameworkSegment<byte[]> dataRowSegment)
         {
             throw new NotImplementedException();
         }
 
-        public void ParseDataRow(GameFrameworkSegment<Stream> dataRowSegment)
+        public bool ParseDataRow(GameFrameworkSegment<Stream> dataRowSegment)
         {
             throw new NotImplementedException();
         }
