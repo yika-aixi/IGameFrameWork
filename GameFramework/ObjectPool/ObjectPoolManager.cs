@@ -85,7 +85,7 @@ namespace Icarus.GameFramework.ObjectPool
         /// <returns>是否存在对象池。</returns>
         public bool HasObjectPool<T>() where T : ObjectBase
         {
-            return InternalHasObjectPool(Utility.Text.GetFullName<T>(string.Empty));
+            return HasObjectPool(Utility.Text.GetFullName<T>(string.Empty));
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace Icarus.GameFramework.ObjectPool
                 throw new GameFrameworkException(string.Format("Object type '{0}' is invalid.", objectType.FullName));
             }
 
-            return InternalHasObjectPool(Utility.Text.GetFullName(objectType, string.Empty));
+            return HasObjectPool(Utility.Text.GetFullName(objectType, string.Empty));
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace Icarus.GameFramework.ObjectPool
         /// <returns>是否存在对象池。</returns>
         public bool HasObjectPool<T>(string name) where T : ObjectBase
         {
-            return InternalHasObjectPool(Utility.Text.GetFullName<T>(name));
+            return HasObjectPool(Utility.Text.GetFullName<T>(name));
         }
 
         /// <summary>
@@ -137,7 +137,22 @@ namespace Icarus.GameFramework.ObjectPool
                 throw new GameFrameworkException(string.Format("Object type '{0}' is invalid.", objectType.FullName));
             }
 
-            return InternalHasObjectPool(Utility.Text.GetFullName(objectType, name));
+            return HasObjectPool(Utility.Text.GetFullName(objectType, name));
+        }
+
+        /// <summary>
+        /// 检查是否存在对象池。
+        /// </summary>
+        /// <param name="fullName">对象池完整名称。</param>
+        /// <returns>是否存在对象池。</returns>
+        public bool HasObjectPool(string fullName)
+        {
+            if (string.IsNullOrEmpty(fullName))
+            {
+                throw new GameFrameworkException("Full name is invalid.");
+            }
+
+            return m_ObjectPools.ContainsKey(fullName);
         }
 
         /// <summary>
@@ -147,7 +162,7 @@ namespace Icarus.GameFramework.ObjectPool
         /// <returns>要获取的对象池。</returns>
         public IObjectPool<T> GetObjectPool<T>() where T : ObjectBase
         {
-            return (IObjectPool<T>)InternalGetObjectPool(Utility.Text.GetFullName<T>(string.Empty));
+            return (IObjectPool<T>)GetObjectPool(Utility.Text.GetFullName<T>(string.Empty));
         }
 
         /// <summary>
@@ -167,7 +182,7 @@ namespace Icarus.GameFramework.ObjectPool
                 throw new GameFrameworkException(string.Format("Object type '{0}' is invalid.", objectType.FullName));
             }
 
-            return InternalGetObjectPool(Utility.Text.GetFullName(objectType, string.Empty));
+            return GetObjectPool(Utility.Text.GetFullName(objectType, string.Empty));
         }
 
         /// <summary>
@@ -178,7 +193,7 @@ namespace Icarus.GameFramework.ObjectPool
         /// <returns>要获取的对象池。</returns>
         public IObjectPool<T> GetObjectPool<T>(string name) where T : ObjectBase
         {
-            return (IObjectPool<T>)InternalGetObjectPool(Utility.Text.GetFullName<T>(name));
+            return (IObjectPool<T>)GetObjectPool(Utility.Text.GetFullName<T>(name));
         }
 
         /// <summary>
@@ -199,7 +214,28 @@ namespace Icarus.GameFramework.ObjectPool
                 throw new GameFrameworkException(string.Format("Object type '{0}' is invalid.", objectType.FullName));
             }
 
-            return InternalGetObjectPool(Utility.Text.GetFullName(objectType, name));
+            return GetObjectPool(Utility.Text.GetFullName(objectType, name));
+        }
+
+        /// <summary>
+        /// 获取对象池。
+        /// </summary>
+        /// <param name="fullName">对象池完整名称。</param>
+        /// <returns>要获取的对象池。</returns>
+        public ObjectPoolBase GetObjectPool(string fullName)
+        {
+            if (string.IsNullOrEmpty(fullName))
+            {
+                throw new GameFrameworkException("Full name is invalid.");
+            }
+
+            ObjectPoolBase objectPool = null;
+            if (m_ObjectPools.TryGetValue(fullName, out objectPool))
+            {
+                return objectPool;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -214,26 +250,64 @@ namespace Icarus.GameFramework.ObjectPool
         /// <summary>
         /// 获取所有对象池。
         /// </summary>
+        /// <param name="results">所有对象池。</param>
+        public void GetAllObjectPools(List<ObjectPoolBase> results)
+        {
+            GetAllObjectPools(false, results);
+        }
+
+        /// <summary>
+        /// 获取所有对象池。
+        /// </summary>
         /// <param name="sort">是否根据对象池的优先级排序。</param>
         /// <returns>所有对象池。</returns>
         public ObjectPoolBase[] GetAllObjectPools(bool sort)
         {
             if (sort)
             {
-                List<ObjectPoolBase> objectPools = new List<ObjectPoolBase>(m_ObjectPools.Values);
-                objectPools.Sort(ObjectPoolComparer);
-                return objectPools.ToArray();
+                List<ObjectPoolBase> results = new List<ObjectPoolBase>();
+                foreach (KeyValuePair<string, ObjectPoolBase> objectPool in m_ObjectPools)
+                {
+                    results.Add(objectPool.Value);
+                }
+
+                results.Sort(ObjectPoolComparer);
+                return results.ToArray();
             }
             else
             {
                 int index = 0;
-                ObjectPoolBase[] objectPools = new ObjectPoolBase[m_ObjectPools.Count];
+                ObjectPoolBase[] results = new ObjectPoolBase[m_ObjectPools.Count];
                 foreach (KeyValuePair<string, ObjectPoolBase> objectPool in m_ObjectPools)
                 {
-                    objectPools[index++] = objectPool.Value;
+                    results[index++] = objectPool.Value;
                 }
 
-                return objectPools;
+                return results;
+            }
+        }
+
+        /// <summary>
+        /// 获取所有对象池。
+        /// </summary>
+        /// <param name="sort">是否根据对象池的优先级排序。</param>
+        /// <param name="results">所有对象池。</param>
+        public void GetAllObjectPools(bool sort, List<ObjectPoolBase> results)
+        {
+            if (results == null)
+            {
+                throw new GameFrameworkException("Results is invalid.");
+            }
+
+            results.Clear();
+            foreach (KeyValuePair<string, ObjectPoolBase> objectPool in m_ObjectPools)
+            {
+                results.Add(objectPool.Value);
+            }
+
+            if (sort)
+            {
+                results.Sort(ObjectPoolComparer);
             }
         }
 
@@ -1088,22 +1162,6 @@ namespace Icarus.GameFramework.ObjectPool
             {
                 objectPool.ReleaseAllUnused();
             }
-        }
-
-        private bool InternalHasObjectPool(string fullName)
-        {
-            return m_ObjectPools.ContainsKey(fullName);
-        }
-
-        private ObjectPoolBase InternalGetObjectPool(string fullName)
-        {
-            ObjectPoolBase objectPool = null;
-            if (m_ObjectPools.TryGetValue(fullName, out objectPool))
-            {
-                return objectPool;
-            }
-
-            return null;
         }
 
         private IObjectPool<T> InternalCreateObjectPool<T>(string name, bool allowMultiSpawn, float autoReleaseInterval, int capacity, float expireTime, int priority) where T : ObjectBase

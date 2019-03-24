@@ -22,6 +22,14 @@ namespace Icarus.GameFramework.ObjectPool
         {
             get;
         }
+        
+        /// <summary>
+        /// 获取对象池完整名称。
+        /// </summary>
+        string FullName
+        {
+            get;
+        }
 
         /// <summary>
         /// 获取对象池对象类型。

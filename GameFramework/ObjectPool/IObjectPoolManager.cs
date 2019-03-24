@@ -6,10 +6,11 @@
 //------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 
 namespace Icarus.GameFramework.ObjectPool
 {
-    /// <summary>
+     /// <summary>
     /// 对象池管理器。
     /// </summary>
     public interface IObjectPoolManager
@@ -53,6 +54,13 @@ namespace Icarus.GameFramework.ObjectPool
         bool HasObjectPool(Type objectType, string name);
 
         /// <summary>
+        /// 检查是否存在对象池。
+        /// </summary>
+        /// <param name="fullName">对象池完整名称。</param>
+        /// <returns>是否存在对象池。</returns>
+        bool HasObjectPool(string fullName);
+
+        /// <summary>
         /// 获取对象池。
         /// </summary>
         /// <typeparam name="T">对象类型。</typeparam>
@@ -83,6 +91,13 @@ namespace Icarus.GameFramework.ObjectPool
         ObjectPoolBase GetObjectPool(Type objectType, string name);
 
         /// <summary>
+        /// 获取对象池。
+        /// </summary>
+        /// <param name="fullName">对象池完整名称。</param>
+        /// <returns>要获取的对象池。</returns>
+        ObjectPoolBase GetObjectPool(string fullName);
+
+        /// <summary>
         /// 获取所有对象池。
         /// </summary>
         /// <returns>所有对象池。</returns>
@@ -91,9 +106,22 @@ namespace Icarus.GameFramework.ObjectPool
         /// <summary>
         /// 获取所有对象池。
         /// </summary>
+        /// <param name="results">所有对象池。</param>
+        void GetAllObjectPools(List<ObjectPoolBase> results);
+
+        /// <summary>
+        /// 获取所有对象池。
+        /// </summary>
         /// <param name="sort">是否根据对象池的优先级排序。</param>
         /// <returns>所有对象池。</returns>
         ObjectPoolBase[] GetAllObjectPools(bool sort);
+
+        /// <summary>
+        /// 获取所有对象池。
+        /// </summary>
+        /// <param name="sort">是否根据对象池的优先级排序。</param>
+        /// <param name="results">所有对象池。</param>
+        void GetAllObjectPools(bool sort, List<ObjectPoolBase> results);
 
         /// <summary>
         /// 创建允许单次获取的对象池。

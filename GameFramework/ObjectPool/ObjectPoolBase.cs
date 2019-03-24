@@ -44,6 +44,14 @@ namespace Icarus.GameFramework.ObjectPool
                 return m_Name;
             }
         }
+        
+        public string FullName
+        {
+            get
+            {
+                return Utility.Text.GetFullName(ObjectType, m_Name);
+            }
+        }
 
         /// <summary>
         /// 获取对象池对象类型。
