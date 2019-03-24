@@ -59,6 +59,35 @@ namespace Icarus.GameFramework.ObjectPool
         /// <param name="fullName">对象池完整名称。</param>
         /// <returns>是否存在对象池。</returns>
         bool HasObjectPool(string fullName);
+        
+        /// <summary>
+        /// 获取对象池。
+        /// </summary>
+        /// <param name="condition">要检查的条件。</param>
+        /// <returns>要获取的对象池。</returns>
+        ObjectPoolBase GetObjectPool(Predicate<ObjectPoolBase> condition);
+
+        /// <summary>
+        /// 获取对象池。
+        /// </summary>
+        /// <param name="condition">要检查的条件。</param>
+        /// <returns>要获取的对象池。</returns>
+        ObjectPoolBase[] GetObjectPools(Predicate<ObjectPoolBase> condition);
+
+        /// <summary>
+        /// 获取对象池。
+        /// </summary>
+        /// <param name="condition">要检查的条件。</param>
+        /// <param name="results">要获取的对象池。</param>
+        void GetObjectPools(Predicate<ObjectPoolBase> condition, List<ObjectPoolBase> results);
+
+        
+        /// <summary>
+        /// 检查是否存在对象池。
+        /// </summary>
+        /// <param name="condition">要检查的条件。</param>
+        /// <returns>是否存在对象池。</returns>
+        bool HasObjectPool(Predicate<ObjectPoolBase> condition);
 
         /// <summary>
         /// 获取对象池。
