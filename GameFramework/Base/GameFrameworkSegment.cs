@@ -11,7 +11,7 @@ namespace Icarus.GameFramework
     /// 数据片段。
     /// </summary>
     /// <typeparam name="T">数据源类型。</typeparam>
-    public struct GameFrameworkSegment<T>
+    public struct GameFrameworkSegment<T> where T : class
     {
         private readonly T m_Source;
         private readonly int m_Offset;
@@ -50,10 +50,7 @@ namespace Icarus.GameFramework
         /// </summary>
         public T Source
         {
-            get
-            {
-                return m_Source;
-            }
+            get { return m_Source; }
         }
 
         /// <summary>
@@ -61,10 +58,7 @@ namespace Icarus.GameFramework
         /// </summary>
         public int Offset
         {
-            get
-            {
-                return m_Offset;
-            }
+            get { return m_Offset; }
         }
 
         /// <summary>
@@ -72,12 +66,9 @@ namespace Icarus.GameFramework
         /// </summary>
         public int Length
         {
-            get
-            {
-                return m_Length;
-            }
+            get { return m_Length; }
         }
-        
+
         /// <summary>
         /// 获取对象的哈希值。
         /// </summary>
@@ -94,7 +85,7 @@ namespace Icarus.GameFramework
         /// <returns>被比较的对象是否与自身相等。</returns>
         public override bool Equals(object obj)
         {
-            return obj is GameFrameworkSegment<T> && Equals((GameFrameworkSegment<T>)obj);
+            return obj is GameFrameworkSegment<T> && Equals((GameFrameworkSegment<T>) obj);
         }
 
         /// <summary>
@@ -104,7 +95,7 @@ namespace Icarus.GameFramework
         /// <returns>被比较的对象是否与自身相等。</returns>
         public bool Equals(GameFrameworkSegment<T> obj)
         {
-            return obj.m_Source.Equals(m_Source) && obj.m_Offset == m_Offset && obj.m_Length == m_Length;
+            return obj.m_Source == m_Source && obj.m_Offset == m_Offset && obj.m_Length == m_Length;
         }
 
         /// <summary>
