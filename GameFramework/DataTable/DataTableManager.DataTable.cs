@@ -8,6 +8,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Icarus.GameFramework.DataTable
@@ -432,7 +433,7 @@ namespace Icarus.GameFramework.DataTable
                 m_DataSet.Clear();
             }
 
-            /// <summary>
+           /// <summary>
             /// 增加数据表行。
             /// </summary>
             /// <param name="dataRowText">要解析的数据表行文本。</param>
@@ -450,9 +451,64 @@ namespace Icarus.GameFramework.DataTable
                         throw;
                     }
 
-                    throw new GameFrameworkException(string.Format("Can not parse data table '{0}' at '{1}' with exception '{2}'.", Utility.Text.GetFullName<T>(Name), dataRowText, exception.ToString()), exception);
+                    throw new GameFrameworkException(string.Format("Can not parse data table '{0}' at '{1}' with exception '{2}'.", Utility.Text.GetFullName<T>(Name), dataRowText ?? string.Empty, exception.ToString()), exception);
                 }
 
+                InternalAddDataRow(dataRow);
+            }
+
+            /// <summary>
+            /// 增加数据表行。
+            /// </summary>
+            /// <param name="dataRowBytes">要解析的数据表行二进制流。</param>
+            internal override void AddDataRow(ArraySegment<byte> dataRowBytes)
+            {
+                T dataRow = new T();
+                try
+                {
+                    dataRow.ParseDataRow(dataRowBytes);
+                }
+                catch (Exception exception)
+                {
+                    if (exception is GameFrameworkException)
+                    {
+                        throw;
+                    }
+
+                    throw new GameFrameworkException(string.Format("Can not parse data table '{0}' with exception '{1}'.", Utility.Text.GetFullName<T>(Name), exception.ToString()), exception);
+                }
+
+                InternalAddDataRow(dataRow);
+            }
+
+            /// <summary>
+            /// 增加数据表行。
+            /// </summary>
+            /// <param name="stream">数据表二进制流。</param>
+            /// <param name="dataRowOffset">要解析的数据表行的偏移。</param>
+            /// <param name="dataRowLength">要解析的数据表行的长度。</param>
+            internal override void AddDataRow(Stream stream, int dataRowOffset, int dataRowLength)
+            {
+                T dataRow = new T();
+                try
+                {
+                    dataRow.ParseDataRow(stream, dataRowOffset, dataRowLength);
+                }
+                catch (Exception exception)
+                {
+                    if (exception is GameFrameworkException)
+                    {
+                        throw;
+                    }
+
+                    throw new GameFrameworkException(string.Format("Can not parse data table '{0}' with exception '{1}'.", Utility.Text.GetFullName<T>(Name), exception.ToString()), exception);
+                }
+
+                InternalAddDataRow(dataRow);
+            }
+
+            private void InternalAddDataRow(T dataRow)
+            {
                 if (HasDataRow(dataRow.Id))
                 {
                     throw new GameFrameworkException(string.Format("Already exist '{0}' in data table '{1}'.", dataRow.Id.ToString(), Utility.Text.GetFullName<T>(Name)));

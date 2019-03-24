@@ -6,6 +6,7 @@
 //------------------------------------------------------------
 
 using System.Collections.Generic;
+using System.IO;
 
 namespace Icarus.GameFramework.Localization
 {
@@ -37,6 +38,22 @@ namespace Icarus.GameFramework.Localization
         /// <param name="userData">用户自定义数据。</param>
         /// <returns>是否解析字典成功。</returns>
         bool ParseDictionary(string text, object userData);
+        
+        /// <summary>
+        /// 解析字典。
+        /// </summary>
+        /// <param name="bytes">要解析的字典二进制流。</param>
+        /// <param name="userData">用户自定义数据。</param>
+        /// <returns>是否解析字典成功。</returns>
+        bool ParseDictionary(byte[] bytes, object userData);
+
+        /// <summary>
+        /// 解析字典。
+        /// </summary>
+        /// <param name="stream">要解析的字典二进制流。</param>
+        /// <param name="userData">用户自定义数据。</param>
+        /// <returns>是否解析字典成功。</returns>
+        bool ParseDictionary(Stream stream, object userData);
 
         /// <summary>
         /// 释放字典资源。

@@ -5,6 +5,7 @@
 //Icarus.GameFramework
 
 using System;
+using System.IO;
 
 namespace Icarus.GameFramework.DataTable
 {
@@ -38,6 +39,16 @@ namespace Icarus.GameFramework.DataTable
                 var str = text[index];
                 SetData(index, str);
             }
+        }
+
+        public void ParseDataRow(ArraySegment<byte> dataRowBytes)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ParseDataRow(Stream stream, int dataRowOffset, int dataRowLength)
+        {
+            throw new NotImplementedException();
         }
 
         protected abstract void SetData(int index, string data);

@@ -8,10 +8,11 @@
 using Icarus.GameFramework.Resource;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Icarus.GameFramework.Config
 {
-    /// <summary>
+   /// <summary>
     /// 配置管理器。
     /// </summary>
     internal sealed partial class ConfigManager : GameFrameworkModule, IConfigManager
@@ -134,7 +135,7 @@ namespace Icarus.GameFramework.Config
         /// </summary>
         /// <param name="resourceManager">资源管理器。</param>
         public void SetResourceManager(IResourceManager resourceManager)
-        { 
+        {
             if (resourceManager == null)
             {
                 throw new GameFrameworkException("Resource manager is invalid.");
@@ -231,6 +232,58 @@ namespace Icarus.GameFramework.Config
             }
 
             return m_ConfigHelper.ParseConfig(text, userData);
+        }
+
+        /// <summary>
+        /// 解析配置。
+        /// </summary>
+        /// <param name="bytes">要解析的配置二进制流。</param>
+        /// <returns>是否解析配置成功。</returns>
+        public bool ParseConfig(byte[] bytes)
+        {
+            return ParseConfig(bytes, null);
+        }
+
+        /// <summary>
+        /// 解析配置。
+        /// </summary>
+        /// <param name="bytes">要解析的配置二进制流。</param>
+        /// <param name="userData">用户自定义数据。</param>
+        /// <returns>是否解析配置成功。</returns>
+        public bool ParseConfig(byte[] bytes, object userData)
+        {
+            if (m_ConfigHelper == null)
+            {
+                throw new GameFrameworkException("You must set config helper first.");
+            }
+
+            return m_ConfigHelper.ParseConfig(bytes, userData);
+        }
+
+        /// <summary>
+        /// 解析配置。
+        /// </summary>
+        /// <param name="stream">要解析的配置二进制流。</param>
+        /// <returns>是否解析配置成功。</returns>
+        public bool ParseConfig(Stream stream)
+        {
+            return ParseConfig(stream, null);
+        }
+
+        /// <summary>
+        /// 解析配置。
+        /// </summary>
+        /// <param name="stream">要解析的配置二进制流。</param>
+        /// <param name="userData">用户自定义数据。</param>
+        /// <returns>是否解析配置成功。</returns>
+        public bool ParseConfig(Stream stream, object userData)
+        {
+            if (m_ConfigHelper == null)
+            {
+                throw new GameFrameworkException("You must set config helper first.");
+            }
+
+            return m_ConfigHelper.ParseConfig(stream, userData);
         }
 
         /// <summary>
