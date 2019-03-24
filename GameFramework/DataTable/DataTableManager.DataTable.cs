@@ -43,10 +43,7 @@ namespace Icarus.GameFramework.DataTable
             /// </summary>
             public override Type Type
             {
-                get
-                {
-                    return typeof(T);
-                }
+                get { return typeof(T); }
             }
 
             /// <summary>
@@ -54,10 +51,7 @@ namespace Icarus.GameFramework.DataTable
             /// </summary>
             public override int Count
             {
-                get
-                {
-                    return m_DataSet.Count;
-                }
+                get { return m_DataSet.Count; }
             }
 
             /// <summary>
@@ -67,10 +61,7 @@ namespace Icarus.GameFramework.DataTable
             /// <returns>数据表行。</returns>
             public T this[int id]
             {
-                get
-                {
-                    return GetDataRow(id);
-                }
+                get { return GetDataRow(id); }
             }
 
             /// <summary>
@@ -78,10 +69,7 @@ namespace Icarus.GameFramework.DataTable
             /// </summary>
             public T MinIdDataRow
             {
-                get
-                {
-                    return m_MinIdDataRow;
-                }
+                get { return m_MinIdDataRow; }
             }
 
             /// <summary>
@@ -89,10 +77,7 @@ namespace Icarus.GameFramework.DataTable
             /// </summary>
             public T MaxIdDataRow
             {
-                get
-                {
-                    return m_MaxIdDataRow;
-                }
+                get { return m_MaxIdDataRow; }
             }
 
             /// <summary>
@@ -131,19 +116,19 @@ namespace Icarus.GameFramework.DataTable
             public override IDataRow GetDataRowRandom()
             {
                 var index = Utility.Random.GetRandom(0, Count);
-                
+
                 int i = 0;
-                
+
                 foreach (var key in m_DataSet.Keys)
                 {
                     if (i == index)
                     {
                         return m_DataSet[key];
                     }
-                    
+
                     i++;
                 }
-                
+
                 return null;
             }
 
@@ -433,16 +418,16 @@ namespace Icarus.GameFramework.DataTable
                 m_DataSet.Clear();
             }
 
-           /// <summary>
+            /// <summary>
             /// 增加数据表行。
             /// </summary>
-            /// <param name="dataRowText">要解析的数据表行文本。</param>
-            internal override void AddDataRow(string dataRowText)
+            /// <param name="dataRowSegment">要解析的数据表行片段。</param>
+            internal override void AddDataRow(GameFrameworkSegment<string> dataRowSegment)
             {
                 T dataRow = new T();
                 try
                 {
-                    dataRow.ParseDataRow(dataRowText);
+                    dataRow.ParseDataRow(dataRowSegment);
                 }
                 catch (Exception exception)
                 {
@@ -451,7 +436,9 @@ namespace Icarus.GameFramework.DataTable
                         throw;
                     }
 
-                    throw new GameFrameworkException(string.Format("Can not parse data table '{0}' at '{1}' with exception '{2}'.", Utility.Text.GetFullName<T>(Name), dataRowText ?? string.Empty, exception.ToString()), exception);
+                    throw new GameFrameworkException(
+                        string.Format("Can not parse data table '{0}' with exception '{1}'.",
+                            Utility.Text.GetFullName<T>(Name), exception.ToString()), exception);
                 }
 
                 InternalAddDataRow(dataRow);
@@ -460,13 +447,13 @@ namespace Icarus.GameFramework.DataTable
             /// <summary>
             /// 增加数据表行。
             /// </summary>
-            /// <param name="dataRowBytes">要解析的数据表行二进制流。</param>
-            internal override void AddDataRow(ArraySegment<byte> dataRowBytes)
+            /// <param name="dataRowSegment">要解析的数据表行片段。</param>
+            internal override void AddDataRow(GameFrameworkSegment<byte[]> dataRowSegment)
             {
                 T dataRow = new T();
                 try
                 {
-                    dataRow.ParseDataRow(dataRowBytes);
+                    dataRow.ParseDataRow(dataRowSegment);
                 }
                 catch (Exception exception)
                 {
@@ -475,7 +462,9 @@ namespace Icarus.GameFramework.DataTable
                         throw;
                     }
 
-                    throw new GameFrameworkException(string.Format("Can not parse data table '{0}' with exception '{1}'.", Utility.Text.GetFullName<T>(Name), exception.ToString()), exception);
+                    throw new GameFrameworkException(
+                        string.Format("Can not parse data table '{0}' with exception '{1}'.",
+                            Utility.Text.GetFullName<T>(Name), exception.ToString()), exception);
                 }
 
                 InternalAddDataRow(dataRow);
@@ -484,15 +473,13 @@ namespace Icarus.GameFramework.DataTable
             /// <summary>
             /// 增加数据表行。
             /// </summary>
-            /// <param name="stream">数据表二进制流。</param>
-            /// <param name="dataRowOffset">要解析的数据表行的偏移。</param>
-            /// <param name="dataRowLength">要解析的数据表行的长度。</param>
-            internal override void AddDataRow(Stream stream, int dataRowOffset, int dataRowLength)
+            /// <param name="dataRowSegment">要解析的数据表行片段。</param>
+            internal override void AddDataRow(GameFrameworkSegment<Stream> dataRowSegment)
             {
                 T dataRow = new T();
                 try
                 {
-                    dataRow.ParseDataRow(stream, dataRowOffset, dataRowLength);
+                    dataRow.ParseDataRow(dataRowSegment);
                 }
                 catch (Exception exception)
                 {
@@ -501,7 +488,9 @@ namespace Icarus.GameFramework.DataTable
                         throw;
                     }
 
-                    throw new GameFrameworkException(string.Format("Can not parse data table '{0}' with exception '{1}'.", Utility.Text.GetFullName<T>(Name), exception.ToString()), exception);
+                    throw new GameFrameworkException(
+                        string.Format("Can not parse data table '{0}' with exception '{1}'.",
+                            Utility.Text.GetFullName<T>(Name), exception.ToString()), exception);
                 }
 
                 InternalAddDataRow(dataRow);
@@ -511,7 +500,8 @@ namespace Icarus.GameFramework.DataTable
             {
                 if (HasDataRow(dataRow.Id))
                 {
-                    throw new GameFrameworkException(string.Format("Already exist '{0}' in data table '{1}'.", dataRow.Id.ToString(), Utility.Text.GetFullName<T>(Name)));
+                    throw new GameFrameworkException(string.Format("Already exist '{0}' in data table '{1}'.",
+                        dataRow.Id.ToString(), Utility.Text.GetFullName<T>(Name)));
                 }
 
                 m_DataSet.Add(dataRow.Id, dataRow);
