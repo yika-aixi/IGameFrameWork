@@ -116,11 +116,11 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                 m_AssetDatas.Add(new AssetData(guid, name, length, hashCode, dependencyAssetNames));
             }
 
-            public AssetBundleCode GetCode(BuildTarget buildTarget)
+            public AssetBundleCode GetCode(Platform platform)
             {
                 foreach (AssetBundleCode code in m_Codes)
                 {
-                    if (code.BuildTarget == buildTarget)
+                    if (code.Platform == platform)
                     {
                         return code;
                     }
@@ -134,9 +134,9 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                 return m_Codes.ToArray();
             }
 
-            public void AddCode(BuildTarget buildTarget, int length, int hashCode, int zipLength, int zipHashCode)
+            public void AddCode(Platform platform, int length, int hashCode, int zipLength, int zipHashCode)
             {
-                m_Codes.Add(new AssetBundleCode(buildTarget, length, hashCode, zipLength, zipHashCode));
+                m_Codes.Add(new AssetBundleCode(platform, length, hashCode, zipLength, zipHashCode));
             }
 
             public override string ToString()

@@ -13,26 +13,26 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
     {
         private sealed class AssetBundleCode
         {
-            private readonly BuildTarget m_BuildTarget;
+            private readonly Platform m_Platform;
             private readonly int m_Length;
             private readonly int m_HashCode;
             private readonly int m_ZipLength;
             private readonly int m_ZipHashCode;
 
-            public AssetBundleCode(BuildTarget buildTarget, int length, int hashCode, int zipLength, int zipHashCode)
+            public AssetBundleCode(Platform platform, int length, int hashCode, int zipLength, int zipHashCode)
             {
-                m_BuildTarget = buildTarget;
+                m_Platform = platform;
                 m_Length = length;
                 m_HashCode = hashCode;
                 m_ZipLength = zipLength;
                 m_ZipHashCode = zipHashCode;
             }
 
-            public BuildTarget BuildTarget
+            public Platform Platform
             {
                 get
                 {
-                    return m_BuildTarget;
+                    return m_Platform;
                 }
             }
 

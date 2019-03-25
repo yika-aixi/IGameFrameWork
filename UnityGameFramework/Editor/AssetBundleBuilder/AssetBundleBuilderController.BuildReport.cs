@@ -29,37 +29,31 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
             private string m_ApplicableGameVersion = null;
             private int m_InternalResourceVersion = 0;
             private string m_UnityVersion = null;
-            private bool m_WindowsSelected = false;
-            private bool m_MacOSXSelected = false;
-            private bool m_IOSSelected = false;
-            private bool m_AndroidSelected = false;
-            private bool m_WindowsStoreSelected = false;
+            private Platform m_Platforms = Platform.Undefined;
+            private bool m_ZipSelected = false;
             private bool m_RecordScatteredDependencyAssetsSelected = false;
             private int m_BuildAssetBundleOptions = 0;
             private StringBuilder m_LogBuilder = null;
             private SortedDictionary<string, AssetBundleData> m_AssetBundleDatas = null;
 
             public void Initialize(string buildReportPath, string productName, string companyName, string gameIdentifier, string applicableGameVersion, int internalResourceVersion, string unityVersion,
-                bool windowsSelected, bool macOSXSelected, bool iOSSelected, bool androidSelected, bool windowsStoreSelected, bool recordScatteredDependencyAssetsSelected, int buildAssetBundleOptions, SortedDictionary<string, AssetBundleData> assetBundleDatas)
+                Platform platforms, bool zipSelected, bool recordScatteredDependencyAssetsSelected, int buildAssetBundleOptions, SortedDictionary<string, AssetBundleData> assetBundleDatas)
             {
                 if (string.IsNullOrEmpty(buildReportPath))
                 {
                     throw new GameFrameworkException("Build report path is invalid.");
                 }
 
-                m_BuildReportName = Icarus.GameFramework.Utility.Path.GetCombinePath(buildReportPath, BuildReportName);
-                m_BuildLogName = Icarus.GameFramework.Utility.Path.GetCombinePath(buildReportPath, BuildLogName);
+                m_BuildReportName = Utility.Path.GetCombinePath(buildReportPath, BuildReportName);
+                m_BuildLogName = Utility.Path.GetCombinePath(buildReportPath, BuildLogName);
                 m_ProductName = productName;
                 m_CompanyName = companyName;
                 m_GameIdentifier = gameIdentifier;
                 m_ApplicableGameVersion = applicableGameVersion;
                 m_UnityVersion = unityVersion;
                 m_InternalResourceVersion = internalResourceVersion;
-                m_WindowsSelected = windowsSelected;
-                m_MacOSXSelected = macOSXSelected;
-                m_IOSSelected = iOSSelected;
-                m_AndroidSelected = androidSelected;
-                m_WindowsStoreSelected = windowsStoreSelected;
+                m_Platforms = platforms;
+                m_ZipSelected = zipSelected;
                 m_RecordScatteredDependencyAssetsSelected = recordScatteredDependencyAssetsSelected;
                 m_BuildAssetBundleOptions = buildAssetBundleOptions;
                 m_LogBuilder = new StringBuilder();
@@ -116,20 +110,11 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                 xmlElement = xmlDocument.CreateElement("UnityVersion");
                 xmlElement.InnerText = m_UnityVersion;
                 xmlSummary.AppendChild(xmlElement);
-                xmlElement = xmlDocument.CreateElement("WindowsSelected");
-                xmlElement.InnerText = m_WindowsSelected.ToString();
+                xmlElement = xmlDocument.CreateElement("Platforms");
+                xmlElement.InnerText = m_Platforms.ToString();
                 xmlSummary.AppendChild(xmlElement);
-                xmlElement = xmlDocument.CreateElement("MacOSXSelected");
-                xmlElement.InnerText = m_MacOSXSelected.ToString();
-                xmlSummary.AppendChild(xmlElement);
-                xmlElement = xmlDocument.CreateElement("IOSSelected");
-                xmlElement.InnerText = m_IOSSelected.ToString();
-                xmlSummary.AppendChild(xmlElement);
-                xmlElement = xmlDocument.CreateElement("AndroidSelected");
-                xmlElement.InnerText = m_AndroidSelected.ToString();
-                xmlSummary.AppendChild(xmlElement);
-                xmlElement = xmlDocument.CreateElement("WindowsStoreSelected");
-                xmlElement.InnerText = m_WindowsStoreSelected.ToString();
+                xmlElement = xmlDocument.CreateElement("ZipSelected");
+                xmlElement.InnerText = m_ZipSelected.ToString();
                 xmlSummary.AppendChild(xmlElement);
                 xmlElement = xmlDocument.CreateElement("RecordScatteredDependencyAssetsSelected");
                 xmlElement.InnerText = m_RecordScatteredDependencyAssetsSelected.ToString();
@@ -158,8 +143,8 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                     xmlAttribute = xmlDocument.CreateAttribute("LoadType");
                     xmlAttribute.Value = ((int)assetBundleData.LoadType).ToString();
                     xmlAssetBundle.Attributes.SetNamedItem(xmlAttribute);
-                    xmlAttribute = xmlDocument.CreateAttribute("Optional");
-                    xmlAttribute.Value = assetBundleData.Optional.ToString();
+                    xmlAttribute = xmlDocument.CreateAttribute("Packed");
+                    xmlAttribute.Value = assetBundleData.Packed.ToString();
                     xmlAssetBundle.Attributes.SetNamedItem(xmlAttribute);
                     xmlAssetBundles.AppendChild(xmlAssetBundle);
 
@@ -208,7 +193,7 @@ namespace Icarus.UnityGameFramework.Editor.AssetBundleTools
                     xmlAssetBundle.AppendChild(xmlCodes);
                     foreach (AssetBundleCode assetBundleCode in assetBundleData.GetCodes())
                     {
-                        XmlElement xmlCode = xmlDocument.CreateElement(assetBundleCode.BuildTarget.ToString());
+                        XmlElement xmlCode = xmlDocument.CreateElement(assetBundleCode.Platform.ToString());
                         xmlAttribute = xmlDocument.CreateAttribute("Length");
                         xmlAttribute.Value = assetBundleCode.Length.ToString();
                         xmlCode.Attributes.SetNamedItem(xmlAttribute);
