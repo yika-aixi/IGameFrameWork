@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace Icarus.GameFramework.Resource
 {
@@ -88,8 +89,8 @@ namespace Icarus.GameFramework.Resource
                 MemoryStream memoryStream = null;
                 try
                 {
-                    memoryStream = new MemoryStream(bytes);
-                    using (BinaryReader binaryReader = new BinaryReader(memoryStream))
+                    memoryStream = new MemoryStream(bytes,false);
+                    using (BinaryReader binaryReader = new BinaryReader(memoryStream,Encoding.UTF8))
                     {
                         memoryStream = null;
                         byte[] encryptBytes = binaryReader.ReadBytes(4);
