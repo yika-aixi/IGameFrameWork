@@ -11,15 +11,13 @@ using System.Text;
 
 namespace Icarus.GameFramework
 {
-    public static partial class Utility
+     public static partial class Utility
     {
         /// <summary>
         /// 校验相关的实用函数。
         /// </summary>
         public static partial class Verifier
         {
-            private static readonly byte[] Zero = new byte[] { 0, 0, 0, 0 };
-
             /// <summary>
             /// 计算二进制流的 CRC32。
             /// </summary>
@@ -27,18 +25,10 @@ namespace Icarus.GameFramework
             /// <returns>计算后的 CRC32。</returns>
             public static byte[] GetCrc32(byte[] bytes)
             {
-                if (bytes == null)
-                {
-                    return Zero;
-                }
-
-                using (MemoryStream memoryStream = new MemoryStream(bytes))
-                {
-                    Crc32 calculator = new Crc32();
-                    byte[] result = calculator.ComputeHash(memoryStream);
-                    calculator.Clear();
-                    return result;
-                }
+                Crc32 algorithm = new Crc32();
+                byte[] result = algorithm.ComputeHash(bytes);
+                algorithm.Clear();
+                return result;
             }
 
             /// <summary>
@@ -48,16 +38,11 @@ namespace Icarus.GameFramework
             /// <returns>计算后的 CRC32。</returns>
             public static byte[] GetCrc32(string fileName)
             {
-                if (!File.Exists(fileName))
-                {
-                    return Zero;
-                }
-
                 using (FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
                 {
-                    Crc32 calculator = new Crc32();
-                    byte[] result = calculator.ComputeHash(fileStream);
-                    calculator.Clear();
+                    Crc32 algorithm = new Crc32();
+                    byte[] result = algorithm.ComputeHash(fileStream);
+                    algorithm.Clear();
                     return result;
                 }
             }
@@ -67,17 +52,28 @@ namespace Icarus.GameFramework
             /// </summary>
             /// <param name="bytes">指定的二进制流。</param>
             /// <returns>计算后的 MD5。</returns>
-            public static string GetMD5(byte[] bytes)
+            public static byte[] GetMD5(byte[] bytes)
             {
-                MD5 alg = new MD5CryptoServiceProvider();
-                byte[] data = alg.ComputeHash(bytes);
-                StringBuilder stringBuilder = new StringBuilder();
-                for (int i = 0; i < data.Length; i++)
-                {
-                    stringBuilder.Append(data[i].ToString("x2"));
-                }
+                MD5 algorithm = new MD5CryptoServiceProvider();
+                byte[] result = algorithm.ComputeHash(bytes);
+                algorithm.Clear();
+                return result;
+            }
 
-                return stringBuilder.ToString();
+            /// <summary>
+            /// 计算文件的 MD5。
+            /// </summary>
+            /// <param name="fileName">指定文件的完全限定名称。</param>
+            /// <returns>计算后的 MD5。</returns>
+            public static byte[] GetMD5(string fileName)
+            {
+                using (FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+                {
+                    MD5 algorithm = new MD5CryptoServiceProvider();
+                    byte[] result = algorithm.ComputeHash(fileStream);
+                    algorithm.Clear();
+                    return result;
+                }
             }
         }
     }
